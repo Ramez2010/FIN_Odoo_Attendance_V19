@@ -6,4 +6,6 @@
     'installable': True,
     'auto_install': False,
     'author': 'Code Flex',
+    'category': 'Accounting',
+    'license': 'AGPL-3',
 }
