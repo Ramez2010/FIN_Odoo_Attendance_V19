@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+        <!-- Category View -->
+        <record id="view_main_category_form" model="ir.ui.view">
+            <field name="name">main.category.form</field>
+            <field name="model">main.category</field>
+            <field name="arch" type="xml">
+                <form string="Main Category">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="serial"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="view_main_category_tree" model="ir.ui.view">
+            <field name="name">main.category.tree</field>
+            <field name="model">main.category</field>
+            <field name="arch" type="xml">
+                <tree string="Main Category">
+                    <field name="serial"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Category Menu Action -->
+        <record id="action_main_category" model="ir.actions.act_window">
+            <field name="name">Main Categories</field>
+            <field name="res_model">main.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Category Menu Item -->
+        <menuitem id="menu_main_category" name="Main Category" parent="stock.menu_stock_config_settings"
+                  action="product_barcode.action_main_category"/>
+
+        <!-- Sequence -->
+        <record id="sequence_main_category" model="ir.sequence">
+            <field name="name">Main Category Sequence</field>
+            <field name="code">main.category.sequence</field>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>
