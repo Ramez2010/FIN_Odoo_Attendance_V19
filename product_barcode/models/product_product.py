@@ -8,15 +8,15 @@ class ProductProduct(models.Model):
     vendor_category_id = fields.Many2one('vendor.category')
     sub_category_id = fields.Many2one('sub.category')
     serial_category_id = fields.Many2one('serial.category')
-
+    check = fields.Boolean(default=False, string="check")
     @api.onchange('main_category_id', 'vendor_category_id', 'sub_category_id', 'serial_category_id')
     def _onchange_generate_barcode(self):
         main_category = self.main_category_id.id
         vendor_category = self.vendor_category_id.id
         sub_category = self.sub_category_id.id
         serial_category = self.serial_category_id.id
-
-        if main_category and vendor_category and sub_category and serial_category:
+        check =self.check
+        if main_category and vendor_category and sub_category and serial_category and check ==False:
             barcode = '-'.join([
                 main_category and self.env['main.category'].browse(main_category).serial,
                 vendor_category and self.env['vendor.category'].browse(vendor_category).serial,
@@ -31,3 +31,4 @@ class ProductProduct(models.Model):
                 serial_category and self.env['serial.category'].browse(serial_category).name,
             ])
             self.name = product_name
+            self.check=True

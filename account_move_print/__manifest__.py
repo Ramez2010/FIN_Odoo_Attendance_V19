@@ -10,7 +10,10 @@
     "website": "https://github.com/OCA/account-financial-tools",
     "depends": ["account"],
     "maintainers": ["JordiBForgeFlow"],
-    "data": ["report/journal_report.xml"],
+    "data": [
+        "report/journal_report.xml",
+        "report/receipt_report.xml",
+        ],
     "demo": [],
     "installable": True,
 }

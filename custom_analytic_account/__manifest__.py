@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
 {
     'name':
-    "Analytic Account Customization",
+        "Analytic Account Customization",
     'summary':
-    """  display customer related analytic account 
-        """,
+        """  display customer related analytic account 
+            """,
     'author':
-    "Code Flex",
+        "Code Flex",
     'website':
-    "http://www.yourcompany.com",
+        "http://www.yourcompany.com",
 
     'category':
-    'Uncategorized',
+        'Uncategorized',
     'version':
-    '0.1',
+        '0.1',
     'license':
-    'LGPL-3',
+        'LGPL-3',
     # any module necessary for this one to work correctly
     'depends': [
         'sale_management',
         'account_accountant',
         'stock',
+        'mail',
+        'analytic',
     ],
 
     # always loaded
@@ -29,6 +31,7 @@
         'views/account_payment.xml',
         'views/stock_picking.xml',
         'views/account_move.xml',
+        'views/analytic_account_line_view.xml',
         'wizards/account_payment_register_views.xml',
     ],
 }

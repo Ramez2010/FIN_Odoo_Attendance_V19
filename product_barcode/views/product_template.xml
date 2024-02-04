@@ -11,6 +11,7 @@
                     <field name="vendor_category_id" domain="[('parent','=',main_category_id)]" string="Manufacture Category"/>
                     <field name="sub_category_id" domain="[('parent','=',vendor_category_id)]"/>
                     <field name="serial_category_id" domain="[('parent','=',sub_category_id)]"/>
+                    <field name="check"/>
             </xpath>
         </field>
     </record>
