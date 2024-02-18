@@ -48,7 +48,7 @@ class ProductTemplateInherit(models.Model):
 class ProductProductInherit(models.Model):
     _inherit = 'product.product'
 
-    arabic_name = fields.Char()
+    arabic_name = fields.Char(related="product_tmpl_id.arabic_name")
 
     @api.onchange('arabic_name', 'name')
     def arabic_name_lang(self):

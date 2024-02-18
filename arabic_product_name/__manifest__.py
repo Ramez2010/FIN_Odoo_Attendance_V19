@@ -6,9 +6,10 @@
     'author': "M.Saber",
     'category': 'product',
     'version': '0.1',
-    'depends': ['base', 'product', 'purchase'],
+    'depends': ['base', 'product', 'purchase', 'account'],
     'data': [
         'views/views.xml',
+        'views/account.move_inherit.xml',
     ],
     'license': 'LGPL-3',
 }

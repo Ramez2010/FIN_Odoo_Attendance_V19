@@ -1,45 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <!--        <record id="product_product_inherit_custom" model="ir.ui.view">-->
+        <!--            <field name="name">product_product_inherit_custom</field>-->
+        <!--            <field name="model">product.product</field>-->
+        <!--            <field name="inherit_id" ref="product.product_normal_form_view"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                -->
+
+        <!--            </field>-->
+        <!--        </record>-->
+
+
         <record id="id_product_template_only_form_view_inherits" model="ir.ui.view">
             <field name="name">product_template_only_form_view_inherit</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
+                <style>
+                    .rtl-field {
+                    direction: rtl;
+                    }
+                </style>
+
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="class">rtl-field</attribute>
+                </xpath>
                 <xpath expr="//h1" position="after">
                     <h1>
                         <div class="d-flex">
-                            <field class="text-break" name="arabic_name" placeholder="Arabic Name"/>
+                            <field class="text-break" name="arabic_name" placeholder="Arabic Name"
+                                   style="direction: rtl;"/>
                         </div>
                     </h1>
                 </xpath>
             </field>
         </record>
+
         <record id="id_product_form_view_inherits" model="ir.ui.view">
             <field name="name">product__form_view_inherit</field>
             <field name="model">product.product</field>
             <field name="inherit_id" ref="product.product_normal_form_view"/>
             <field name="arch" type="xml">
+                <style>
+                    .rtl-field {
+                    direction: rtl;
+                    }
+                </style>
+
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="class">rtl-field</attribute>
+                </xpath>
+
                 <xpath expr="//h1" position="after">
                     <h1>
                         <div class="d-flex">
-                            <field class="text-break" name="arabic_name" placeholder="Arabic Name"/>
+                            <field class="text-break" name="arabic_name" placeholder="Arabic Name"
+                                   style="direction: rtl;"/>
                         </div>
                     </h1>
                 </xpath>
             </field>
         </record>
-<!--        <record id="id_purchase_requests_form_view_inherits" model="ir.ui.view">-->
-<!--            <field name="name">purchase.requests.form_view_inherit</field>-->
-<!--            <field name="model">purchase.requests</field>-->
-<!--            <field name="inherit_id" ref="purchase_request.id_purchase_requsts_view_form"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
-<!--                    <field name="arabic_name"-->
-<!--                           attrs="{'column_invisible': [('parent.state', '=', 'draft')]}"/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
+        <!--        <record id="id_purchase_requests_form_view_inherits" model="ir.ui.view">-->
+        <!--            <field name="name">purchase.requests.form_view_inherit</field>-->
+        <!--            <field name="model">purchase.requests</field>-->
+        <!--            <field name="inherit_id" ref="purchase_request.id_purchase_requsts_view_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
+        <!--                    <field name="arabic_name"-->
+        <!--                           attrs="{'column_invisible': [('parent.state', '=', 'draft')]}"/>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
         <record id="id_purchase_order_form_view_inherits" model="ir.ui.view">
             <field name="name">purchase.order.form_view_inherit</field>
             <field name="model">purchase.order</field>
@@ -50,15 +84,38 @@
                 </xpath>
             </field>
         </record>
-<!--        <record id="id_material_request_form_view_inherits" model="ir.ui.view">-->
-<!--            <field name="name">material_request.form_view_inherit</field>-->
-<!--            <field name="model">material.request</field>-->
-<!--            <field name="inherit_id" ref="material_request.id_material_request_form"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
-<!--                    <field name="arabic_name"/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
+        <!--        <record id="id_material_request_form_view_inherits" model="ir.ui.view">-->
+        <!--            <field name="name">material_request.form_view_inherit</field>-->
+        <!--            <field name="model">material.request</field>-->
+        <!--            <field name="inherit_id" ref="material_request.id_material_request_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
+        <!--                    <field name="arabic_name"/>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <record id="product_template_search_view_inherit" model="ir.ui.view">
+            <field name="name">product.template.search.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="arabic_name"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_product_product_tree_inherit" model="ir.ui.view">
+            <field name="name">product.product.tree.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="arabic_name"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>

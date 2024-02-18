@@ -37,7 +37,7 @@ class CustomStockPickingInherit(models.Model):
                 account_move = self.env['account.move'].search(
                     ['|', '|', ('name', 'ilike', rec.name), ('ref', 'ilike', rec.name),
                      ('partner_id', 'ilike', rec.name)])
-                print("#######################  ", account_move)
+                # print("#######################  ", account_move)
 
                 if account_move:
                     # print('account_move', account_move)
