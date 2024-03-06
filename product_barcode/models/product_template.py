@@ -44,4 +44,4 @@ class ProductTemplate(models.Model):
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    sale_id = fields.Many2one('sale.order', string='Sale Order')
+    sale_id = fields.Many2one('sale.order', string='Sale Order', readonly=True)

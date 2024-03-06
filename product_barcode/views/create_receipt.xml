@@ -6,18 +6,56 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <div name="button_box" position="inside">
-                <button class="oe_stat_button" type="object" name="get_receipt" icon="fa-dollar" string="Receipts">
+                <button class="oe_stat_button" type="object" name="get_receipt" icon="fa-dollar" string="Receipts" attrs="{'invisible':[('receipt_count','&lt;=',0)]}">
+                    <field string="Receipts" name="receipt_count"
+                           widget="statinfo"/>
                 </button>
             </div>
             <xpath expr="//button[@name='action_quotation_send']" position="before">
                 <field name="flag" invisible="1"/>
                 <button class="oe_highlight" string="Create Receipt" type="object" name="create_receipt"
-                        attrs="{'invisible': ['|','|',('flag','=',True),('invoice_status', '!=', 'to invoice'),('state', '!=', 'sale')]}"
-                        groups="product_barcode.create_receipt"/>
+                        groups="product_barcode.create_receipt" attrs="{'invisible': ['|',('state', '!=', 'sale'),('selection_invoice','=','invoice')]}"/>
+
+
+                <!--                <button class="oe_highlight" string="Crasdasdt" type="object" name="get_receipt_quantity"-->
+                <!--                        groups="product_barcode.create_receipt"/>-->
+                <!--                                        attrs="{'invisible': ['|','|',('flag','=',True),('invoice_status', '!=', 'to invoice'),('state', '!=', 'sale')]}"-->
+
             </xpath>
             <xpath expr="//button[@name='669']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|','|',('flag','=',True),('state', '!=', 'sale'),('invoice_status', '!=', 'to invoice')]}</attribute>
+                <attribute name="attrs">{'invisible': ['|','|',('flag','=',True),('state', '!=',
+                    'sale'),('invoice_status', '!=', 'to invoice')]}
+                </attribute>
                 <attribute name="groups">product_barcode.create_invoice</attribute>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='qty_delivered']" position="after">
+                <field name="receipt_quantity"/>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="selection_invoice" widget="selection" string="Invoice Type" />
+            </xpath>
+
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='qty_delivered']" position="attributes">
+                <attribute name="attrs">{'column_invisible':[('parent.selection_invoice','=', 'receipt')]}</attribute>
+            </xpath>
+
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='qty_invoiced']" position="attributes">
+                <attribute name="attrs">{'column_invisible':[('parent.selection_invoice','=', 'receipt')]}</attribute>
+            </xpath>
+
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='receipt_quantity']" position="attributes">
+                <attribute name="attrs">{'column_invisible':[('parent.selection_invoice','=', 'invoice')]}</attribute>
+            </xpath>
+
+            <xpath expr="//header/button[@name='669'][1]" position="attributes">
+<!--                                <attribute name="attrs">{'invisible':[('selection_invoice','=', 'receipt')]}</attribute>-->
+                                <attribute name="attrs">{'invisible': ['|',('state', '!=', 'sale'),('selection_invoice','=','receipt')]}</attribute>
+
+            </xpath>
+
+            <xpath expr="//header/button[@name='669'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>

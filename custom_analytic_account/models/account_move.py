@@ -8,4 +8,5 @@ class AccountMove(models.Model):
         string='Analytic Account',
         related='stock_move_id.picking_id.analytic_account_id',
         required=False,
+
     )

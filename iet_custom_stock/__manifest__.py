@@ -30,6 +30,7 @@
         'views/stock_lot.xml',
         'views/stock_quan.xml',
         'views/stock_move.xml',
+        'report/print_label_inherit.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

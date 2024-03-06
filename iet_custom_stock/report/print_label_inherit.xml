@@ -1,0 +1,56 @@
+<odoo>
+    <data>
+        <template id="product.report_productlabel_dymo">
+            <t t-call="web.html_container">
+                <t t-set="barcode_size" t-value="'width:45.5mm;height:7.5mm'"/>
+                <t t-set="table_style" t-value="'width:100%;height:32mm;'"/>
+                <t t-set="padding_page" t-value="'padding: 2mm'"/>
+                <t t-foreach="quantity.items()" t-as="barcode_and_qty_by_product">
+                    <t t-set="product" t-value="barcode_and_qty_by_product[0]"/>
+                    <t t-foreach="barcode_and_qty_by_product[1]" t-as="barcode_and_qty">
+                        <t t-set="barcode" t-value="barcode_and_qty[0]"/>
+                        <t t-foreach="range(barcode_and_qty[1])" t-as="qty">
+                            <t t-call="iet_custom_stock.report_simple_label_dymo"/>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_simple_label_dymo">
+            <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
+                <div class="o_label_full" t-att-style="table_style">
+                    <div class= "text-start o_label_small_barcode">
+                        <t t-if="barcode">
+                            <!-- `quiet=0` to remove the left and right margins on the barcode -->
+                            <div t-out="barcode" style="padding:0" t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': barcode_size}"/>
+                            <div class="o_label_name" style="height:1.7em;background-color: transparent;">
+                                <span t-out="barcode"/>
+                            </div>
+                        </t>
+                    </div>
+                    <div class="o_label_name" style="line-height: 100%;height: 3em;background-color: transparent;padding-top: 1px;">
+                        <span t-if="product.is_product_variant" t-field="product.display_name"/>
+<!--                        <span t-else="" t-field="product.name"/>-->
+                        <span t-else="" t-field="product.arabic_name"/>
+                    </div>
+                    <div class="o_label_left_column">
+                        <small class="text-nowrap" t-field="product.default_code"/>
+                    </div>
+<!--                    <div class="text-end" style="padding: 0 4px;">-->
+<!--                        <t t-if="product.is_product_variant">-->
+<!--                            <strong class="o_label_price_small" t-field="product.lst_price" t-options="{'widget': 'monetary', 'label_price': True}"/>-->
+<!--                        </t>-->
+<!--                        <t t-else="">-->
+<!--                            <strong class="o_label_price_small" t-field="product.list_price" t-options="{'widget': 'monetary', 'label_price': True}"/>-->
+<!--                        </t>-->
+<!--                        <div class="o_label_extra_data">-->
+<!--                            <t t-out="extra_html"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </div>
+            </div>
+        </template>
+
+    </data>
+</odoo>

@@ -2,15 +2,6 @@
 <odoo>
     <data>
 
-        <!--        <record id="product_product_inherit_custom" model="ir.ui.view">-->
-        <!--            <field name="name">product_product_inherit_custom</field>-->
-        <!--            <field name="model">product.product</field>-->
-        <!--            <field name="inherit_id" ref="product.product_normal_form_view"/>-->
-        <!--            <field name="arch" type="xml">-->
-        <!--                -->
-
-        <!--            </field>-->
-        <!--        </record>-->
 
 
         <record id="id_product_template_only_form_view_inherits" model="ir.ui.view">
@@ -63,17 +54,7 @@
                 </xpath>
             </field>
         </record>
-        <!--        <record id="id_purchase_requests_form_view_inherits" model="ir.ui.view">-->
-        <!--            <field name="name">purchase.requests.form_view_inherit</field>-->
-        <!--            <field name="model">purchase.requests</field>-->
-        <!--            <field name="inherit_id" ref="purchase_request.id_purchase_requsts_view_form"/>-->
-        <!--            <field name="arch" type="xml">-->
-        <!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
-        <!--                    <field name="arabic_name"-->
-        <!--                           attrs="{'column_invisible': [('parent.state', '=', 'draft')]}"/>-->
-        <!--                </xpath>-->
-        <!--            </field>-->
-        <!--        </record>-->
+
         <record id="id_purchase_order_form_view_inherits" model="ir.ui.view">
             <field name="name">purchase.order.form_view_inherit</field>
             <field name="model">purchase.order</field>
@@ -84,16 +65,7 @@
                 </xpath>
             </field>
         </record>
-        <!--        <record id="id_material_request_form_view_inherits" model="ir.ui.view">-->
-        <!--            <field name="name">material_request.form_view_inherit</field>-->
-        <!--            <field name="model">material.request</field>-->
-        <!--            <field name="inherit_id" ref="material_request.id_material_request_form"/>-->
-        <!--            <field name="arch" type="xml">-->
-        <!--                <xpath expr="//field[@name='request_line_ids']/tree/field[@name='product_id']" position="after">-->
-        <!--                    <field name="arabic_name"/>-->
-        <!--                </xpath>-->
-        <!--            </field>-->
-        <!--        </record>-->
+
 
         <record id="product_template_search_view_inherit" model="ir.ui.view">
             <field name="name">product.template.search.inherit</field>
@@ -101,7 +73,11 @@
             <field name="inherit_id" ref="product.product_template_search_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
-                    <field name="arabic_name"/>
+
+                                <field name="arabic_name" string="Arabic Name" filter_domain="[('arabic_name','ilike',self)]"/>
+
+<!--                                <filter string="Arabic Name" name="arabic_name_filter" domain="[('arabic_name', 'ilike', '%')]"/>-->
+
                 </xpath>
             </field>
         </record>
@@ -116,6 +92,8 @@
                 </xpath>
             </field>
         </record>
+
+
 
     </data>
 </odoo>

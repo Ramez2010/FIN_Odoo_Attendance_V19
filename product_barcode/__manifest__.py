@@ -32,5 +32,6 @@
         'views/product_template.xml',
         'views/product_product.xml',
         'views/create_receipt.xml',
+        'views/account_move.xml',
     ],
 }

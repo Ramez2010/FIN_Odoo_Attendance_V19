@@ -7,8 +7,24 @@ class SaleOrder(models.Model):
         'account.analytic.account',
         'Analytic Account',
         copy=False,
-        domain="[('partner_id', '=',partner_id)]",
+
     )
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if not self.partner_id:
+            return {'domain': {'analytic_account_id': []}}
+
+        return {
+            'domain': {'analytic_account_id': [('partner_id', '=', self.partner_id.id)]}
+        }
+
+    # @api.onchange('partner_id')
+    # def get_analytic_account(self):
+    #     for rec in self:
+    #         analytic_account = self.env['account.analytic.account'].search([('partner_id', '=', rec.partner_id.id)])
+    #         print(analytic_account, "analytic")
+    #         rec.analytic_account_id = analytic_account[0].id
 
     def _prepare_invoice(self, *args, **kwargs):
         invoice_values = super()._prepare_invoice(*args, **kwargs)
