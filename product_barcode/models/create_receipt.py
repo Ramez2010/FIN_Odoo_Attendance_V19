@@ -11,31 +11,55 @@ class SaleOrderLine(models.Model):
 class SubCategory(models.Model):
     _inherit = 'sale.order'
 
-    selection_invoice = fields.Selection([('invoice', 'Invoice'), ('receipt', 'Receipt')], required=True,default='invoice')
+    selection_invoice = fields.Selection([('invoice', 'Invoice'), ('receipt', 'Receipt')], required=True,
+                                         default='invoice')
 
     @api.constrains()
     def change(self):
         print("suceesss")
         self.get_receipt_quantity()
 
+    # def get_receipt_quantity(self):
+    #     for rec in self:
+    #         # Initialize the receipt quantity
+    #         rec.order_line.receipt_quantity = 0.0
+    #
+    #         # Search for related receipts
+    #         receipts = self.env['account.move'].search([
+    #             ('partner_id', '=', rec.partner_id.id),
+    #             ('move_type', '=', 'out_receipt'),
+    #             ('sale_id', '=', rec.id)
+    #         ])
+    #         print(receipts, "rrreccee")
+    #
+    #         for receipt in receipts:
+    #             # Sum up the quantities from the matched sale order lines
+    #             for line in receipt.line_ids:
+    #                 # if line.sale_line_ids and line.sale_line_ids.id == rec.id:
+    #                 rec.order_line.receipt_quantity += line.quantity
+
     def get_receipt_quantity(self):
         for rec in self:
-            # Initialize the receipt quantity
-            rec.order_line.receipt_quantity = 0.0
+            for line in rec.order_line:
+                line.receipt_quantity = 0.0
 
-            # Search for related receipts
             receipts = self.env['account.move'].search([
                 ('partner_id', '=', rec.partner_id.id),
                 ('move_type', '=', 'out_receipt'),
                 ('sale_id', '=', rec.id)
             ])
-            print(receipts, "rrreccee")
-
+            product_quantities = {}
             for receipt in receipts:
-                # Sum up the quantities from the matched sale order lines
-                for line in receipt.line_ids:
-                    # if line.sale_line_ids and line.sale_line_ids.id == rec.id:
-                    rec.order_line.receipt_quantity += line.quantity
+                for line in receipt.invoice_line_ids:
+                    if line.product_id:
+                        if line.product_id.id in product_quantities:
+                            product_quantities[line.product_id.id] += line.quantity
+                        else:
+                            product_quantities[line.product_id.id] = line.quantity
+
+            for line in rec.order_line:
+                if line.product_id.id in product_quantities:
+                    line.receipt_quantity = product_quantities[line.product_id.id]
 
     flag = fields.Boolean('Flag')
 
