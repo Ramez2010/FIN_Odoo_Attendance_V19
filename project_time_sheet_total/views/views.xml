@@ -1,0 +1,50 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="hr_payslip_view_form">
+            <field name="name">hr.payslip.inherit.form</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <!--                <xpath expr="//header" position="inside">-->
+                <!--                    <button string="Create Task" type="object" name="create_project_task" class="oe_highlight"/>-->
+                <!--                </xpath>-->
+                <xpath expr="//field[@name='struct_id']" position="after">
+<!--                    <field name="enable_analytic_distribution" widget="boolean_toggle" invisible="0"/>-->
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Total hour" name="hours_page">
+                        <group string="project" name="banks">
+                            <group>
+                                <field name="timesheet_hours"/>
+                                <field name="required_hours" readonly="1"/>
+                                <field name="task_time" readonly="1"/>
+                                <field name="attendance_hours" force_save="1" readonly="1"/>
+                                <field name="overtime_hours" />
+                            </group>
+                            <group>
+                                <field name="progress" widget="progressbar"/>
+                                <field name="hours_shortfall" invisible="0"/>
+                                <field name="all_lines" invisible="0"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Hr TimeSheet" name="timesheet">
+                                <field name="timesheet_lines" widget="one2many_list" colspan="4" nolabel="1">
+                                    <tree>
+                                        <field name="employee_id"/>
+                                        <field name="date"/>
+                                        <field name="project_id"/>
+<!--                                        <field name="related_account_id" invisible="0" optional="hide"/>-->
+                                        <field name="task_id"/>
+                                        <field name="unit_amount"/>
+<!--                                        <field name="work_percentage" invisible="0" optional="hide"/>-->
+                                    </tree>
+                                </field>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

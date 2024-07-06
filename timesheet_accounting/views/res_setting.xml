@@ -1,0 +1,46 @@
+<odoo>
+    <record id="view_res_config_settings_timesheet_accounting" model="ir.ui.view">
+        <field name="name">res.config.settings.timesheet.accounting</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_timesheet.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-key="M" data-string="Timesheet accounting"
+                     string="Timesheet accounting">
+                    <div class="row mt16 o_settings_container">
+                        <h2>Timesheet accounting</h2>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <strong>Journal</strong>
+                            <field name="timesheet_journal_id" string="Journal"/>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <strong>Debit Account</strong>
+                            <field name="timesheet_debit_account_id"/>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <strong>Credit Account</strong>
+                            <field name="timesheet_credit_account_id"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="app_settings_block" data-string="Timesheet payroll period" data-key="l"
+                     string="Timesheet payroll period">
+                    <div class="row mt16 o_settings_container">
+                        <h2>Timesheet payroll period</h2>
+
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <strong>Start Date</strong>
+                            <field name="timesheet_start_date"/>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <strong>End Date</strong>
+                            <field name="timesheet_end_date"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
