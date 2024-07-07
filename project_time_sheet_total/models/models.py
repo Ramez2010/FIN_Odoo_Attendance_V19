@@ -11,7 +11,7 @@ class HrPayrollInherit(models.Model):
 
     timesheet_lines = fields.One2many('account.analytic.line', compute='_compute_timesheet_lines')
     attendance_hours = fields.Float(string='Attendance Work Hours', compute='_compute_attendance_hours')
-    timesheet_hours = fields.Float(string='Timesheet Hours')  # Corrected `field.Float` to `fields.Float`
+    timesheet_hours = fields.Float(string='Timesheet Hours',compute='_compute_work_hours')  # Corrected `field.Float` to `fields.Float`
     required_hours = fields.Float(string='Required Hours', compute='_compute_required_hours')
     all_lines = fields.Char(string="All Lines")
     hours_shortfall = fields.Float(compute='_compute_work_hours', store=True)
@@ -48,9 +48,9 @@ class HrPayrollInherit(models.Model):
     @api.depends('timesheet_lines.unit_amount', 'task_time')
     def _compute_work_hours(self):
         for record in self:
-            timesheet_hours = sum(line.unit_amount for line in record.timesheet_lines if line.unit_amount > 0)
-            record.hours_shortfall = max(0, record.required_hours - timesheet_hours) + max(0, record.task_time)
-            record.progress = (100.0 * timesheet_hours / record.required_hours) if record.required_hours else 0.0
+            record.timesheet_hours = sum(line.unit_amount for line in record.timesheet_lines if line.unit_amount > 0)
+            record.hours_shortfall = max(0, record.required_hours - record.timesheet_hours) + max(0, record.task_time)
+            record.progress = (100.0 * record.timesheet_hours / record.required_hours) if record.required_hours else 0.0
 
     @api.depends('timesheet_hours', 'attendance_hours')
     def get_overtime_hours(self):
