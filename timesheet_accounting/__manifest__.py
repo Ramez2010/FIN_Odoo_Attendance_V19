@@ -4,7 +4,7 @@
     'version': '1.0',
     'category': 'Accounting',
     'summary': 'Timesheet accounting and payroll period configuration',
-    'author': 'IET',
+    'author': 'Your Name',
     'depends': ['base', 'account', 'hr_timesheet'],
     'data': [
         'data/cron_job.xml',

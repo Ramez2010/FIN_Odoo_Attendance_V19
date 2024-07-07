@@ -60,27 +60,29 @@ class ResConfigSettings(models.TransientModel):
 
         projects = timesheets.mapped('project_id')
         for project in projects:
+            print(project.read())
             project_timesheets = timesheets.filtered(lambda t: t.project_id == project)
             amount = sum(project_timesheets.mapped('amount'))
+            print("amount is....",project_timesheets[0].amount)
 
             move_vals = {
                 'journal_id': jour_obj.id,
                 'move_type': 'entry',
-                'ref':project.name,
+                'ref': project.name,
                 'date': fields.Date.context_today(self),
                 'currency_id': currency_id if currency_id else 1,
                 'line_ids': [
                     (0, 0, {
                         'name': 'Timesheet Entry',
                         'account_id': debit_account_id,
-                        'analytic_distribution': {project.analytic_account_id.id:100},
+                        'analytic_distribution': {project.analytic_account_id.id: 100},
                         'debit': amount,
                         'credit': 0,
                     }),
                     (0, 0, {
                         'name': 'Timesheet Entry',
                         'account_id': credit_account_id,
-                        'analytic_distribution': {project.analytic_account_id.id:100},
+                        'analytic_distribution': {project.analytic_account_id.id: 100},
                         'debit': 0,
                         'credit': amount,
                     }),
