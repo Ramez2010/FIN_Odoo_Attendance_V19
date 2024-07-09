@@ -19,6 +19,8 @@ class HrPayrollInherit(models.Model):
     task_time = fields.Float(default=0.0)
     overtime_hours = fields.Float(compute="get_overtime_hours")
     worked_days_hours = fields.Float(string='Worked Days Hours', compute='_compute_worked_days_hours')  # Added this field
+    timesheet_cost = fields.Float(string="Timesheet Cost", default=0.0, compute='_compute_timesheet_hours_cost')
+    overtime_cost = fields.Float(string="Overtime Cost", default=0.0, compute='_compute_overtime_hours_cost')
 
     @api.onchange('employee_id', 'date_from', 'date_to', 'timesheet_lines', 'contract_id', 'contract_id.resource_calendar_id.full_time_required_hours')
     def _compute_required_hours(self):
@@ -62,3 +64,12 @@ class HrPayrollInherit(models.Model):
         for record in self:
             worked_days_hours = sum(line.number_of_hours for line in record.worked_days_line_ids)
             record.worked_days_hours = worked_days_hours
+
+    @api.depends('overtime_hours')
+    def _compute_overtime_hours_cost(self):
+        for rec in self:
+            rec.overtime_cost = rec.overtime_hours * rec.employee_id.contract_id.overtime_rate
+    @api.depends('timesheet_hours')
+    def _compute_timesheet_hours_cost(self):
+        for rec in self:
+            rec.timesheet_cost = rec.timesheet_hours * rec.employee_id.hourly_cost

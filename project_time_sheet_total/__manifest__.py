@@ -12,6 +12,7 @@
     'data': [
         'views/views.xml',
         'views/hr._contract.xml',
+        'views/hr._employee.xml',
     ],
     'installable': True,
     'application': True,
