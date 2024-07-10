@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <!-- overtime Category -->
+        <record id="overtime_category" model="ir.module.category">
+            <field name="name">overtime Management</field>
+        </record>
+        <!-- user group -->
+        <record id="overtime_user_group" model="res.groups">
+            <field name="name">overtime user</field>
+            <field name="category_id" ref="iet_overtime_request.overtime_category"/>
+        </record>
+        <!-- Manager group -->
+        <record id="overtime_manager_group" model="res.groups">
+            <field name="name">overtime manager</field>
+            <field name="category_id" ref="iet_overtime_request.overtime_category"/>
+        </record>
+
+        <!-- record rules -->
+        <record id="record_rule_user" model="ir.rule">
+            <field name="name">overtime.rule.user</field>
+            <field name="model_id" ref="iet_overtime_request.model_overtime_request"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="groups" eval="[(4, ref('overtime_user_group'))]"/>
+        </record>
+        <record id="record_rule_manager" model="ir.rule">
+            <field name="name">overtime.rule.manager</field>
+            <field name="model_id" ref="iet_overtime_request.model_overtime_request"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="groups" eval="[(4, ref('overtime_manager_group'))]"/>
+        </record>
+    </data>
+</odoo>
