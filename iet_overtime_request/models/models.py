@@ -11,7 +11,7 @@ class Overtime(models.Model):
 
     ref = fields.Char(string='Reference', readonly=True, default='new')
     employee_id = fields.Many2one('hr.employee', string='Employee', required=True, tracking=True)
-    request_date = fields.Date(string='Request Date', readonly=True, default=fields.Date.context_today)
+    request_date = fields.Date(string='Request Date', default=fields.Date.context_today)
     project_id = fields.Many2one('account.analytic.account', string='Project', required=True)
     required_overtime_hours = fields.Float(string='Required Hours', required=True)
     description = fields.Html(string='Description', tracking=True)
@@ -96,3 +96,20 @@ class Overtime(models.Model):
                 rec.journal_entry_id.button_draft()
                 rec.journal_entry_id.button_cancel()
                 # rec.journal_entry_id = False
+
+    def _get_timesheet_hours(self, employee_id, date):
+        timesheets = self.env['account.analytic.line'].search([
+            ('employee_id', '=', employee_id),
+            ('date', '=', date),
+        ])
+        total_hours = sum(timesheet.unit_amount for timesheet in timesheets)
+        return total_hours
+
+    @api.constrains('employee_id', 'request_date')
+    def _check_timesheet_hours(self):
+        for rec in self:
+            if rec.request_date:
+                timesheet_hours = self._get_timesheet_hours(rec.employee_id.id, rec.request_date)
+                if timesheet_hours < rec.employee_id.resource_calendar_id.hours_per_day:
+                    raise exceptions.ValidationError(
+                        'Overtime request cannot be created or edited because the timesheet hours exceed 8 hours on the request date.')

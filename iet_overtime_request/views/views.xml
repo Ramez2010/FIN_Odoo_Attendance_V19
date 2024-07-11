@@ -11,6 +11,7 @@
                     <field name="employee_id"/>
                     <field name="request_date"/>
                     <field name="state" string="Status"/>
+                    <field name="required_overtime_hours" string="Required OVT hours"/>
                 </tree>
             </field>
         </record>

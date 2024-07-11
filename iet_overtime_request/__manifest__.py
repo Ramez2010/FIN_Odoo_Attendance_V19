@@ -18,7 +18,7 @@ Long description of module's purpose
     'version': '16.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'hr', 'account'],
+    'depends': ['base', 'hr', 'account','project_time_sheet_total','timesheet_accounting'],
 
     # always loaded
     'data': [
