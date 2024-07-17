@@ -39,12 +39,12 @@ class SaleOrder(models.Model):
             else:
                 rec.IN_INC_QT_INC = 0.0
 
-    @api.depends('amount_total', 'analytic_account_id')
+    @api.depends('amount_untaxed', 'analytic_account_id')
     def _compute_TVQ_DR(self):
         for rec in self:
             if rec.analytic_account_id:
                 total_expense = rec.analytic_account_id.debit
-                rec.TVQ_DR = rec.amount_total - total_expense
+                rec.TVQ_DR = rec.amount_untaxed - total_expense
                 rec.DR_TO_TVQ_EX = (total_expense / rec.amount_untaxed) * 100
             else:
                 rec.TVQ_DR = 0.0
