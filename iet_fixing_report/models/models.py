@@ -258,8 +258,11 @@ class AccountMoveLine(models.Model):
         We do it in this function to only create and fill it once for all computations of a report.
         The following analytic columns and computations will just query the shadowed table instead of the real one.
         """
-        query = super()._where_calc(domain, active_test)
-        if self.env.context.get('account_report_analytic_groupby'):
-            self.env['account.report']._prepare_lines_for_analytic_groupby()
-            query._tables['account_move_line'] = 'analytic_temp_account_move_line'
-        return query
+        try:
+            query = super()._where_calc(domain, active_test)
+            if self.env.context.get('account_report_analytic_groupby'):
+                self.env['account.report']._prepare_lines_for_analytic_groupby()
+                query._tables['account_move_line'] = 'analytic_temp_account_move_line'
+            return query
+        except:
+            pass
