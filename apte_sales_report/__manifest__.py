@@ -23,10 +23,12 @@ Long description of module's purpose
     # always loaded
     'data': [
         #'security/security.xml',
+        'views/pivot_view.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
+
     ],
 }
 
