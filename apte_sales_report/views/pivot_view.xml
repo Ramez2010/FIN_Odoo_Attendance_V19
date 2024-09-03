@@ -29,15 +29,17 @@
 <!--            <field name="model">sale.order</field>-->
 <!--            <field name="inherit_id" ref="sale.view_order_form"/>-->
 <!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='payment_term_id']" position="after">-->
-<!--                    <field name="quote_income" type="amount_untaxed"/>-->
-<!--                    <field name="quote_income" type="total_income"/>-->
-<!--                    <field name="quote_income" type="total_expense"/>-->
-<!--                    <field name="quote_income" type="total_invoiced_untaxed"/>-->
-<!--                    <field name="quote_income" type="measure"/>-->
-<!--                    <field name="quote_expense" type="measure"/>-->
-<!--                    <field name="invoice_expense" type="measure"/>-->
-<!--                    <field name="income_expense" type="measure"/>-->
+<!--                <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                    <field name="amount_untaxed"/>&ndash;&gt;-->
+<!--                    <field name="total_income"/>-->
+<!--                    <field name="total_expense"/>-->
+<!--                    <field name="total_invoiced_untaxed"/>-->
+<!--                    <field name="quote_income"/>-->
+<!--                    <field name="quote_expense"/>-->
+<!--                    <field name="invoice_expense"/>-->
+<!--                    <field name="invoice_expense_percentage"/>-->
+<!--                    <field name="income_expense"/>-->
+<!--                    <field name="income_expense_percentage"/>-->
 <!--                </xpath>-->
 <!--            </field>-->
 <!--        </record>-->

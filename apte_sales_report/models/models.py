@@ -33,12 +33,12 @@ class SaleOrder(models.Model):
                                 compute='_compute_TVI_DR_EX'
                                 )
     total_expense = fields.Float(store=True, precompute=True,
-                                 default=0.0, compute='_compute_total_expense', string='Total Expense'
+                                 default=0.0, compute='_compute_total_expense', string='Total Expense',
                                  )
 
     total_invoiced_untaxed = fields.Float(store=True, precompute=True,
                                           default=0.0,
-                                          compute='_compute_total_invoiced_untaxed', string='Total Untaxed Invoiced'
+                                          compute='_compute_total_invoiced_untaxed', string='Total Untaxed Invoiced',
                                           )
 
     total_invoiced = fields.Float(store=True, precompute=True,
@@ -54,7 +54,7 @@ class SaleOrder(models.Model):
                                     string='Total Payment Due')
 
     total_income = fields.Float(compute='_compute_total_income', default=0.0, store=True, precompute=True,
-                                string='Total Income')
+                                string='Total Income', )
 
     deduction = fields.Float(compute='_compute_total_deduction', default=0.0, store=True, precompute=True,
                              string='Total Deduction')
@@ -83,18 +83,42 @@ class SaleOrder(models.Model):
     invoice_expense = fields.Float(compute='_compute_invoice_expense', default=0.0, store=True, precompute=True,
                                 string='Invoice Expense')
 
+    invoice_expense_percentage = fields.Float(compute='_compute_invoice_expense_percentage', default=0.0, store=True,
+                                           precompute=True,
+                                           string='Invoice Expense %')
+
     income_expense = fields.Float(compute='_compute_income_expense', default=0.0, store=True, precompute=True,
                                    string='Income Expense')
+
+    income_expense_percentage = fields.Float(compute='_compute_income_expense_percentage', default=0.0, store=True,
+                                              precompute=True,
+                                              string='Income Expense %')
 
     @api.depends('total_expense', 'total_invoiced_untaxed')
     def _compute_invoice_expense(self):
         for rec in self:
             rec.invoice_expense = rec.total_invoiced_untaxed - rec.total_expense
 
+    @api.depends('total_expense', 'total_invoiced_untaxed')
+    def _compute_invoice_expense_percentage(self):
+        for rec in self:
+            if rec.total_expense:
+                rec.invoice_expense_percentage = rec.total_invoiced_untaxed / rec.total_expense - 1
+            else:
+                rec.invoice_expense_percentage = 0.0
+
     @api.depends('total_expense', 'total_income')
     def _compute_income_expense(self):
         for rec in self:
             rec.income_expense = rec.total_income - rec.total_expense
+
+    @api.depends('total_expense', 'total_income')
+    def _compute_income_expense_percentage(self):
+        for rec in self:
+            if rec.total_expense:
+                rec.income_expense_percentage = rec.total_income / rec.total_expense - 1
+            else:
+                rec.income_expense_percentage = 0.0
 
 
     # @api.depends('analytic_account_id', 'analytic_account_id.credit')
@@ -129,11 +153,19 @@ class SaleOrder(models.Model):
         for rec in self:
             rec.quote_income = rec.amount_untaxed - rec.total_income
 
-    @api.depends('total_income', 'total_invoiced_untaxed')
+    # @api.depends('total_income', 'total_invoiced_untaxed')
+    # def _compute_quote_income_percentage(self):
+    #     for rec in self:
+    #         if rec.total_invoiced_untaxed:
+    #             rec.quote_income_percentage = (rec.total_income / rec.total_invoiced_untaxed) * 100
+    #         else:
+    #             rec.quote_income_percentage = 0.0
+
+    @api.depends('total_income', 'amount_untaxed')
     def _compute_quote_income_percentage(self):
         for rec in self:
-            if rec.total_invoiced_untaxed:
-                rec.quote_income_percentage = (rec.total_income / rec.total_invoiced_untaxed) * 100
+            if rec.amount_untaxed:
+                rec.quote_income_percentage = (rec.total_income / rec.amount_untaxed) * 100
             else:
                 rec.quote_income_percentage = 0.0
 
@@ -147,11 +179,19 @@ class SaleOrder(models.Model):
         for rec in self:
             rec.quote_expense = rec.amount_untaxed - rec.total_expense
 
-    @api.depends('total_expense', 'total_invoiced_untaxed')
+    # @api.depends('total_expense', 'total_invoiced_untaxed')
+    # def _compute_quote_expense_percentage(self):
+    #     for rec in self:
+    #         if rec.total_invoiced_untaxed:
+    #             rec.quote_expense_percentage = (rec.total_expense / rec.total_invoiced_untaxed)
+    #         else:
+    #             rec.quote_expense_percentage = 0.0
+
+    @api.depends('total_expense', 'amount_untaxed')
     def _compute_quote_expense_percentage(self):
         for rec in self:
-            if rec.total_invoiced_untaxed:
-                rec.quote_expense_percentage = (rec.total_expense / rec.total_invoiced_untaxed)
+            if rec.amount_untaxed:
+                rec.quote_expense_percentage = (rec.total_expense / rec.amount_untaxed)
             else:
                 rec.quote_expense_percentage = 0.0
 
