@@ -23,6 +23,7 @@
         'stock',
         'mail',
         'analytic',
+        'account'
     ],
 
     # always loaded
