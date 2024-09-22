@@ -74,14 +74,14 @@ class ResConfigSettings(models.TransientModel):
                 'line_ids': [
                     (0, 0, {
                         'name': 'Timesheet Entry',
-                        'account_id': debit_account_id,
+                        'account_id': int(debit_account_id),
                         'analytic_distribution': {project.analytic_account_id.id: 100},
                         'debit': amount,
                         'credit': 0,
                     }),
                     (0, 0, {
                         'name': 'Timesheet Entry',
-                        'account_id': credit_account_id,
+                        'account_id': int(debit_account_id),
                         #'analytic_distribution': {project.analytic_account_id.id: 100},
                         'debit': 0,
                         'credit': amount,
