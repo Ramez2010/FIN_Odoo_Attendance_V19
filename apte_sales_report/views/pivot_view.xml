@@ -36,10 +36,11 @@
 <!--                    <field name="total_invoiced_untaxed"/>-->
 <!--                    <field name="quote_income"/>-->
 <!--                    <field name="quote_expense"/>-->
+        <!--            <field name="income_expense"/>-->
+<!--                    <field name="income_expense_percentage"/>-->
 <!--                    <field name="invoice_expense"/>-->
 <!--                    <field name="invoice_expense_percentage"/>-->
-<!--                    <field name="income_expense"/>-->
-<!--                    <field name="income_expense_percentage"/>-->
+
 <!--                </xpath>-->
 <!--            </field>-->
 <!--        </record>-->
