@@ -93,7 +93,7 @@ class AttendanceApiController(http.Controller):
         if analytic_accounts_data:
             return request.make_json_response({
                 "message": "Analytic Accounts Loaded Successfully",
-                "result": data
+                "result": analytic_accounts_data
             }, status=200)
         else:
             return request.make_json_response({
