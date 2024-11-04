@@ -1,0 +1,233 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sh_hr_attendance_geolocation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.1alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-09 11:01+0000\n"
+"PO-Revision-Date: 2020-10-09 11:01+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model,name:sh_hr_attendance_geolocation.model_hr_attendance
+msgid "Attendance"
+msgstr "Présence"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model,name:sh_hr_attendance_geolocation.model_attendance_geolocation
+msgid "Attendance GEO"
+msgstr "Présence GEO"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model,name:sh_hr_attendance_geolocation.model_attendance_geolocation_child
+msgid "Attendance GEO Child"
+msgstr "Présence GEO Enfant"
+
+#. module: sh_hr_attendance_geolocation
+#: code:addons/sh_hr_attendance_geolocation/models/hr_employee.py:0
+#, python-format
+msgid "Cannot perform check in or check out on multiple employees."
+msgstr "Impossible d'effectuer l'enregistrement ou le départ de plusieurs employés."
+
+#. module: sh_hr_attendance_geolocation
+#: code:addons/sh_hr_attendance_geolocation/models/hr_employee.py:0
+#, python-format
+msgid ""
+"Cannot perform check out on %(empl_name)s, could not find corresponding "
+"check in. Your attendances have probably been modified manually by human "
+"resources."
+msgstr ""
+"Impossible d'effectuer la vérification sur %(empl_name)s, n'a pas pu trouver correspondant "
+"enregistrement. Vos présences ont probablement été modifiées manuellement par des humains "
+"Ressources."
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__message_in
+msgid "Check in message"
+msgstr "Vérifier le message"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__message_out
+msgid "Check out message"
+msgstr "Vérifier le message"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.hr_attendance_view_form_inherit
+msgid "Check-in"
+msgstr "Enregistrement"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.hr_attendance_view_form_inherit
+msgid "Check-out"
+msgstr "Vérifier"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__child_ids
+msgid "Child Ids"
+msgstr "Ids d'enfants"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.attendance_geolocation_form
+msgid "Clear"
+msgstr "Dégager"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__create_uid
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__create_date
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__create_date
+msgid "Created on"
+msgstr "Créé sur"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__department_id
+msgid "Department"
+msgstr "département"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__display_name
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__display_name
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__display_name
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_ir_config_parameter__display_name
+msgid "Display Name"
+msgstr "Afficher un nom"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model,name:sh_hr_attendance_geolocation.model_hr_employee
+msgid "Employee"
+msgstr "Employé"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.hr_attendance_view_form_inherit
+msgid "Employee Geolocation"
+msgstr "Géolocalisation des employés"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__employee_ids
+msgid "Employees"
+msgstr "Des employés"
+
+#. module: sh_hr_attendance_geolocation
+#. openerp-web
+#: code:addons/sh_hr_attendance_geolocation/static/src/xml/attendance.xml:0
+#, python-format
+msgid "Enter your message below"
+msgstr "Entrez votre message ci-dessous"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__from_date
+msgid "From Date"
+msgstr "Partir de la date"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__geo_id
+msgid "Geo"
+msgstr "Géo"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.actions.act_window,name:sh_hr_attendance_geolocation.action_geolocation_attendance
+#: model:ir.ui.menu,name:sh_hr_attendance_geolocation.action_geolocation_attendance_menu
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.attendance_geolocation_form
+msgid "Get Geolocation Result"
+msgstr "Obtenir le résultat de la géolocalisation"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__id
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__id
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__id
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_employee__id
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_ir_config_parameter__id
+msgid "ID"
+msgstr "identifiant"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__job_id
+msgid "Job Position"
+msgstr "Poste"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation____last_update
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child____last_update
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance____last_update
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_employee____last_update
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_ir_config_parameter____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification sur"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__write_uid
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__write_date
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__in_latitude
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__out_latitude
+msgid "Latitude"
+msgstr "Latitude"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__in_longitude
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__out_longitude
+msgid "Longitude"
+msgstr "Longitude"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.attendance_geolocation_form
+msgid "Map Result"
+msgstr "Résultat de la carte"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__name
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation_child__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__check_in_url
+msgid "Open Check-in location in Google Maps"
+msgstr "Lieu d'enregistrement ouvert dans Google Maps"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_hr_attendance__check_out_url
+msgid "Open Check-out location in Google Maps"
+msgstr "Lieu de départ ouvert dans Google Maps"
+
+#. module: sh_hr_attendance_geolocation
+#: model_terms:ir.ui.view,arch_db:sh_hr_attendance_geolocation.attendance_geolocation_form
+msgid "Search"
+msgstr "Chercher"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model,name:sh_hr_attendance_geolocation.model_ir_config_parameter
+msgid "System Parameter"
+msgstr "Paramètre système"
+
+#. module: sh_hr_attendance_geolocation
+#: model:ir.model.fields,field_description:sh_hr_attendance_geolocation.field_attendance_geolocation__to_date
+msgid "To Date"
+msgstr "À ce jour"
+
+#. module: sh_hr_attendance_geolocation
+#: code:addons/sh_hr_attendance_geolocation/models/hr_employee.py:0
+#, python-format
+msgid "Wrong PIN"
+msgstr "Mauvais broche"

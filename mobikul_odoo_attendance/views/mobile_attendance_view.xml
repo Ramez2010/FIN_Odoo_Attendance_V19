@@ -1,0 +1,69 @@
+<odoo>
+    <record id="mobikul_attendance_view_form" model="ir.ui.view">
+        <field name="name">mobikul_attendacne.form</field>
+        <field name="model">mobikul.attendance</field>
+        <field name="arch" type="xml">
+            <form string="Mobikul Attendance App Configuration">
+                <sheet>
+                    <div class="oe_title">
+                        <div class="oe_edit_only">
+                            <label for="name" string="Title"/>
+                        </div>
+                        <h1>
+                            <field name="name" default_focus="1" placeholder="Name"/>
+                        </h1>
+                    </div>
+                <notebook>
+                    <page string="Credentials">
+                        <group string="Mobikul API Configuration">
+                            <field name="api_key"/>
+                        </group>
+                        <group string="Android Push Notification Credentials">
+                            <field name="fcm_api_key"/>
+                        </group>
+                    </page>
+                    <page string="Advanced">
+                        <group>
+                            <group string="Language">
+                                <label for="language_ids"/>
+                                <div name="language_ids">
+                                    <div>
+                                        <div name="language_ids" class="oe_inline">
+                                            <field name="language_ids" widget="many2many_checkboxes"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <field name="default_lang" widget="selection" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Company">
+                                <label for="company_id"/>
+                                <div name="company_id">
+                                    <div>
+                                        <div name="company_id" class="oe_inline">
+                                            <field name="company_id" widget="selection"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Extra Configuration">
+                        <group string="On Privacy Policy">
+                          <field name="privacy_policy" widget = "url"/>
+                        </group>
+                    </page>
+                </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="at_mobikul_mobikul_action" model="ir.actions.act_window">
+        <field name="name">Mobikul Attendance Configuration</field>
+        <field name="res_model">mobikul.attendance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mobikul_attendance_view_form"/>
+    </record>
+</odoo>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="attendance_geolocation_form" model="ir.ui.view">
+        <field name="name">attendance.geolocation.form</field>
+        <field name="model">attendance.geolocation</field>
+        <field name="arch" type="xml">
+            <form string="Get Geolocation Result" create="0" delete="0">
+                <header>
+                    <button name="search_result" string="Search" class="btn-primary" type="object"></button>
+                    <button name="clear_result" string="Clear" type="object"></button>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="department_id" options="{'no_create':True,'no_create_edit':True}" />
+                        <field name="job_id" options="{'no_create':True,'no_create_edit':True}" />
+                        <field name="employee_ids" widget="many2many_tags" options="{'no_create':True,'no_create_edit':True}" />
+                        <field name="from_date" required="1" />
+                        <field name="to_date" required="1" />
+                    </group>
+                    <notebook>
+                        <page string="Map Result">
+                            <style type="text/css">
+                                .o_kanban_record.d-flex.flex-grow-1.flex-md-shrink-1.flex-shrink-0 {
+                                    flex: 100%;
+                                }
+                            </style>
+                            <field name="child_ids" mode="kanban">
+                                <kanban create="0">
+                                    <field name="name" />
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div>
+                                                <div class="wrap">
+                                                    <div id="map" style="height: 400px; width: 100%; background-color: grey;"></div>
+                                                     <script>
+		                                                function initMap() {
+														    $.post("/get_json_data", {}, function (data) {
+														        var Data = JSON.parse(data);
+														        var attendance_detail = Data["attendance_detail"];
+														
+														        var center_loc = { lat: parseFloat(Data["lat"]), lng: parseFloat(Data["long"]) };
+														
+														        var map = new google.maps.Map(document.getElementById("map"), { zoom: 8, center: center_loc });
+														
+														        _.each(attendance_detail, function (attendance) {
+														            var lat_long = { lat: parseFloat(attendance[0]), lng: parseFloat(attendance[1]) };								            
+														            
+														            var infowindow = new google.maps.InfoWindow({
+														                content:attendance[2]
+														             
+						
+														            });
+														
+														            var marker = new google.maps.Marker({ position: lat_long, map: map });
+														            infowindow.open(map, marker);
+														        });
+														    });
+														}
+                                                    </script> 
+                                                </div>
+                                                <div t-if="record.name.raw_value">
+                                                    <script t-att-async="async" t-att-defer="defer" t-att-src="record.name.raw_value"></script>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_geolocation_attendance" model="ir.actions.act_window">
+        <field name="name">Get Geolocation Result</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">attendance.geolocation</field>
+        <field name="view_mode">form</field>
+        <field name="res_id">1</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+    </record>
+    <menuitem id="action_geolocation_attendance_menu" name="Get Geolocation Result" groups="hr_attendance.group_hr_attendance_manager" action="action_geolocation_attendance" parent="hr_attendance.menu_hr_attendance_root" sequence="100" />
+</odoo>

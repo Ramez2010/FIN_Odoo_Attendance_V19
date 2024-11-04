@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_attendance_tree_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.inherit.tree</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="message_in" />
+                <field name="check_in_url" widget="url" />
+                <field name="message_out" />
+                <field name="check_out_url" widget="url" />
+            </xpath>
+        </field>
+    </record>
+    <record id="hr_attendance_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.inherit.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="after">
+                <group string="Employee Geolocation">
+                    <group string="Check-in" colspan="4">
+                        <field name="message_in" />
+                        <field name="in_latitude" />
+                        <field name="in_longitude" />
+                        <field name="check_in_url" widget="url" />
+                    </group>
+                    <group string="Check-out" colspan="4">
+                        <field name="message_out" />
+                        <field name="out_latitude" />
+                        <field name="out_longitude" />
+                        <field name="check_out_url" widget="url" />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
