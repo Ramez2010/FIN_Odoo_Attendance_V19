@@ -66,7 +66,7 @@ def check_attendance_login_user(func):
 
 class AttendanceApiController(http.Controller):
 
-    @check_attendance_login_user
+    # @check_attendance_login_user
     @http.route('/api/attendance/analytic_accounts', methods=["GET"], type='http', auth="none", csrf=False)
     def get_analytic_accounts(self):
         args = request.httprequest.data.decode()
