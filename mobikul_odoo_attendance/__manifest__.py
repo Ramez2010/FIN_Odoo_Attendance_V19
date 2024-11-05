@@ -36,7 +36,7 @@
                               Mobikul odoo attendence
                               Attendence App, Attendnance App""",
   "live_test_url"        :  "https://demo.webkul.com/mobikulAttendance",
-  "depends"              :  ['sh_hr_attendance_geolocation', 'hr_attendance'],
+  "depends"              :  ['sh_hr_attendance_geolocation', 'hr_attendance', "iet_attendance_api_integration"],
   "data"                 :  [
                               'security/mobikul_attendance_security.xml',
                               'security/ir.model.access.csv',

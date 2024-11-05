@@ -374,6 +374,9 @@ class MobikulAttendanceAPI(http.Controller):
         _logger.info("this is the longitude comes from mobile app", longitude)
         message = self._mData.get('message')
         _logger.info("this is the message comes from mobile app", message)
+        # Custom Add
+        analytic_account_id = int(self._mData.get('analytic_account_id'))
+        _logger.info("this is the analytic account ID comes from mobile app", analytic_account_id)
 
         if not latitude:
             latitude = False
@@ -381,11 +384,15 @@ class MobikulAttendanceAPI(http.Controller):
             longitude = False
         if not message:
             message = False
+        if not analytic_account_id:
+            analytic_account_id = False
 
-        data_list = [message, latitude, longitude]
+
+        data_list = [message, latitude, longitude, analytic_account_id]
 
         response['latitude'] = latitude
         response['longitude'] = longitude
+        response['analytic_account_id'] = analytic_account_id
 
         if response.get('success'):
             context = response.get('context')
