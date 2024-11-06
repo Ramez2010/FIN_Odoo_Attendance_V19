@@ -19,41 +19,31 @@ def check_attendance_login_user(func):
                 "Missing Error": "Data Is Missing"
             }, status=400)
         data = json.loads(args_data)
-        if not data.get("login"):
+        if not data.get("token"):
             return request.make_json_response({
-                "Missing Error": "login Is Missing"
+                "Missing Error": "Token Is Missing"
             }, status=400)
-        if not data.get("password"):
-            return request.make_json_response({
-                "Missing Error": "password Is Missing"
-            }, status=400)
-        username = data.get("login")
-        password = data.get("password")
+        token = data.get("login")
         try:
-
-            current_user_id = request.env["res.users"].sudo().search([("login", "=", username)], limit=1)
+            current_user_id = request.env["res.users"].sudo().search([("user_access_token", "=", token)], limit=1)
             if current_user_id:
-                assert password
-                request.env.cr.execute(
-                    f"SELECT COALESCE(password, '') FROM res_users WHERE id={current_user_id.id}"
-                )
-                [hashed] = request.env.cr.fetchone()
-                ctx = current_user_id._crypt_context()
-                pw = ctx.hash(password)
-                valid, replacement = current_user_id._crypt_context() \
-                    .verify_and_update(password, hashed)
-                if not valid:
+                if current_user_id.user_access_token_expiry_date and (
+                        fields.datetime.now() > current_user_id.user_access_token_expiry_date):
                     return request.make_json_response({
-                        "Error": "Incorrect Password, try again or click on Forgot Password to reset your password."
+                        "Error": "Token Expired, Please Check The New Token."
                     }, status=400)
-                request.params['login_success'] = True
+            if not current_user_id:
+                return request.make_json_response({
+                    "Error": "Incorrect Token, try again."
+                }, status=400)
+            request.params['login_success'] = True
         except AccessError as ae:
             return request.make_json_response({
                 "Access Error": f"Error: {ae.name}"
             }, status=400)
         except AccessDenied as ad:
             return request.make_json_response({
-                "Access Denied": "login, password or db invalid"
+                "Access Denied": "invalid Token"
             }, status=400)
         except Exception as e:
             logger.error("Not Valid {}".format((e)))
@@ -66,7 +56,7 @@ def check_attendance_login_user(func):
 
 class AttendanceApiController(http.Controller):
 
-    # @check_attendance_login_user
+    @check_attendance_login_user
     @http.route('/api/attendance/analytic_accounts', methods=["GET"], type='http', auth="none", csrf=False)
     def get_analytic_accounts(self):
         args = request.httprequest.data.decode()
