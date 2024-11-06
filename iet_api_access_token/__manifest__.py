@@ -19,7 +19,7 @@
 
     # always loaded
     'data': [
-        "views/res_users.xml"
+        "views/res_users.xml",
         "data/ir_cron.xml"
     ],
     # only loaded in demonstration mode
