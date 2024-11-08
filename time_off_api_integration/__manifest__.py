@@ -16,7 +16,7 @@
     "license": "OPL-1",
 
     # any module necessary for this one to work correctly
-    'depends': ['hr_holidays'],
+    'depends': ['hr_holidays', 'iet_api_access_token'],
 
     # always loaded
     'data': [

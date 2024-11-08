@@ -10,64 +10,15 @@ logger = logging.getLogger(__name__)
 
 from odoo.exceptions import AccessDenied
 
-def check_time_off_login_user(func):
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        args_data = request.httprequest.data.decode()
-        if not args_data:
-            return request.make_json_response({
-                "Missing Error": "Data Is Missing"
-            }, status=400)
-        data = json.loads(args_data)
-        if not data.get("login"):
-            return request.make_json_response({
-                "Missing Error": "login Is Missing"
-            }, status=400)
-        if not data.get("password"):
-            return request.make_json_response({
-                "Missing Error": "password Is Missing"
-            }, status=400)
-        username = data.get("login")
-        password = data.get("password")
-        try:
-
-            current_user_id = request.env["res.users"].sudo().search([("login", "=", username)], limit=1)
-            if current_user_id:
-                assert password
-                request.env.cr.execute(
-                    f"SELECT COALESCE(password, '') FROM res_users WHERE id={current_user_id.id}"
-                )
-                [hashed] = request.env.cr.fetchone()
-                ctx = current_user_id._crypt_context()
-                pw = ctx.hash(password)
-                valid, replacement = current_user_id._crypt_context() \
-                    .verify_and_update(password, hashed)
-                if not valid:
-                    return request.make_json_response({
-                        "Error": "Incorrect Password, try again or click on Forgot Password to reset your password."
-                    }, status=400)
-                request.params['login_success'] = True
-        except AccessError as ae:
-            return request.make_json_response({
-                "Access Error": f"Error: {ae.name}"
-            }, status=400)
-        except AccessDenied as ad:
-            return request.make_json_response({
-                "Access Denied": "login, password or db invalid"
-            }, status=400)
-        except Exception as e:
-            logger.error("Not Valid {}".format((e)))
-            return request.make_json_response({
-                "Not Valid {}".format((e)): "invalid_data"
-            }, status=400)
-        return func(self, *args, **kwargs)
-    return wrapper
+from odoo.addons.iet_api_access_token.controllers.main.py import authorization
+from odoo.addons.iet_api_access_token.tools.jwt_token import jwt_encode, jwt_decode
+import base64
 
 
 class TimeOffApiController(http.Controller):
 
 
-    @check_time_off_login_user
+    @authorization
     @http.route('/api/time_off/type', methods=["GET"], type='http', auth="none", csrf=False)
     def get_time_off_type(self):
         data = []
@@ -91,11 +42,11 @@ class TimeOffApiController(http.Controller):
                 "Error": f"No Time Off Types Founded"
             }, status=400)
 
-    @check_time_off_login_user
+    @authorization
     @http.route('/api/time_off/public_holidays', methods=["GET"], type='http', auth="none", csrf=False)
     def get_public_holidays(self):
         args = request.httprequest.data.decode()
-        data = json.loads(args)
+        data = request.params
         domain = []
         public_holiday_data = []
         if data.get("month"):
@@ -137,7 +88,38 @@ class TimeOffApiController(http.Controller):
                 "Error": f"NO Public Holidays Founded"
             }, status=400)
 
-    @check_time_off_login_user
+    @authorization
+    @http.route('/api/employees', methods=["GET"], type='http', auth="none", csrf=False)
+    def get_all_employees(self):
+        data = request.params
+        domain = []
+        employees_data = []
+        if data.get("company_id"):
+            data_company_id = int(data.get("company_id"))
+        else:
+            data_company_id = 0
+        if data_company_id > 0:
+            domain.append(("company_id", "=", data_company_id))
+        employee_ids = request.env["hr.employee"].sudo().search(domain)
+        if employee_ids:
+            for employee in employee_ids:
+                employees_data.append({
+                    "name": employee.name,
+                    "id": employee.id,
+                    "company_name": employee.company_id.name,
+                    "company_id": employee.company_id.id,
+                })
+        if employees_data:
+            return request.make_json_response({
+                "message": "Employees Loaded Successfully",
+                "result": data
+            }, status=200)
+        else:
+            return request.make_json_response({
+                "Error": f"NO Employees Founded"
+            }, status=400)
+
+    @authorization
     @http.route('/api/time_off/create', methods=["POST"], type='http', auth="none", csrf=False)
     def time_off_create(self):
         args = request.httprequest.data.decode()
@@ -169,15 +151,38 @@ class TimeOffApiController(http.Controller):
         try:
             employee = request.env["hr.employee"].sudo().browse(employee_id)
             holiday_status = request.env["hr.leave.type"].sudo().browse(holiday_status_id)
+            if data.get("description"):
+                name = data.get("description")
+            else:
+                name = f"{employee.name} {holiday_status.name} Time Off"
             holiday_id = request.env["hr.leave"].sudo().create({
-                "name": f"{employee.name} {holiday_status.name} Time Off",
+                "name": name,
                 "holiday_type": "employee",
                 "employee_id": employee_id,
                 "holiday_status_id": holiday_status_id,
                 "request_date_from": date_from,
-                "request_date_to": date_to
+                "request_date_to": date_to,
+                "notes": data.get("notes") if data.get("notes") else False
             })
             if holiday_id:
+                # Create Attachments And Add Them To Leave Request
+                attachment_ids = []
+                attachment_list = request.httprequest.files.getlist('attachment_ids')
+                if attachment_list:
+                    for att in attachment_list:
+                        attachments = {
+                            'res_name': att.filename,
+                            'res_model': 'hr.leave.request',
+                            'res_id': holiday_id.sudo().id,
+                            'datas': base64.encodebytes(att.read()),
+                            'type': 'binary',
+                            'name': att.filename,
+                        }
+                        attachment_obj = http.request.env['ir.attachment']
+                        att_record = attachment_obj.sudo().create(attachments)
+                        attachment_ids.append(att_record.id)
+                if attachment_ids:
+                    holiday_id.sudo().update({'attachment_ids': [(6, 0, attachment_ids)]})
                 return request.make_json_response({
                     "message": "Time Off Created Successfully",
                     "result": {
@@ -191,6 +196,7 @@ class TimeOffApiController(http.Controller):
                         "date_to": holiday_id.request_date_to,
                         "duration": holiday_id.number_of_days,
                         "state": holiday_id.state,
+                        "notes": holiday_id.notes,
                     }
                 }, status=201)
             else:
@@ -203,38 +209,53 @@ class TimeOffApiController(http.Controller):
                 "Error": "Invalid Data"
             }, status=400)
 
-    @check_time_off_login_user
-    @http.route('/api/time_off/update', methods=["PATCH"], type='http', auth="none", csrf=False)
-    def time_off_update(self):
+    @authorization
+    @http.route('/api/time_off/update/<int:time_off_id>', methods=["PATCH"], type='http', auth="none", csrf=False)
+    def time_off_update(self, time_off_id):
         args = request.httprequest.data.decode()
         if not args:
             return request.make_json_response({
                 "Missing Error": "Data Is Missing"
             }, status=400)
         data = json.loads(args)
-        if not data.get("time_off_id"):
+        updated_data = {"is_updated": True}
+        if not time_off_id:
             return request.make_json_response({
                 "Missing Error": "time_off_id Is Missing"
             }, status=400)
-        if not data.get("date_from"):
-            return request.make_json_response({
-                "Missing Error": "date_from Is Missing"
-            }, status=400)
-        if not data.get("date_to"):
-            return request.make_json_response({
-                "Missing Error": "date_to Is Missing"
-            }, status=400)
-        holiday_id = int(data.get("time_off_id"))
-        date_from = fields.Date.from_string(data.get("date_from"))
-        date_to = fields.Date.from_string(data.get("date_to"))
+        if data.get("time_off_type_id"):
+            updated_data.update({"holiday_status_id": int(data.get("time_off_type_id"))})
+        if data.get("date_from"):
+            updated_data.update({"request_date_from": fields.Date.from_string(data.get("date_from"))})
+        if data.get("date_to"):
+            updated_data.update({"request_date_to": fields.Date.from_string(data.get("date_to"))})
+        if data.get("description"):
+            updated_data.update({"name": data.get("description")})
+        if data.get("notes"):
+            updated_data.update({"notes": data.get("notes")})
+        holiday_id = int(time_off_id)
         try:
             holiday = request.env["hr.leave"].sudo().browse(holiday_id)
             if holiday.state != 'validate':
-                holiday.sudo().write({
-                    "request_date_from": date_from,
-                    "request_date_to": date_to,
-                    "is_updated": True,
-                })
+                holiday.sudo().write(updated_data)
+                # Create Attachments And Add Them To Leave Request
+                attachment_ids = []
+                attachment_list = request.httprequest.files.getlist('attachment_ids')
+                if attachment_list:
+                    for att in attachment_list:
+                        attachments = {
+                            'res_name': att.filename,
+                            'res_model': 'hr.leave.request',
+                            'res_id': holiday.sudo().id,
+                            'datas': base64.encodebytes(att.read()),
+                            'type': 'binary',
+                            'name': att.filename,
+                        }
+                        attachment_obj = http.request.env['ir.attachment']
+                        att_record = attachment_obj.sudo().create(attachments)
+                        attachment_ids.append(att_record.id)
+                if attachment_ids:
+                    holiday.sudo().update({'attachment_ids': [(6, 0, attachment_ids)]})
                 return request.make_json_response({
                     "message": "Time Off Updated Successfully",
                     "result": {
@@ -247,6 +268,8 @@ class TimeOffApiController(http.Controller):
                         "date_from": holiday.request_date_from,
                         "date_to": holiday.request_date_to,
                         "duration": holiday.number_of_days,
+                        "state": holiday.state,
+                        "notes": holiday.number_of_days,
                         "is_updated": holiday.is_updated,
                     }
                 }, status=200)
@@ -260,60 +283,54 @@ class TimeOffApiController(http.Controller):
                 "Error": "Invalid Time Off"
             }, status=400)
 
-    @check_time_off_login_user
-    @http.route('/api/time_off/unlink', methods=["DELETE"], type='http', auth="none", csrf=False)
-    def time_off_unlink(self):
-        args = request.httprequest.data.decode()
-        if not args:
-            return request.make_json_response({
-                "Missing Error": "Data Is Missing"
-            }, status=400)
-        data = json.loads(args)
-        username = data.get("login")
-        if not data.get("time_off_id"):
+    @authorization
+    @http.route('/api/time_off/unlink/<int:time_off_id>', methods=["DELETE"], type='http', auth="none", csrf=False)
+    def time_off_unlink(self, time_off_id):
+        if not time_off_id:
             return request.make_json_response({
                 "Missing Error": "time_off_id Is Missing"
             }, status=400)
         try:
-            holiday_id = int(data.get("time_off_id"))
+            holiday_id = int(time_off_id)
             holiday = request.env["hr.leave"].sudo().browse(holiday_id)
-            current_user_id = request.env["res.users"].sudo().search([("login", "=", username)], limit=1)
-            if holiday.state != 'validate':
-                # holiday.sudo().action_draft()
-                holiday.with_user(current_user_id.id).unlink()
-                return request.make_json_response({
-                    "message": "Time Off Deleted Successfully",
-                }, status=202)
-            else:
-                return request.make_json_response({
-                    "Error": "Invalid time_off_id"
-                }, status=400)
+            secret = "dummySecretKey"
+            token = request.httprequest.headers.get('Authorization')
+            if token:
+                token = token.split(" ")[1]
+                payload = jwt_decode(token, secret, 'HS256')
+                USER = request.env['res.users'].sudo()
+                if payload:
+                    current_user_id = USER.browse(payload['user_id'])
+                    if current_user_id:
+                        if holiday.state != 'validate':
+                            # holiday.sudo().action_draft()
+                            holiday.with_user(current_user_id.id).unlink()
+                            return request.make_json_response({
+                                "message": "Time Off Deleted Successfully",
+                            }, status=202)
+                        else:
+                            return request.make_json_response({
+                                "Error": "Invalid time_off_id"
+                            }, status=400)
         except Exception as error:
             logger.error(error)
             return request.make_json_response({
                 "Error": f"{error}"
             }, status=400)
 
-    @check_time_off_login_user
-    @http.route('/api/time_off/employee', methods=["GET"], type='http', auth="none", csrf=False)
-    def get_employee_time_off(self):
-        args = request.httprequest.data.decode()
-        if not args:
-            return request.make_json_response({
-                "Missing Error": "Data Is Missing"
-            }, status=400)
-        data = json.loads(args)
-        username = data.get("login")
-        if not data.get("employee_id"):
+    @authorization
+    @http.route('/api/time_off/employee/<int:employee_id>', methods=["GET"], type='http', auth="none", csrf=False)
+    def get_employee_time_off(self, employee_id):
+        data = request.params
+        if not employee_id:
             return request.make_json_response({
                 "Missing Error": "employee_id Is Missing"
             }, status=400)
         leave_data = []
-        employee_id = int(data.get("employee_id"))
+        employee_id = int(employee_id)
         domain = [("employee_id", "=", employee_id)]
-        leave_state = data.get("state")
-        if leave_state:
-            domain.append(("state", "=", leave_state))
+        if data.get("state"):
+            domain.append(("state", "=", data.get("state")))
         if data.get("month"):
             data_month = int(data.get("month"))
             data_year = int(data.get("year"))
@@ -325,7 +342,6 @@ class TimeOffApiController(http.Controller):
             data_month = 0
         try:
             leave_ids = request.env["hr.leave"].sudo().search(domain)
-            current_user_id = request.env["res.users"].sudo().search([("login", "=", username)], limit=1)
             if leave_ids:
                 if data_month > 0:
                     leave_ids = leave_ids.filtered(
@@ -359,10 +375,13 @@ class TimeOffApiController(http.Controller):
                 "Error": f"{error}"
             }, status=400)
 
-    @check_time_off_login_user
+    @authorization
     @http.route('/api/time_off/<int:time_off_id>', methods=["GET"], type='http', auth="none", csrf=False)
     def get_single_time_off(self, time_off_id):
-        args = request.httprequest.data.decode()
+        if not time_off_id:
+            return request.make_json_response({
+                "Error": "Invalid time_off_id"
+            }, status=400)
         try:
             holiday_id = request.env["hr.leave"].sudo().browse(time_off_id)
             if holiday_id:
@@ -379,16 +398,17 @@ class TimeOffApiController(http.Controller):
                         "date_to": holiday_id.request_date_to,
                         "duration": holiday_id.number_of_days,
                         "state": holiday_id.state,
+                        "notes": holiday_id.notes,
                     }
                 }, status=200)
             else:
                 return request.make_json_response({
-                    "Error": "Invalid TIME_OFF_ID"
+                    "Error": "Invalid time_off_id"
                 }, status=400)
         except Exception as error:
             logger.error(error)
             return request.make_json_response({
-                "Error": "Invalid TIME_OFF_ID"
+                "Error": "Invalid time_off_id"
             }, status=400)
 
 
