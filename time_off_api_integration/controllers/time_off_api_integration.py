@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 from odoo.exceptions import AccessDenied
 
-from odoo.addons.iet_api_access_token.controllers.main.py import authorization
+from odoo.addons.iet_api_access_token.controllers.main import authorization
 from odoo.addons.iet_api_access_token.tools.jwt_token import jwt_encode, jwt_decode
 import base64
 
