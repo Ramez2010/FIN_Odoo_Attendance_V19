@@ -44,7 +44,7 @@ class CustomStockPickingInherit(models.Model):
                     for acc in account_move:
                         if acc.line_ids:
                             for l in acc.line_ids:
-                                if l.debit > 0:
+                                if l.credit > 0:
                                     # l.analytic_account_id = rec.analytic_account_id.id
                                     l.analytic_distribution = {rec.analytic_account_id.id: 100, }
 
