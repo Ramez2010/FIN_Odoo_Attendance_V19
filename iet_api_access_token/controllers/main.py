@@ -78,12 +78,11 @@ class ApiLoginAccessTokenController(http.Controller):
         Authenticate user through the login header provided in the header
         """
         response = {'success': False, 'responseCode': 400, 'message': _('Unknown Error !!!')}
-        params = request.params
-        if not params:
+        data = request.params
+        if not data:
             return request.make_json_response({
                 "Missing Error": "Login And Password Are Missing"
             }, status=400)
-        data = json.loads(params)
         if not data.get("login"):
             return request.make_json_response({
                 "Missing Error": "Login Is Missing"
@@ -115,8 +114,8 @@ class ApiLoginAccessTokenController(http.Controller):
                 response['responseCode'] = 200
                 response['user'] = current_user_id
                 response['message'] = 'Success'
-                # response['authorizeToken'] = get_jwt_token(self.secret_key, current_user_id.partner_id.id, current_user_id.id)
                 response['authorizeToken'] = get_jwt_token("dummySecretKey", current_user_id.partner_id.id, current_user_id.id)
+                return request.make_json_response(response, status=200)
         except AccessError as ae:
             response["message"] = f"{ae}"
             return request.make_json_response(response, status=400)

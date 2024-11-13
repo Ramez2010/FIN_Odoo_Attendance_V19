@@ -81,7 +81,7 @@ class TimeOffApiController(http.Controller):
         if public_holiday_data:
             return request.make_json_response({
                 "message": "Public Holidays Loaded Successfully",
-                "result": data
+                "result": public_holiday_data
             }, status=200)
         else:
             return request.make_json_response({
@@ -112,7 +112,7 @@ class TimeOffApiController(http.Controller):
         if employees_data:
             return request.make_json_response({
                 "message": "Employees Loaded Successfully",
-                "result": data
+                "result": employees_data
             }, status=200)
         else:
             return request.make_json_response({
