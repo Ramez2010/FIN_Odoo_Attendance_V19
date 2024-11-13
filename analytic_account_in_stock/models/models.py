@@ -37,23 +37,27 @@ class CustomStockPickingInherit(models.Model):
                 account_move = self.env['account.move'].search(
                     ['|', '|', ('name', 'ilike', rec.name), ('ref', 'ilike', rec.name),
                      ('partner_id', 'ilike', rec.name)])
-                # print("#######################  ", account_move)
 
                 if account_move:
-                    # print('account_move', account_move)
                     for acc in account_move:
                         if acc.line_ids:
-                            for l in acc.line_ids:
-                                if l.debit > 0:
-                                    # l.analytic_account_id = rec.analytic_account_id.id
-                                    l.analytic_distribution = {rec.analytic_account_id.id: 100, }
+                            for line in acc.line_ids:
+                                # Clear the analytic account on debit line before applying it to the credit line
+                                if line.debit > 0:
+                                    line.analytic_distribution = False
+                                
+                                # Assign analytic account to the credit line
+                                if line.credit > 0:
+                                    line.analytic_distribution = {rec.analytic_account_id.id: 100}
 
+                    # Re-post the account move after the update
                     account_move.button_draft()
                     account_move.action_post()
                     rec.is_updated = True
                 else:
-                    raise UserError('there is no journal entry for this Delivery.!')
+                    raise UserError('There is no journal entry for this Delivery.')
 
+        return True
 
 class AccountAsset(models.Model):
     _inherit = 'account.asset'
