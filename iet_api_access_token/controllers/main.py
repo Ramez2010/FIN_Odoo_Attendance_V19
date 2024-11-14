@@ -34,12 +34,6 @@ def get_jwt_token(secret, *args, algorithm = "HS256", **kwargs):
 def authorization(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        params = request.params
-        if not params:
-            return request.make_json_response({
-                "Missing Error": "Data Is Missing"
-            }, status=400)
-
         """
         Authorize user through the provided jwt token
         """
@@ -49,6 +43,10 @@ def authorization(func):
         secret = "dummySecretKey"
         # token = self._mAuth
         token = request.httprequest.headers.get('Authorization')
+        if not token:
+            return request.make_json_response({
+                "Error": "Token Is Missing"
+            }, status=400)
         if token:
             token = token.split(" ")[1]
         try:
