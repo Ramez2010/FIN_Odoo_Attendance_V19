@@ -386,13 +386,14 @@ class MobikulAttendanceAPI(http.Controller):
             message = False
         if not analytic_account_id:
             analytic_account_id = False
+        data_list = [message, latitude, longitude]
 
-
-        data_list = [message, latitude, longitude, analytic_account_id]
 
         response['latitude'] = latitude
         response['longitude'] = longitude
-        response['analytic_account_id'] = analytic_account_id
+        if analytic_account_id:
+            response['analytic_account_id'] = analytic_account_id
+            data_list.append(analytic_account_id)
 
         if response.get('success'):
             context = response.get('context')
