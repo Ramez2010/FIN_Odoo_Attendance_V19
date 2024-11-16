@@ -47,7 +47,9 @@ class HrEmployee(models.Model):
         vals = {}
         latitude = message[1]
         longitude = message[2]
-        analytic_account_id = message[3]
+        analytic_account_id = False
+        if len(message > 3):
+            analytic_account_id = message[3]
         url = "http://maps.google.com/maps?"
 
         url = "http://maps.google.com/maps?q=" + \
