@@ -19,7 +19,8 @@
 
     # always loaded
     'data': [
-        "views/hr_attendance.xml"
+        "views/hr_attendance.xml",
+        "data/ir_cron.xml"
     ],
     # only loaded in demonstration mode
     'demo': [
