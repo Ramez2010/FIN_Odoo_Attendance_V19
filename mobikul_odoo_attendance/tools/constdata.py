@@ -20,13 +20,13 @@ def fcmDeviceCheck(self,user,dontCheck=False):
     '''
     response = {"success":True}
     fcmObj = request.env['fcm.attendance.devices'].sudo()
-    if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
-        response.update({
-            "success":False,
-            "loginAgain":True,
-            "message":_('Authorization Revoked Please Login Again!'),
-            "responseCode":400
-        })
+    # if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
+    #     response.update({
+    #         "success":False,
+    #         "loginAgain":True,
+    #         "message":_('Authorization Revoked Please Login Again!'),
+    #         "responseCode":400
+    #     })
     return response
 
 def _pushNotification(token, condition='signup', customer_id=False):

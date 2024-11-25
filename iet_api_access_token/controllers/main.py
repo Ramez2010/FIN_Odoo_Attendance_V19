@@ -114,6 +114,9 @@ class ApiLoginAccessTokenController(http.Controller):
                 response['message'] = 'Success'
                 response['authorizeToken'] = get_jwt_token("dummySecretKey", current_user_id.partner_id.id, current_user_id.id)
                 return request.make_json_response(response, status=200)
+            else:
+                response["message"] = "Access Denied, login or password is not correct"
+                return request.make_json_response(response, status=400)
         except AccessError as ae:
             response["message"] = f"{ae}"
             return request.make_json_response(response, status=400)

@@ -11,7 +11,7 @@
     'summary': "Attendance Information,Attendance With Map,Check-In Send Message Odoo, Check-Out Send Notes App, Send Login Comments Module, Send Message In Logout, Get Check In Location, Get GeoLocation With Map, Get Check Out Location Odoo",
     'description': """
 Do you want to get the location of the user while Check In & Check Out? Do you want to send notes or messages when Check In & Check Out? Attendance location Information is a very unique module which will enhance odoo features with this module you can get Check In & Check Out location of the user with google maps. When User Check In & Check Out in Odoo they can write Message, Comment or any notes""",
-    'depends': ['hr', 'barcodes', 'hr_attendance'],
+    'depends': ['hr', 'barcodes', 'hr_attendance', 'iet_attendance_api_integration'],
     'data': [
         'security/ir.model.access.csv',
         'data/data.xml',

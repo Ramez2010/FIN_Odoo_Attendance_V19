@@ -382,10 +382,20 @@ class MobikulAttendanceAPI(http.Controller):
         if not message:
             message = False
 
+        # Analytic Account
+        analytic_account_id = False
+        if self._mData.get('analytic_account_id'):
+            analytic_account_id = self._mData.get('analytic_account_id')
+
         data_list = [message, latitude, longitude]
+
 
         response['latitude'] = latitude
         response['longitude'] = longitude
+
+        if analytic_account_id:
+            data_list.append(analytic_account_id)
+            response["analytic_account_id"] = analytic_account_id
 
         if response.get('success'):
             context = response.get('context')

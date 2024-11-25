@@ -45,8 +45,11 @@ class HrEmployee(models.Model):
         """
         check_in_out_message = message[0]
         vals = {}
+        analytic_account_id = False
         latitude = message[1]
         longitude = message[2]
+        if len(message) > 3:
+            analytic_account_id = message[3]
         url = "http://maps.google.com/maps?"
 
         url = "http://maps.google.com/maps?q=" + \
@@ -71,6 +74,8 @@ class HrEmployee(models.Model):
                     'in_latitude': latitude,
                     'in_longitude': longitude,
                 })
+            if analytic_account_id:
+                vals.update({"analytic_account_id": analytic_account_id})
             return self.env['hr.attendance'].create(vals)
 
         else:
@@ -81,6 +86,8 @@ class HrEmployee(models.Model):
                 attendance.check_out_url = url
                 attendance.out_latitude = latitude
                 attendance.out_longitude = longitude
+            if analytic_account_id:
+                attendance.analytic_account_id = analytic_account_id
             if attendance:
                 attendance.check_out = action_date
             else:
