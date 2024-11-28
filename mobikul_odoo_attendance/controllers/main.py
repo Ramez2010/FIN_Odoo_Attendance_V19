@@ -4,6 +4,7 @@
 # See LICENSE file for full copyright and licensing details.
 # License URL : <https://store.webkul.com/license.html/>
 ##############################################################################
+import base64
 import logging
 import werkzeug
 import json
@@ -14,7 +15,7 @@ from base64 import b64decode
 from odoo import http, _,fields,tools
 from odoo.fields import Datetime, Date, Selection
 from odoo.addons.mobikul_odoo_attendance.tools.jwt_token import jwt_encode, jwt_decode
-from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone,fcmDeviceCheck,_pushNotification, _tokenUpdate,getDefaultData, _languageData, _get_image_url,mobikul_display_address
+from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone,fcmDeviceCheck,_pushNotification, _tokenUpdate,getDefaultData, _languageData, _get_image_url, _get_employee_profile_url, mobikul_display_address
 from odoo.http import request
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
@@ -240,12 +241,13 @@ class MobikulAttendanceAPI(http.Controller):
             context["employeeObj"] = employeeObj
             temp = {}
             temp.update({
+                "id":employeeObj.id,
                 "name":employeeObj.name or "",
                 "workMobile":employeeObj.mobile_phone or "",
                 "workPhone":employeeObj.work_phone or "",
                 "workEmail":employeeObj.work_email or "",
                 "jobTitle":employeeObj.job_title or "",
-                "customerProfileImage":_get_image_url(self.base_url,'hr.employee',employeeObj.id,'image_1920',employeeObj.write_date)
+                "customerProfileImage":_get_employee_profile_url(self.base_url,employeeObj.id,employeeObj.write_date),
             })
             if empfull_details:
                 temp.update({
@@ -329,6 +331,26 @@ class MobikulAttendanceAPI(http.Controller):
                 else:
                     response.pop("authorizeToken")
         return self._response('Login', response)
+
+    @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'])
+    def public_employee_image_token(self, employee_id, **kwargs):
+        response = self.__auth(authorize=True)
+        if response.get('success'):
+            employee = request.env['hr.employee'].sudo().browse(employee_id)
+            if employee and employee.image_128:
+                # Decode the base64 image data
+                image_data = base64.b64decode(employee.image_128)
+
+                # Return the image as a binary HTTP response
+                return request.make_response(
+                    image_data,
+                    headers=[('Content-Type', 'image/png'), ('Content-Length', str(len(image_data)))]
+                )
+            return request.not_found()
+
+        return request.make_json_response({
+            "Error": f"Unautorized"
+        }, status=401)
 
     @http.route('/v2/mobikul/odoo_attendance/logout', type='http', auth="none", methods=['POST'], csrf = False)
     def logout_page(self):
@@ -451,6 +473,7 @@ class MobikulAttendanceAPI(http.Controller):
                             "checkOutDate":_checkout and _checkout.strftime('%Y-%m-%d') or '',
                             "checkinTime":_checkin and  _checkin.strftime('%I:%M %p') or '',
                             "checkoutTime":_checkout and _checkout.strftime('%I:%M %p') or '',
+                            "workedHours": empAtd.worked_hours
                         })
                     response["attendaceList"] = attendacen_li
         return self._response('Attendance History', response)

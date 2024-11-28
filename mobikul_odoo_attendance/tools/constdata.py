@@ -84,6 +84,12 @@ def _get_image_url(base_url, model_name, record_id, field_name, write_date=0, wi
     else:
         return '%sweb/image/%s/%s/%s?unique=%s' % (base_url, model_name, record_id, field_name, re.sub('[^\d]', '', fields.Datetime.to_string(write_date)))
 
+def _get_employee_profile_url(base_url, record_id, write_date=0):
+    """ Returns a local url that points to the image field of a given browse record. """
+    if base_url and not base_url.endswith("/"):
+        base_url = base_url+"/"
+    return '%simage/employee/%s?unique=%s' % (base_url, record_id, re.sub('[^\d]', '', fields.Datetime.to_string(write_date)))
+
 def _tokenUpdate(self, customer_id=False,removeAllAuth=False):
     FcmRegister = request.env['fcm.attendance.devices'].sudo()
     already_registered = FcmRegister.search(
