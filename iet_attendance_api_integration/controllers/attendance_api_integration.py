@@ -32,7 +32,8 @@ class AttendanceApiController(http.Controller):
         if analytic_account_ids:
             for analytic_account in analytic_account_ids:
                 analytic_accounts_data.append({
-                    "name": analytic_account.name,
+                    "name": f"[{analytic_account.code}] {analytic_account.name}",
+                    "combined_name": f"[{analytic_account.code}] {analytic_account.name}",
                     "id": analytic_account.id,
                     "code": analytic_account.code,
                     "credit": analytic_account.credit,
@@ -48,5 +49,3 @@ class AttendanceApiController(http.Controller):
             return request.make_json_response({
                 "Error": f"NO Analytic Accounts Founded"
             }, status=400)
-
-
