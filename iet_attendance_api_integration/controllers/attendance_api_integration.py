@@ -32,7 +32,7 @@ class AttendanceApiController(http.Controller):
         if analytic_account_ids:
             for analytic_account in analytic_account_ids:
                 analytic_accounts_data.append({
-                    "name": f"[{analytic_account.code}] {analytic_account.name}",
+                    "name": {analytic_account.name},
                     "combined_name": f"[{analytic_account.code}] {analytic_account.name}",
                     "id": analytic_account.id,
                     "code": analytic_account.code,
