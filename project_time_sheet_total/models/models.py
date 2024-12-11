@@ -54,11 +54,23 @@ class HrPayrollInherit(models.Model):
             record.hours_shortfall = max(0, record.required_hours - record.timesheet_hours) + max(0, record.task_time)
             record.progress = (100.0 * record.timesheet_hours / record.required_hours) if record.required_hours else 0.0
 
-    @api.depends('timesheet_hours', 'attendance_hours')
+    # @api.depends('timesheet_hours', 'attendance_hours')
+    # def get_overtime_hours(self):
+    #     for rec in self:
+    #         rec.overtime_hours = rec.timesheet_hours - rec.attendance_hours if rec.timesheet_hours > rec.attendance_hours else 0.0
+    @api.depends('employee_id', 'date_from', 'date_to')
     def get_overtime_hours(self):
         for rec in self:
-            rec.overtime_hours = rec.timesheet_hours - rec.attendance_hours if rec.timesheet_hours > rec.attendance_hours else 0.0
-
+            overtime_requests = self.env['overtime.request'].search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('request_date', '>=', rec.date_from),
+                ('request_date', '<=', rec.date_to),
+                ('state', '=', 'approved')
+            ])
+            if overtime_requests:
+                rec.overtime_hours = sum(request.required_overtime_hours for request in overtime_requests)
+            else:
+                rec.overtime_hours = 0
     @api.depends('worked_days_line_ids.number_of_hours')
     def _compute_worked_days_hours(self):
         for record in self:

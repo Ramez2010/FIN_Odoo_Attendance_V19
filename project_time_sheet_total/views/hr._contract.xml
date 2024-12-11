@@ -8,8 +8,12 @@
 
                 <xpath expr="//field[@name='hr_responsible_id']" position="after">
                     <field name="overtime_rate"/>
+                    <field name="soci_emp"/>
+                    <field name="soci_comp"/>
+                    <field name="medical_ins_emp"/>
+                    <field name="medical_ins_comp"/>
                 </xpath>
-
+                
             </field>
         </record>
     </data>
