@@ -105,13 +105,13 @@ class Overtime(models.Model):
 
     def action_reset_to_draft(self):
         for rec in self:
+            if rec.state == 'approved':
+                rec._cancel_journal_entry()
+                rec.write({'state': 'cancelled'})
             if rec.state == 'cancelled':
                 rec._draft_journal_entry()
                 rec.write({'state': 'draft'})
 
-    def action_to_draft(self):
-        for rec in self:
-            rec.state='draft'
 
 
     def unlink(self):
