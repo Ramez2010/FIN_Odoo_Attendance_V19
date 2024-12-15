@@ -243,6 +243,7 @@ class MobikulAttendanceAPI(http.Controller):
             temp.update({
                 "id":employeeObj.id,
                 "name":employeeObj.name or "",
+                "company_id":userObj.company_id.id or 1,
                 "workMobile":employeeObj.mobile_phone or "",
                 "workPhone":employeeObj.work_phone or "",
                 "workEmail":employeeObj.work_email or "",
