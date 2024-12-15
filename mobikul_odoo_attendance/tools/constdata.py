@@ -45,7 +45,7 @@ def fcmDeviceCheckAlreadyAssignedToUser(self,userId,deviceId):
     response.update({
         "success":False,
         "loginAgain":True,
-        "message":_('Device used by other user. \n Contact your HR for support!'),
+        "message":_('This device is currently registered to another user.\nPlease contact your HR for assistance.'),
         "responseCode":400
     })
     return response
