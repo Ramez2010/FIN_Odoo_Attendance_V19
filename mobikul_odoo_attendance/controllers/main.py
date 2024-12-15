@@ -15,7 +15,7 @@ from base64 import b64decode
 from odoo import http, _,fields,tools
 from odoo.fields import Datetime, Date, Selection
 from odoo.addons.mobikul_odoo_attendance.tools.jwt_token import jwt_encode, jwt_decode
-from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone,fcmDeviceCheck,_pushNotification, _tokenUpdate,getDefaultData, _languageData, _get_image_url, _get_employee_profile_url, mobikul_display_address
+from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone, fcmDeviceCheck, fcmDeviceCheckAlreadyAssignedToUser, _pushNotification, _tokenUpdate,getDefaultData, _languageData, _get_image_url, _get_employee_profile_url, mobikul_display_address
 from odoo.http import request
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
@@ -322,14 +322,18 @@ class MobikulAttendanceAPI(http.Controller):
         if response.get('success'):
             context = response.get('context')
             if context.get('uid'):
-                response.update(self._get_user_data(context))
-                _logger.info("=========response=====%r",response)
+                # Custom Logic to ensure that only 1 user using the same deviceId
+                response.update(fcmDeviceCheckAlreadyAssignedToUser(self,context.get('partner_id'),self._mData.get("fcmDeviceId", "")))
                 if response.get('success'):
-                    _tokenUpdate(self,context.get('partner_id'))
-                    _pushNotification(self._mData.get("fcmToken", ""), condition='login',
-                                    customer_id=context.get('partner_id'))
-                else:
-                    response.pop("authorizeToken")
+                    response.update(self._get_user_data(context))
+                    _logger.info("=========response=====%r",response)
+                    if response.get('success'):
+                        _tokenUpdate(self,context.get('partner_id'))
+                        _pushNotification(self._mData.get("fcmToken", ""), condition='login',
+                                        customer_id=context.get('partner_id'))
+                    else:
+                        response.pop("authorizeToken")
+
         return self._response('Login', response)
 
     @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'])
@@ -357,8 +361,9 @@ class MobikulAttendanceAPI(http.Controller):
         response = self.__auth(authorize=True,notCheckFcm = True)
         if response.get('success'):
             context = response.get('context')
-            if context.get('uid'):
-                _tokenUpdate(self)
+            # Don't remove the assigned customer_id to the token!
+            # if context.get('uid'):
+            #     _tokenUpdate(self)
         return self._response('Login', response)
 
     @http.route('/v2/mobikul/odoo_attendance/homepage', type='http', auth="none", methods=['GET'])

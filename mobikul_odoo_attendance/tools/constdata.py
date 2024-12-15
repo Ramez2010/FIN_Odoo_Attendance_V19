@@ -29,6 +29,27 @@ def fcmDeviceCheck(self,user,dontCheck=False):
         })
     return response
 
+def fcmDeviceCheckAlreadyAssignedToUser(self,userId,deviceId):
+    '''
+        This function is used to check if the customer has assigned_id already or the deviceId
+        is already used. We want to restrict that multiple users use the same device.
+    '''
+    response = {"success":True}
+    fcmObj = request.env['fcm.attendance.devices'].sudo()
+    if fcmObj.search_count([("customer_id","=",userId)]) == 0 and fcmObj.search_count([("device_id","=",deviceId)]) == 0:
+        return response
+
+    if fcmObj.search_count([("customer_id","=",userId), ("device_id","=",deviceId)]) == 1:
+        return response
+
+    response.update({
+        "success":False,
+        "loginAgain":True,
+        "message":_('The user is logged in before using another phone or this phone was used by another user. Contact your HR for support!'),
+        "responseCode":400
+    })
+    return response
+
 def _pushNotification(token, condition='signup', customer_id=False):
     notifications = request.env['mobikul.attendance.notification.template'].sudo().search([
         ('condition', '=', condition)])
