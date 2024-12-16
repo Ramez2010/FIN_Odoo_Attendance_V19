@@ -100,6 +100,7 @@ class MobikulAttendanceAPI(http.Controller):
             self.authorize = kwargs.get('authorize', False)
             self._mData = request.httprequest.data and json.loads(
                 request.httprequest.data.decode('utf-8')) or {}
+            _logger.info("======requestData====%r",self._mData)
             self._mAuth = request.httprequest.headers.get('Authorization')
             if not self.authorize and self._mAuth:
                 self.authorize = True
@@ -393,7 +394,10 @@ class MobikulAttendanceAPI(http.Controller):
         """
         Api To Chnage the state of the user from checkin -> checkout and vice versa
         """
-        response = self.__auth(authorize=True,deviceId=self._mData.get("fcmDeviceId", False))
+        requestInput = request.httprequest.data and json.loads(
+            request.httprequest.data.decode('utf-8')) or {}
+        requestFcmDeviceId = requestInput.get("fcmDeviceId") 
+        response = self.__auth(authorize=True,deviceId=requestFcmDeviceId)
 
         # geolocation_tracking = True
         latitude = self._mData.get('latitude')
