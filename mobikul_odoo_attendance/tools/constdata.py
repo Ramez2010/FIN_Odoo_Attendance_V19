@@ -12,7 +12,7 @@ import pytz
 _logger = logging.getLogger(__name__)
 import re
 
-def fcmDeviceCheck(self,user,dontCheck=False):
+def fcmDeviceCheck(self,user,deviceId=False,dontCheck=False):
     '''
         This function is used to manage reset case and logout from all device case
         In case of reset passwrd customer id will removed from registered device
@@ -20,13 +20,22 @@ def fcmDeviceCheck(self,user,dontCheck=False):
     '''
     response = {"success":True}
     fcmObj = request.env['fcm.attendance.devices'].sudo()
-    if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
-        response.update({
-            "success":False,
-            "loginAgain":True,
-            "message":_('Authorization Revoked Please Login Again!'),
-            "responseCode":400
-        })
+    if deviceId == False:
+        if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
+            response.update({
+                "success":False,
+                "loginAgain":True,
+                "message":_('Authorization Revoked.\n Please Login Again!'),
+                "responseCode":400
+            })
+    else:
+        if fcmObj.search_count([("customer_id","=",user.partner_id.id),("device_id","=",deviceId)]) == 0 and not dontCheck:
+            response.update({
+                "success":False,
+                "loginAgain":True,
+                "message":_('Authorization Revoked.\n Please Login Again!'),
+                "responseCode":400
+            })
     return response
 
 def fcmDeviceCheckAlreadyAssignedToUser(self,userId,deviceId):

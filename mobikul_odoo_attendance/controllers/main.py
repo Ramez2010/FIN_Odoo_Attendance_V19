@@ -216,7 +216,7 @@ class MobikulAttendanceAPI(http.Controller):
         #---- Data/Context which is only added when we get user from Authentication part ---#
         if user:
             #----- Security Device Check  -----#
-            result.update(fcmDeviceCheck(self,user,kwargs.get("notCheckFcm")))
+            result.update(fcmDeviceCheck(self,user,kwargs.get("deviceId", False),kwargs.get("notCheckFcm")))
             #---- Context update----#
             if result['success']:
                 result["context"].update({
@@ -339,7 +339,7 @@ class MobikulAttendanceAPI(http.Controller):
 
     @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'])
     def public_employee_image_token(self, employee_id, **kwargs):
-        response = self.__auth(authorize=True)
+        response = self.__auth(authorize=True,notCheckFcm = True)
         if response.get('success'):
             employee = request.env['hr.employee'].sudo().browse(employee_id)
             if employee and employee.image_128:
@@ -393,7 +393,7 @@ class MobikulAttendanceAPI(http.Controller):
         """
         Api To Chnage the state of the user from checkin -> checkout and vice versa
         """
-        response = self.__auth(authorize=True)
+        response = self.__auth(authorize=True,deviceId=self._mData.get("fcmDeviceId", False))
 
         # geolocation_tracking = True
         latitude = self._mData.get('latitude')
