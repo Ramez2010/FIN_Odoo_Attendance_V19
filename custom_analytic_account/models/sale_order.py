@@ -3,11 +3,18 @@ from odoo import models, fields, api
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
-    analytic_account_id = fields.Many2one(
-        'account.analytic.account',
-        'Analytic Account',
+    # analytic_account_id = fields.Many2one(
+    #     'account.analytic.account',
+    #     'Analytic Account',
+    #     copy=False,
+    # )
+    project_id = fields.Many2one(
+        'project.project',
+        ' Project',
         copy=False,
-
+    )
+    analytic_account_id = fields.Many2one(
+        related="project_id.analytic_account_id"
     )
 
     @api.onchange('partner_id')
