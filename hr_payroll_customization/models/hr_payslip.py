@@ -26,7 +26,16 @@ class HrPayslip(models.Model):
             date_to = date_from + timedelta(days=30)
             date_to = date_to.replace(day=25)
         else:
-            date_from = datetime(date_today.year, date_today.month - 1, 26)
+            if date_today.month > 1:
+                year = date_today.year
+                month = date_today.month - 1
+            else:
+                year = date_today.year - 1
+                month = 12
+
+            day = 26
+            date_from = datetime(year, month, day)
+            # date_from = datetime(date_today.year, date_today.month - 1, 26)
             date_to = datetime(date_today.year, date_today.month, 25)
 
         res.update({
