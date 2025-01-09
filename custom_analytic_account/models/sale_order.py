@@ -8,14 +8,13 @@ class SaleOrder(models.Model):
     #     'Analytic Account',
     #     copy=False,
     # )
-    project_id = fields.Many2one(
-        'project.project',
-        ' Project',
-        copy=False,
-    )
-    analytic_account_id = fields.Many2one(
-        related="project_id.analytic_account_id"
-    )
+    # project_id = fields.Many2one(
+    #     'project.project',
+    #     ' Project',
+    # )
+    # analytic_account_id = fields.Many2one(
+    #     compute="_compute_analytic_account_id", store=True,
+    # )
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -25,13 +24,12 @@ class SaleOrder(models.Model):
         return {
             'domain': {'analytic_account_id': [('partner_id', '=', self.partner_id.id)]}
         }
-
-    # @api.onchange('partner_id')
-    # def get_analytic_account(self):
+    #
+    # @api.depends('project_id')
+    # def _compute_analytic_account_id(self):
     #     for rec in self:
-    #         analytic_account = self.env['account.analytic.account'].search([('partner_id', '=', rec.partner_id.id)])
-    #         print(analytic_account, "analytic")
-    #         rec.analytic_account_id = analytic_account[0].id
+    #         if rec.project_id:
+    #             rec.analytic_account_id = rec.project_id.analytic_account_id
 
     def _prepare_invoice(self, *args, **kwargs):
         invoice_values = super()._prepare_invoice(*args, **kwargs)
