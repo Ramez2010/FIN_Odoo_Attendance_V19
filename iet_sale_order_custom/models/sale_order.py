@@ -30,3 +30,12 @@ class SaleOrder(models.Model):
             if rec.display_project_id:
                 print("5")
                 rec.analytic_account_id = rec.display_project_id.analytic_account_id
+
+    def sale_project_update(self):
+        orders = self.search([])
+        for order in orders:
+            if order.analytic_account_id and not order.display_project_id:
+                project_id = self.env['project.project'].search(
+                    [('analytic_account_id', '=', order.analytic_account_id.id)], limit=1)
+                if project_id:
+                    order.display_project_id = project_id
