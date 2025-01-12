@@ -33,7 +33,7 @@ class HREmployee(models.Model):
             ('user_id.active', '=', True)
         ])
 
-        max_users = 50  # Adjust this value
+        max_users = 49  # Adjust this value
 
         if employee_with_active_users_count >= max_users:
             raise UserError(_("You cannot assign more users to employees. The maximum limit of %s active users has been reached.\n Please contact your RiadaHR Customer Support (support@alriada.tech) to purchase more users.") % max_users)
