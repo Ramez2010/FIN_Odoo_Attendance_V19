@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 
+
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -9,14 +10,14 @@ class ResConfigSettings(models.TransientModel):
     timesheet_start_date = fields.Date(string="Start Date")
     timesheet_end_date = fields.Date(string="End Date")
 
-
     def get_values(self):
         res = super(ResConfigSettings, self).get_values()
         params = self.env['ir.config_parameter'].sudo()
 
         timesheet_journal_id = params.get_param('timesheet_accounting.timesheet_journal_id', default=False)
         timesheet_debit_account_id = params.get_param('timesheet_accounting.timesheet_debit_account_id', default=False)
-        timesheet_credit_account_id = params.get_param('timesheet_accounting.timesheet_credit_account_id', default=False)
+        timesheet_credit_account_id = params.get_param('timesheet_accounting.timesheet_credit_account_id',
+                                                       default=False)
         timesheet_start_date = params.get_param('timesheet_accounting.timesheet_start_date', default=False)
         timesheet_end_date = params.get_param('timesheet_accounting.timesheet_end_date', default=False)
 
@@ -30,7 +31,6 @@ class ResConfigSettings(models.TransientModel):
         print("xxxxxxxxxx", res)
         return res
 
-
     def set_values(self):
         super(ResConfigSettings, self).set_values()
         params = self.env['ir.config_parameter'].sudo()
@@ -39,52 +39,58 @@ class ResConfigSettings(models.TransientModel):
         params.set_param('timesheet_accounting.timesheet_debit_account_id', self.timesheet_debit_account_id.id)
         params.set_param('timesheet_accounting.timesheet_credit_account_id', self.timesheet_credit_account_id.id)
         params.set_param('timesheet_accounting.timesheet_start_date', self.timesheet_start_date)
+        params.set_param('project_time_sheet_total.timesheet_start_date', self.timesheet_start_date)
         params.set_param('timesheet_accounting.timesheet_end_date', self.timesheet_end_date)
+        params.set_param('project_time_sheet_total.timesheet_end_date', self.timesheet_end_date)
 
     def _generate_journal_entries(self):
+        print("fffffffffffffffffffffffffffffffffffffff")
         start_date = self.env['ir.config_parameter'].sudo().get_param('timesheet_accounting.timesheet_start_date')
         end_date = self.env['ir.config_parameter'].sudo().get_param('timesheet_accounting.timesheet_end_date')
         journal_id = self.env['ir.config_parameter'].sudo().get_param('timesheet_accounting.timesheet_journal_id')
-        jour_obj = self.env['account.journal'].search([('id','=',journal_id)])
+        jour_obj = self.env['account.journal'].search([('id', '=', journal_id)])
         currency_id = jour_obj.currency_id.id
         debit_account_id = self.env['ir.config_parameter'].sudo().get_param(
             'timesheet_accounting.timesheet_debit_account_id')
+        print("debit......", debit_account_id)
         credit_account_id = self.env['ir.config_parameter'].sudo().get_param(
             'timesheet_accounting.timesheet_credit_account_id')
+        print("credit..........", credit_account_id)
 
         timesheets = self.env['account.analytic.line'].search([
             ('date', '>=', start_date),
             ('date', '<=', end_date)
         ])
-        print('timesheets',timesheets)
+        print('timesheets', timesheets)
 
         projects = timesheets.mapped('project_id')
         for project in projects:
             print(project.read())
             project_timesheets = timesheets.filtered(lambda t: t.project_id == project)
+            print("project_timesheets...", project_timesheets)
             amount = sum(project_timesheets.mapped('amount'))
-            print("amount is....",project_timesheets[0].amount)
-
+            print("amount is....", amount)
+            # print("amount is....", project_timesheets[0].amount)
+            default_currency = self.env['res.currency'].search([('name', '=', 'EGP')], limit=1)
             move_vals = {
                 'journal_id': jour_obj.id,
                 'move_type': 'entry',
                 'ref': project.name,
                 'date': fields.Date.context_today(self),
-                'currency_id': currency_id if currency_id else 1,
+                'currency_id': currency_id if currency_id else default_currency.id,
                 'line_ids': [
                     (0, 0, {
                         'name': 'Timesheet Entry',
                         'account_id': int(debit_account_id),
                         'analytic_distribution': {project.analytic_account_id.id: 100},
-                        'debit': amount,
+                        'debit': amount * -1 if amount < 0 else amount,
                         'credit': 0,
                     }),
                     (0, 0, {
                         'name': 'Timesheet Entry',
-                        'account_id': int(debit_account_id),
-                        #'analytic_distribution': {project.analytic_account_id.id: 100},
+                        'account_id': int(credit_account_id),
                         'debit': 0,
-                        'credit': amount,
+                        'credit': amount * -1 if amount < 0 else amount,
                     }),
                 ],
             }

@@ -9,7 +9,7 @@
                 <!--                    <button string="Create Task" type="object" name="create_project_task" class="oe_highlight"/>-->
                 <!--                </xpath>-->
                 <xpath expr="//field[@name='struct_id']" position="after">
-<!--                    <field name="enable_analytic_distribution" widget="boolean_toggle" invisible="0"/>-->
+                    <!--                    <field name="enable_analytic_distribution" widget="boolean_toggle" invisible="0"/>-->
                 </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page string="Total hour" name="hours_page">
@@ -36,10 +36,10 @@
                                         <field name="employee_id"/>
                                         <field name="date"/>
                                         <field name="project_id"/>
-<!--                                        <field name="related_account_id" invisible="0" optional="hide"/>-->
+                                        <!--                                        <field name="related_account_id" invisible="0" optional="hide"/>-->
                                         <field name="task_id"/>
                                         <field name="unit_amount"/>
-<!--                                        <field name="work_percentage" invisible="0" optional="hide"/>-->
+                                        <!--                                        <field name="work_percentage" invisible="0" optional="hide"/>-->
                                     </tree>
                                 </field>
                             </group>
@@ -48,5 +48,21 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="hr_timesheet_line_tree_inh" model="ir.ui.view">
+            <field name="name">hr_timesheet_line_tree_inh</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_tree"/>
+            <field name="arch" type="xml">
+                    <xpath expr="//field[@name='project_id']" position="after">
+<!--                        <field name="timesheet_start_date"/>-->
+<!--                        <field name="timesheet_end_date"/>-->
+                        <field name="custom_amount"/>
+                    </xpath>
+
+            </field>
+        </record>
+
+
     </data>
 </odoo>

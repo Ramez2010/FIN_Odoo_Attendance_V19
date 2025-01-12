@@ -8,6 +8,33 @@ class AccountAnalyticLine(models.Model):
     is_worker = fields.Boolean(string="Is Worker", compute='_compute_is_worker', store=True)
     working_hour = fields.Float(string="Hours per Day", compute='_compute_hours_per_day', store=True)
 
+    timesheet_start_date = fields.Date(string="Start Date", compute='_get_config_settings')
+    timesheet_end_date = fields.Date(string="End Date", compute='_get_config_settings')
+
+    custom_amount = fields.Monetary(compute='_compute_custom_amount', string="Hour Rate")
+
+    def _get_config_settings(self):
+        config_settings = self.env['res.config.settings'].sudo().get_values()
+        self.timesheet_start_date = config_settings.get('timesheet_start_date')
+        self.timesheet_end_date = config_settings.get('timesheet_end_date')
+
+    # @api.depends('employee_id', 'employee_id.contract_id.wage', 'timesheet_start_date', 'timesheet_end_date')
+    def _compute_custom_amount(self):
+        for line in self:
+            work_entries = self.env['hr.work.entry'].search([
+                ('employee_id', '=', line.employee_id.id),
+                ('date_start', '>', fields.Datetime.to_datetime(line.timesheet_start_date)),
+                ('date_start', '<', fields.Datetime.to_datetime(line.timesheet_end_date)),
+                ('work_entry_type_id.name', '=', 'Attendance'),
+            ])
+            print(work_entries)
+            print( fields.Datetime.to_datetime(line.timesheet_start_date))
+            print( fields.Datetime.to_datetime(line.timesheet_end_date))
+            duration = sum(work_entries.mapped('duration'))
+            print(duration)
+
+            line.custom_amount = line.employee_id.contract_id.wage / duration if duration > 0 else 0
+
     @api.depends('employee_id')
     def _compute_is_worker(self):
         for line in self:
