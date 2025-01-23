@@ -22,17 +22,25 @@ class AccountAnalyticLine(models.Model):
     # @api.depends('employee_id', 'employee_id.contract_id.wage', 'timesheet_start_date', 'timesheet_end_date')
     def _compute_custom_amount(self):
         for line in self:
-            work_entries = self.env['hr.work.entry'].search([
-                ('employee_id', '=', line.employee_id.id),
-                ('date_start', '>', fields.Datetime.to_datetime(date_utils.start_of(line.date.month, "month"))),
-                ('date_start', '<', fields.Datetime.to_datetime(date_utils.end_of(line.date.month, "month"))),
-                ('work_entry_type_id.name', '=', 'Attendance'),
-            ])
             # work_entries = self.env['hr.work.entry'].search([
             #     ('employee_id', '=', line.employee_id.id),
-            #     ('date_start.month', '=', line.date.month),
+            #     ('date_start', '>', fields.Datetime.to_datetime(date_utils.start_of(line.date.month, "month"))),
+            #     ('date_start', '<', fields.Datetime.to_datetime(date_utils.end_of(line.date.month, "month"))),
             #     ('work_entry_type_id.name', '=', 'Attendance'),
             # ])
+            month = line.date.month
+            year = line.date.year
+
+            start_date = datetime(year, month, 1)
+            end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
+
+            work_entries = self.env['hr.work.entry'].search([
+                ('employee_id', '=', line.employee_id.id),
+                ('date_start', '>=', start_date),
+                ('date_start', '<', end_date),
+                ('work_entry_type_id.name', '=', 'Attendance'),
+            ])
+
             duration = sum(work_entries.mapped('duration'))
             print(duration)
 
