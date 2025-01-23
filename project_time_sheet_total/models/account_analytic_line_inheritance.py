@@ -21,15 +21,17 @@ class AccountAnalyticLine(models.Model):
     # @api.depends('employee_id', 'employee_id.contract_id.wage', 'timesheet_start_date', 'timesheet_end_date')
     def _compute_custom_amount(self):
         for line in self:
+            # work_entries = self.env['hr.work.entry'].search([
+            #     ('employee_id', '=', line.employee_id.id),
+            #     ('date_start', '>', fields.Datetime.to_datetime(line.timesheet_start_date)),
+            #     ('date_start', '<', fields.Datetime.to_datetime(line.timesheet_end_date)),
+            #     ('work_entry_type_id.name', '=', 'Attendance'),
+            # ])
             work_entries = self.env['hr.work.entry'].search([
                 ('employee_id', '=', line.employee_id.id),
-                ('date_start', '>', fields.Datetime.to_datetime(line.timesheet_start_date)),
-                ('date_start', '<', fields.Datetime.to_datetime(line.timesheet_end_date)),
+                ('date_start.month', '=', line.date.month),
                 ('work_entry_type_id.name', '=', 'Attendance'),
             ])
-            print(work_entries)
-            print( fields.Datetime.to_datetime(line.timesheet_start_date))
-            print( fields.Datetime.to_datetime(line.timesheet_end_date))
             duration = sum(work_entries.mapped('duration'))
             print(duration)
 
