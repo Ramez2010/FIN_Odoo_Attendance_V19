@@ -28,8 +28,9 @@ class SaleOrder(models.Model):
     def _compute_analytic_account_id(self):
         for rec in self:
             if rec.display_project_id:
-                print("5")
                 rec.analytic_account_id = rec.display_project_id.analytic_account_id
+            else:
+                rec.analytic_account_id = False
 
     def sale_project_update(self):
         orders = self.search([])
