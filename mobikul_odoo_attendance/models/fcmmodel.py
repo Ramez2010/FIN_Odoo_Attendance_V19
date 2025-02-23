@@ -92,22 +92,51 @@ class MobikulAtdNotificationTemplate(models.Model):
             to_data = {
                 "registration_ids": [r['token'] for r in reg_data]
             }
-        notification = dict(title=self.notification_title,
-                            body=self.notification_body, sound="default")
-        if self.notification_color:
-            notification['color'] = self.notification_color
-        if self.notification_tag:
-            notification['tag'] = self.notification_tag
 
-        fcm_payload = dict(notification=notification)
-        fcm_payload.update(to_data)
+        # Determine whether to use `token` or `tokens`
+        fcm_recipient = {}
+
+        # Check if 'to_data' is a dictionary
+        if isinstance(to_data, dict):
+            if 'to' in to_data and isinstance(to_data['to'], str):  # Single token
+                fcm_recipient["tokens"] = [to_data['to']]  # Single token
+            elif 'registration_ids' in to_data and isinstance(to_data['registration_ids'], list):  # Multiple tokens
+                fcm_recipient["tokens"] = to_data['registration_ids']  # Multiple tokens
+            else:
+                raise ValueError(f"No valid recipient specified (token, tokens, or topic). Data: {json.dumps(to_data, indent=2)}")
+        else:
+            raise ValueError(f"No valid recipient specified (token, tokens, or topic). Data: {json.dumps(to_data, indent=2)}")
+
+
+        notification = dict(
+            title=self.notification_title,
+            body=self.notification_body,
+        )
+
+        android_config = {
+            "notification": {
+                "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "color": self.notification_color if self.notification_color else "#FFFFFF",
+                "tag": self.notification_tag if self.notification_tag else None
+            },
+            "priority": "high"
+        }
+
         data_message = dict(type="", id="", domain="", image="", name="")
         data_message['name'] = self.notification_title
         data_message['type'] = 'none'
         data_message['image'] = _get_image_url(self._context.get(
             'base_url'), 'mobikul.attendance.notification.template', self.id, 'image', self.write_date)
-        data_message['notificationId'] = random.randint(1, 99999)
-        fcm_payload['data'] = data_message
+        data_message['notificationId'] = str(random.randint(1, 99999))
+
+        fcm_payload = {
+            "message": {
+                "notification": notification,
+                "data": data_message,
+                "android": android_config
+            }
+        }
+
         domain = [('res_model', '=', self._name),
             ('res_field', '=', 'image'),
             ('res_id', 'in', [self.id])]
@@ -117,7 +146,20 @@ class MobikulAtdNotificationTemplate(models.Model):
                 title=self.notification_title, body=self.notification_body, customer_id=customer_id,
                 banner=attachment.datas, datatype='default'
             )
-        return self._pushMe(self._get_key(), json.dumps(fcm_payload).encode('utf8'), customer_id and data or False)
+
+        allStatus = True
+        allSummary = ""
+        for token in fcm_recipient["tokens"]:
+            try:
+                fcm_payload["message"]["token"] = token
+                status, summary = self._pushMe(self._get_key(), json.dumps(fcm_payload).encode('utf8'), customer_id and data or False)  # Replace with your function to send the API request
+                if not status:
+                    allStatus = False
+                allSummary += f"{summary}\n"
+            except Exception as e:
+                allStatus = False
+                allSummary += f"Failed to send notification to {token}: {str(e)}\n"
+        return [allStatus, allSummary]
 
     name = fields.Char('Name', required=True, translate=True)
     notification_color = fields.Char('Color', default='PURPLE')

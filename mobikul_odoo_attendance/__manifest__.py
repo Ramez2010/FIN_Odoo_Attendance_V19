@@ -60,5 +60,5 @@
   "price"                :  199.0,
   "currency"             :  "USD",
   "pre_init_hook"        :  "pre_init_check",
-  "external_dependencies": {"python" : ["jwt"]},
+  "external_dependencies": {"python" : ["jwt", "google-auth"]},
 }
