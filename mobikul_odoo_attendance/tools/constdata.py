@@ -123,8 +123,10 @@ def _get_employee_profile_url(base_url, record_id, write_date=0):
 
 def _tokenUpdate(self, customer_id=False,removeAllAuth=False):
     FcmRegister = request.env['fcm.attendance.devices'].sudo()
+    # already_registered = FcmRegister.search(
+    #     [('device_id', '=', self._mData.get("fcmDeviceId"))])
     already_registered = FcmRegister.search(
-        [('device_id', '=', self._mData.get("fcmDeviceId"))])
+        [('device_id', '=', self._mData.get("fcmDeviceId")), ("customer_id","=",customer_id)]) #temporary
     if already_registered:
         already_registered.write(
             {'token': self._mData.get("fcmToken"), 'customer_id': customer_id})
