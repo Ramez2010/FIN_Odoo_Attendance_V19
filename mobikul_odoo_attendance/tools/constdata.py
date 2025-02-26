@@ -45,7 +45,8 @@ def fcmDeviceCheckAlreadyAssignedToUser(self,userId,deviceId):
     '''
     response = {"success":True}
     fcmObj = request.env['fcm.attendance.devices'].sudo()
-    if fcmObj.search_count([("customer_id","=",userId)]) == 0 and fcmObj.search_count([("device_id","=",deviceId)]) == 0:
+    #if fcmObj.search_count([("customer_id","=",userId)]) == 0 and fcmObj.search_count([("device_id","=",deviceId)]) == 0:
+    if fcmObj.search_count([("customer_id","=",userId)]) == 0: # temp fix for APTE
         return response
 
     if fcmObj.search_count([("customer_id","=",userId), ("device_id","=",deviceId)]) == 1:
