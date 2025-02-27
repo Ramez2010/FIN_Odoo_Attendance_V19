@@ -284,6 +284,7 @@ class MobikulAtdNotification(models.Model):
         record.with_context(lang='ar_001').notification_title = 'تذكير'
         record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الدخول اذا بدأت العمل.'
         record.action_confirm()
+        record.push_now()
         # record._message_auto_subscribe()
         # return record
 
@@ -300,6 +301,7 @@ class MobikulAtdNotification(models.Model):
         record.with_context(lang='ar_001').notification_title = 'تذكير'
         record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا انهيت العمل.'
         record.action_confirm()
+        record.push_now()
         # record._message_auto_subscribe()
         # return record
 
