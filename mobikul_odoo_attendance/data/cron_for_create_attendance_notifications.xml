@@ -1,0 +1,31 @@
+<odoo>
+    <data noupdate="1">
+
+        <record id="ir_cron_mobikul_attendance_notification" model="ir.cron">
+            <field name="name">Create Attendance Notification</field>
+            <field name="model_id" ref="model_mobikul_attendance_notification"/>
+            <field name="state">code</field>
+            <field name="code">model.create_attendance_notification()</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number" eval="1"/>
+            <field name="interval_type">days</field>
+            <field name="numbercall" eval="-1"/>
+            <field name="nextcall"
+                   eval="(datetime.now() + timedelta(days=1)).replace(hour=6, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+        <record id="ir_cron_mobikul_departure_notification" model="ir.cron">
+            <field name="name">Create Departure Notification</field>
+            <field name="model_id" ref="model_mobikul_attendance_notification"/>
+            <field name="state">code</field>
+            <field name="code">model.create_departure_notification()</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number" eval="1"/>
+            <field name="interval_type">days</field>
+            <field name="numbercall" eval="-1"/>
+            <field name="nextcall"
+                   eval="(datetime.now() + timedelta(days=1)).replace(hour=14, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+    </data>
+</odoo>

@@ -271,6 +271,38 @@ class MobikulAtdNotification(models.Model):
         action['res_id'] = self.copy().id
         return action
 
+    def create_attendance_notification(self):
+        # Create the record with translations
+        record = self.create({
+            'name': 'Reminder',
+            'notification_title': 'Reminder',
+            'notification_body': 'please check in if you started your work ',
+        })
+
+        # Set the Arabic translation
+        record.with_context(lang='ar_001').name = 'تذكير'
+        record.with_context(lang='ar_001').notification_title = 'تذكير'
+        record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الدخول اذا بدأت العمل.'
+        record.action_confirm()
+        # record._message_auto_subscribe()
+        # return record
+
+    def create_departure_notification(self):
+        # Create the record with translations
+        record = self.create({
+            'name': 'Reminder',
+            'notification_title': 'Reminder',
+            'notification_body': 'please checkout if you ended your work ',
+        })
+
+        # Set the Arabic translation
+        record.with_context(lang='ar_001').name = 'تذكير'
+        record.with_context(lang='ar_001').notification_title = 'تذكير'
+        record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا انهيت العمل.'
+        record.action_confirm()
+        # record._message_auto_subscribe()
+        # return record
+
 class MobikulAtdNotificationMessages(models.Model):
     _name = 'mobikul.attendance.messages'
     _description = 'Mobikul Attendance Notification Messages'
