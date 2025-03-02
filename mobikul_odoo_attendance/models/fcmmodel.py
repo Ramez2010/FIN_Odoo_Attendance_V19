@@ -155,7 +155,9 @@ class MobikulAtdNotificationTemplate(models.Model):
                 status, summary = self._pushMe(self._get_key(), json.dumps(fcm_payload).encode('utf8'), customer_id and data or False)  # Replace with your function to send the API request
                 if not status:
                     allStatus = False
-                allSummary += f"{summary}\n"
+                    allSummary += f"Failed to send notification to {token}: {summary}\n"
+                else:
+                    allSummary += f"{summary}\n"
             except Exception as e:
                 allStatus = False
                 allSummary += f"Failed to send notification to {token}: {str(e)}\n"
