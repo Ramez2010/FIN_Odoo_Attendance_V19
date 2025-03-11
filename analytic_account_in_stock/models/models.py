@@ -30,6 +30,15 @@ class CustomStockPickingInherit(models.Model):
         return picking
 
     is_updated = fields.Boolean()
+    is_return_ref = fields.Boolean(compute='_compute_is_return_ref')
+
+    @api.depends('origin')
+    def _compute_is_return_ref(self):
+        for rec in self:
+            if 'return' in (rec.origin or '').lower():
+                rec.is_return_ref = True
+            else:
+                rec.is_return_ref = False
 
     def button_update_analytic_account(self):
         for rec in self:
@@ -45,7 +54,7 @@ class CustomStockPickingInherit(models.Model):
                                 # Clear the analytic account on debit line before applying it to the credit line
                                 if line.debit > 0:
                                     line.analytic_distribution = False
-                                
+
                                 # Assign analytic account to the credit line
                                 if line.credit > 0:
                                     line.analytic_distribution = {rec.analytic_account_id.id: 100}
@@ -58,6 +67,7 @@ class CustomStockPickingInherit(models.Model):
                     raise UserError('There is no journal entry for this Delivery.')
 
         return True
+
 
 class AccountAsset(models.Model):
     _inherit = 'account.asset'
