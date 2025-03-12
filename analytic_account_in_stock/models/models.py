@@ -54,7 +54,7 @@ class CustomStockPickingInherit(models.Model):
                                 # Clear the analytic account on debit line before applying it to the credit line
                                 if line.debit > 0:
                                     line.analytic_distribution = False
-
+                                
                                 # Assign analytic account to the credit line
                                 if line.credit > 0:
                                     line.analytic_distribution = {rec.analytic_account_id.id: 100}
@@ -67,7 +67,6 @@ class CustomStockPickingInherit(models.Model):
                     raise UserError('There is no journal entry for this Delivery.')
 
         return True
-
 
 class AccountAsset(models.Model):
     _inherit = 'account.asset'
