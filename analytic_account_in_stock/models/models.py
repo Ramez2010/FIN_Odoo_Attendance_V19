@@ -10,6 +10,7 @@ class CustomStockPickingInherit(models.Model):
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account', required=False,
                                           index=True,
                                           states={'done': [('readonly', True)], 'cancel': [('readonly', True)]})
+    analytic_account_ref_id = fields.Char()
 
     def button_validate(self):
         picking = super(CustomStockPickingInherit, self).button_validate()
