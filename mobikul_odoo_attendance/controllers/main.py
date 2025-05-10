@@ -396,7 +396,7 @@ class MobikulAttendanceAPI(http.Controller):
         """
         requestInput = request.httprequest.data and json.loads(
             request.httprequest.data.decode('utf-8')) or {}
-        requestFcmDeviceId = requestInput.get("fcmDeviceId") 
+        requestFcmDeviceId = requestInput.get("fcmDeviceId")
         response = self.__auth(authorize=True,deviceId=requestFcmDeviceId)
 
         # geolocation_tracking = True
@@ -450,6 +450,9 @@ class MobikulAttendanceAPI(http.Controller):
                         response['success'] = False
                         response['message'] = _("%s".format(e.args[0]))
                         response['responseCode'] = 400
+
+        _logger.info("=========clockinout-response=====%r",response)
+
         return self._response('Checkin Checkout', response)
 
     @http.route('/v2/mobikul/odoo_attendance/history', type='http', auth="none", methods=['GET'])
