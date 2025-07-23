@@ -156,7 +156,7 @@ class Overtime(models.Model):
         ])
         total_hours = sum(timesheet.unit_amount for timesheet in timesheets)
         return total_hours
-    #
+
     # @api.constrains('employee_id', 'request_date')
     # def _check_timesheet_hours(self):
     #     for rec in self:
@@ -168,5 +168,5 @@ class Overtime(models.Model):
     #             if timesheet_hours < rec.employee_id.resource_calendar_id.hours_per_day:
     #                 raise exceptions.ValidationError(
     #                     'Overtime request cannot be created or edited because the timesheet hours exceed 8 hours on the request date.')
-    #
-    #
+
+

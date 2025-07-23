@@ -1,6 +1,5 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from odoo.tools import date_utils
 from datetime import datetime
 
 class AccountAnalyticLine(models.Model):
@@ -24,8 +23,8 @@ class AccountAnalyticLine(models.Model):
         for line in self:
             # work_entries = self.env['hr.work.entry'].search([
             #     ('employee_id', '=', line.employee_id.id),
-            #     ('date_start', '>', fields.Datetime.to_datetime(date_utils.start_of(line.date.month, "month"))),
-            #     ('date_start', '<', fields.Datetime.to_datetime(date_utils.end_of(line.date.month, "month"))),
+            #     ('date_start', '>', fields.Datetime.to_datetime(line.timesheet_start_date)),
+            #     ('date_start', '<', fields.Datetime.to_datetime(line.timesheet_end_date)),
             #     ('work_entry_type_id.name', '=', 'Attendance'),
             # ])
             month = line.date.month
@@ -42,7 +41,6 @@ class AccountAnalyticLine(models.Model):
             ])
 
             duration = sum(work_entries.mapped('duration'))
-            print(duration)
 
             line.custom_amount = line.employee_id.contract_id.wage / duration if duration > 0 else 0
 

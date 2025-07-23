@@ -1,7 +1,8 @@
 from ast import literal_eval
 from odoo import api, fields, models, _, SUPERUSER_ID
-from datetime import datetime
+from datetime import datetime, timedelta
 from odoo.exceptions import UserError
+import pytz
 import random
 import json
 import re
@@ -58,3 +59,63 @@ class Mobikul_Attendance(models.Model):
     
     def unlink(self):
         raise UserError(_('You cannot remove/deactivate this Configuration.'))
+
+
+class HRAttendanceInherit(models.Model):
+    _inherit = 'hr.attendance'
+
+    def check_out_notifications_reminder(self):
+        now = datetime.now()
+        threshold_time = now - timedelta(hours=8)
+        one_hour_ago = now - timedelta(hours=1)
+
+        # Search for attendance records that match the criteria
+        attendance_records = self.search([
+            ('check_in', '>=', now.replace(hour=0, minute=0, second=0, microsecond=0)),
+            ('check_in', '<=', threshold_time),
+            ('check_out', '=', False)
+        ])
+
+        for record in attendance_records:
+            # Check if a notification has already been sent in the last hour
+            last_notification = self.env['mobikul.attendance.notification'].search([
+                ('device_ids', 'in', record.employee_id.user_id.partner_id.id),
+                ('create_date', '>=', one_hour_ago)
+            ], limit=1)
+
+            if last_notification:
+                _logger.info('Notification already sent for employee %s within the last hour.', record.employee_id.name)
+                continue  # Skip sending a new notification
+
+            # Prepare to send notification
+            device_id = False
+            device = self.env['fcm.attendance.devices'].sudo().search([
+                ('customer_id', '=', record.employee_id.user_id.partner_id.id)
+            ], limit=1)
+
+            if device:
+                device_id = device.id
+
+            self.create_departure_notification(device_id)
+
+    def create_departure_notification(self, device_id):
+        vals = {
+            'name': 'Reminder To Checkout',
+            'notification_title': 'Reminder To Checkout',
+            'notification_type': 'token-manual',
+            'notification_body': "Please don't forget to checkout if you ended your work.",
+        }
+        if device_id:
+            vals['device_ids'] = [(6, 0, [device_id])]
+
+        record = self.env['mobikul.attendance.notification'].create(vals)
+
+        try:
+            # Set the Arabic translation
+            record.with_context(lang='ar_001').name = 'تذكير بتسجيل الخروج'
+            record.with_context(lang='ar_001').notification_title = 'تذكير بتسجيل الخروج'
+            record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا انهيت العمل.'
+            record.action_confirm()
+            record.push_now()
+        except Exception as e:
+            _logger.error('Failed to send notification: %s', e)

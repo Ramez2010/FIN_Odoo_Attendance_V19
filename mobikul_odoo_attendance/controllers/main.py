@@ -8,7 +8,10 @@ import base64
 import logging
 import werkzeug
 import json
-from jwt.exceptions import DecodeError
+try:
+    from jwt.exceptions import DecodeError
+except ImportError:
+    from jwt import InvalidTokenError as DecodeError
 from ast import literal_eval
 from functools import wraps
 from base64 import b64decode
@@ -100,7 +103,6 @@ class MobikulAttendanceAPI(http.Controller):
             self.authorize = kwargs.get('authorize', False)
             self._mData = request.httprequest.data and json.loads(
                 request.httprequest.data.decode('utf-8')) or {}
-            _logger.info("======requestData====%r",self._mData)
             self._mAuth = request.httprequest.headers.get('Authorization')
             if not self.authorize and self._mAuth:
                 self.authorize = True

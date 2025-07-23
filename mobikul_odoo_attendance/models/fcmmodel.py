@@ -1,7 +1,7 @@
 
 from ast import literal_eval
 from odoo import api, fields, models, _, SUPERUSER_ID
-from datetime import datetime
+from datetime import datetime, timedelta
 from odoo.exceptions import UserError
 import random
 import json
@@ -275,37 +275,53 @@ class MobikulAtdNotification(models.Model):
 
     def create_attendance_notification(self):
         # Create the record with translations
-        record = self.create({
-            'name': 'Reminder',
-            'notification_title': 'Reminder',
-            'notification_body': 'please check in if you started your work ',
-        })
+        apte_topic_id = self.env['fcm.attendance.topics'].sudo().search([
+            ('name', '=', 'apte')
+        ], limit=1)
+        print(apte_topic_id.name)
+        if apte_topic_id:
+            record = self.create({
+                'name': 'Daily check in reminder',
+                'notification_title': 'Daily check in reminder',
+                'notification_type': 'topic',
+                'topic_id': apte_topic_id.id,
+                'notification_body': 'please check in if you started your work ',
+            })
 
-        # Set the Arabic translation
-        record.with_context(lang='ar_001').name = 'تذكير'
-        record.with_context(lang='ar_001').notification_title = 'تذكير'
-        record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الدخول اذا بدأت العمل.'
-        record.action_confirm()
-        record.push_now()
-        # record._message_auto_subscribe()
-        # return record
+            # Set the Arabic translation
+            record.with_context(lang='ar_001').name = 'تذكير بتسجيل الدخول اليومي '
+            record.with_context(lang='ar_001').notification_title = 'تذكير بتسجيل الدخول اليومي '
+            record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الدخول اذا بدأت العمل.'
+            record.action_confirm()
+            record.push_now()
+            # record._message_auto_subscribe()
+            # return record
 
     def create_departure_notification(self):
         # Create the record with translations
-        record = self.create({
-            'name': 'Reminder',
-            'notification_title': 'Reminder',
-            'notification_body': 'please checkout if you ended your work ',
-        })
+        apte_topic_id = self.env['fcm.attendance.topics'].sudo().search([
+            ('name', '=', 'apte')
+        ], limit=1)
+        print(apte_topic_id.name)
+        if apte_topic_id:
+            record = self.create({
+                'name': 'Daily check out reminder',
+                'notification_title': 'Daily check out reminder',
+                'notification_type': 'topic',
+                'topic_id': apte_topic_id.id,
+                'notification_body': 'please check out if you started your work ',
+            })
 
-        # Set the Arabic translation
-        record.with_context(lang='ar_001').name = 'تذكير'
-        record.with_context(lang='ar_001').notification_title = 'تذكير'
-        record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا انهيت العمل.'
-        record.action_confirm()
-        record.push_now()
-        # record._message_auto_subscribe()
-        # return record
+            # Set the Arabic translation
+            record.with_context(lang='ar_001').name = 'تذكير بتسجيل الخروج اليومي '
+            record.with_context(lang='ar_001').notification_title = 'تذكير بتسجيل الخروج اليومي '
+            record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا بدأت العمل.'
+            record.action_confirm()
+            record.push_now()
+            # record._message_auto_subscribe()
+            # return record
+
+
 
 class MobikulAtdNotificationMessages(models.Model):
     _name = 'mobikul.attendance.messages'

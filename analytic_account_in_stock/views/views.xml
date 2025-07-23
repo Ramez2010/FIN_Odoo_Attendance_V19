@@ -7,18 +7,21 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
 
-<!--            <xpath expr="//field[@name='origin']" position="after">-->
-<!--                <field name="analytic_account_id"-->
-<!--                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": ["|",["picking_type_code","=","outgoing"],["picking_type_name","=","Return Customers"]]}'/>-->
-<!--                <field name="is_updated" invisible="1"/>-->
-<!--                <field name="picking_type_name" invisible="1"/>-->
-<!--            </xpath>-->
+            <!--            <xpath expr="//field[@name='origin']" position="after">-->
+            <!--                <field name="analytic_account_id"-->
+            <!--                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": ["|",["picking_type_code","=","outgoing"],["picking_type_name","=","Return Customers"]]}'/>-->
+            <!--                <field name="is_updated" invisible="1"/>-->
+            <!--                <field name="picking_type_name" invisible="1"/>-->
+            <!--            </xpath>-->
             <xpath expr="//field[@name='origin']" position="after">
+                <field name="picking_type_return" invisible="1"/>
                 <field name="analytic_account_id"
-                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": [["picking_type_code","=","outgoing"]]}'/>
+                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": [("picking_type_code","=","outgoing"),
+                        ("picking_type_return","!=",True)]}'/>
+
                 <field name="is_updated" invisible="1"/>
                 <field name="is_return_ref" invisible="1"/>
-<!--                <field name="picking_type_name" invisible="1"/>-->
+                <!--                <field name="picking_type_name" invisible="1"/>-->
             </xpath>
 
             <xpath expr="//button[@name='action_confirm']" position="after">

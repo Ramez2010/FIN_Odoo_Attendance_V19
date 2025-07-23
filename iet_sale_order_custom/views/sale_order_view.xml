@@ -10,9 +10,6 @@
                 <xpath expr="//field[@name='analytic_account_id']" position="before">
                 <field name="display_project_id"/>
                 </xpath>
-<!--                <xpath expr="//field[@name='analytic_account_id']" position="attributes">-->
-<!--                    <attribute name="domain">[]</attribute>-->
-<!--                </xpath>-->
                 <xpath expr="//field[@name='analytic_account_id']" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </xpath>
@@ -33,6 +30,7 @@
             <field name="interval_type">months</field>
             <field name="numbercall">1</field>
         </record>
+
 
     </data>
 </odoo>

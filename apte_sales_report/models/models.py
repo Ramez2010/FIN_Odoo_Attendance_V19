@@ -56,7 +56,7 @@ class SaleOrder(models.Model):
     total_income = fields.Float(compute='_compute_total_income', default=0.0, store=True, precompute=True,
                                 string='Total Income', )
 
-    deduction = fields.Float(compute='_compute_total_deduction', default=0.0, store=True, precompute=True,
+    deduction = fields.Float(compute='_compute_total_deduction', default=0.0, precompute=True,
                              string='Total Deduction')
 
     quote_income = fields.Float(compute='_compute_quote_income', default=0.0, store=True, precompute=True,
@@ -93,6 +93,17 @@ class SaleOrder(models.Model):
     invoice_expense_percentage = fields.Float(compute='_compute_invoice_expense_percentage', default=0.0, store=True,
                                               precompute=True,
                                               string='Invoice Expense %')
+    egp_total = fields.Float(
+        string='EGP Total',
+        required=False, compute='_compute_egp_total')
+
+    @api.depends('amount_total')
+    def _compute_egp_total(self):
+        for record in self:
+            currency = record.currency_id
+            converted_amount = currency.with_context(date=record.date_order).compute(record.amount_untaxed,
+                                                                                   record.env.ref('base.EGP'))
+            record.egp_total = converted_amount
 
     @api.depends('total_expense', 'total_invoiced_untaxed')
     def _compute_invoice_expense(self):

@@ -6,6 +6,7 @@ READONLY_FIELD_STATES = {
     for state in {'sale', 'done', 'cancel'}
 }
 
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -15,9 +16,10 @@ class SaleOrder(models.Model):
         string="Analytic Account",
         copy=False, check_company=True,  # Unrequired company
         compute='_compute_analytic_account_id',
-        store=True,)
+        store=True, )
 
     employee = fields.Many2one('hr.employee')
+
     def action_confirm(self):
         if not self.analytic_account_id:
             raise ValidationError("The Analytic Account Field Must Be Set")

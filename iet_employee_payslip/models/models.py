@@ -7,10 +7,10 @@ class EmployeeInherit(models.Model):
     employee_payment_type = fields.Selection([
         ('cash', 'Cash'),
         ('bank', 'Bank Transfer'),
-    ], default='bank', tracking=True,string="Employee Payment Type",)
+    ], default='bank', tracking=True)
 
 
 class PayslipInherit(models.Model):
     _inherit = 'hr.payslip'
 
-    employee_payment_type = fields.Selection(string="Employee Payment Type",related='employee_id.employee_payment_type')
+    employee_payment_type = fields.Selection(related='employee_id.employee_payment_type')

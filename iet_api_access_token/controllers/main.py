@@ -3,7 +3,10 @@
 import logging
 import werkzeug
 import json
-from jwt.exceptions import DecodeError
+try:
+    from jwt.exceptions import DecodeError
+except ImportError:
+    from jwt import InvalidTokenError as DecodeError
 from ast import literal_eval
 from functools import wraps
 from base64 import b64decode
