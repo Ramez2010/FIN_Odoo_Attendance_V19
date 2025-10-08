@@ -74,7 +74,8 @@ class AccountAnalyticLine(models.Model):
         date = vals.get('date')
         if employee_id and date:
             employee = self.env['hr.employee'].browse(employee_id)
-            working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
+            # working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
+            working_hour = 24
             total_hours_for_day = self._get_total_hours_for_day(employee, date)
             if (vals.get('unit_amount', 0) + total_hours_for_day) > working_hour:
                 raise ValidationError(f"Total logged hours for the day cannot exceed {working_hour:.2f} hours.")
@@ -86,7 +87,8 @@ class AccountAnalyticLine(models.Model):
             date = vals.get('date', record.date)
             if employee_id and date:
                 employee = self.env['hr.employee'].browse(employee_id)
-                working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
+                # working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
+                working_hour = 24
                 total_hours_for_day = self._get_total_hours_for_day(employee, date)
                 unit_amount = vals.get('unit_amount', record.unit_amount)
                 if (unit_amount + total_hours_for_day - record.unit_amount) > working_hour:
