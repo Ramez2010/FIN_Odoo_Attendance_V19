@@ -42,6 +42,18 @@
                                         <!--                                        <field name="work_percentage" invisible="0" optional="hide"/>-->
                                     </tree>
                                 </field>
+
+                            </group>
+                        </group>
+                        <group string="Payslip Computation" name="payslip_compute">
+                            <group>
+                                <field name="work_entry_count" string="Work Entry Days"/>
+                                <field name="timesheet_count" string="Time Sheet Days"/>
+                                <field name="absence_count" string="Absence Days"/>
+                            </group>
+                            <group>
+                                <field name="num_days" string="Payslip Period Days"/>
+                                <field name="payslip_computable_days"/>
                             </group>
                         </group>
                     </page>
