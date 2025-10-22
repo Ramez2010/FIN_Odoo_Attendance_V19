@@ -82,7 +82,7 @@ class HrPayrollInherit(models.Model):
     def _compute_absence_count(self):
         for record in self:
             record.absence_count = 0
-            if record.work_entry_count:
+            if record.work_entry_count and record.work_entry_count >= record.timesheet_count:
                 record.absence_count = record.work_entry_count - record.timesheet_count
 
     @api.depends('num_days', 'absence_count')
