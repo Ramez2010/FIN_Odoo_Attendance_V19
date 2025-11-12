@@ -5,6 +5,19 @@ from datetime import datetime, timedelta
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        result = super().create(vals_list)
+        for rec in result:
+            rec._compute_input_line_ids()
+        return result
+
+    def compute_sheet(self):
+        for rec in self:
+            rec._compute_input_line_ids()
+        return super().compute_sheet()
+
+
     @api.onchange('struct_id')
     def fill_inputs_ids(self):
         inputs_ids = self.struct_id.input_line_type_ids
