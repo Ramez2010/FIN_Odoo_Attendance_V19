@@ -9,9 +9,9 @@ from dateutil.relativedelta import relativedelta
 class HrPayrollInherit(models.Model):
     _inherit = "hr.payslip"
 
-    timesheet_lines = fields.Many2many('account.analytic.line', compute='_compute_timesheet_lines',store=True)
+    timesheet_lines = fields.Many2many('account.analytic.line', compute='_compute_timesheet_lines')
     attendance_hours = fields.Float(string='Attendance Work Hours', compute='_compute_attendance_hours')
-    timesheet_hours = fields.Float(string='Timesheet Hours',compute='_compute_work_hours')  # Corrected `field.Float` to `fields.Float`
+    timesheet_hours = fields.Float(string='Timesheet Hours',compute='_compute_work_hours', store=True)  # Corrected `field.Float` to `fields.Float`
     required_hours = fields.Float(string='Required Hours', compute='_compute_required_hours')
     all_lines = fields.Char(string="All Lines")
     hours_shortfall = fields.Float(compute='_compute_work_hours', store=True)
