@@ -4,7 +4,7 @@ from odoo import api, fields, models
 class Project(models.Model):
     _inherit = 'project.project'
 
-    plan_id = fields.Many2one('account.analytic.plan', required=True)
+    plan_id = fields.Many2one('account.analytic.plan')
 
     @api.model
     def create(self, vals):
