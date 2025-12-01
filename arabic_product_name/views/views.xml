@@ -2,22 +2,24 @@
 <odoo>
     <data>
 
-
-
         <record id="id_product_template_only_form_view_inherits" model="ir.ui.view">
             <field name="name">product_template_only_form_view_inherit</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
-                <style>
-                    .rtl-field {
-                    direction: rtl;
-                    }
-                </style>
+
+                <xpath expr="//field[@name='name']" position="before">
+                    <style>
+                        .rtl-field {
+                        direction: rtl;
+                        }
+                    </style>
+                </xpath>
 
                 <xpath expr="//field[@name='name']" position="attributes">
                     <attribute name="class">rtl-field</attribute>
                 </xpath>
+
                 <xpath expr="//h1" position="after">
                     <h1>
                         <div class="d-flex">
@@ -34,11 +36,14 @@
             <field name="model">product.product</field>
             <field name="inherit_id" ref="product.product_normal_form_view"/>
             <field name="arch" type="xml">
-                <style>
-                    .rtl-field {
-                    direction: rtl;
-                    }
-                </style>
+
+                <xpath expr="//field[@name='name']" position="before">
+                    <style>
+                        .rtl-field {
+                        direction: rtl;
+                        }
+                    </style>
+                </xpath>
 
                 <xpath expr="//field[@name='name']" position="attributes">
                     <attribute name="class">rtl-field</attribute>
@@ -60,7 +65,7 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="after">
+                <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="after">
                     <field name="arabic_name"/>
                 </xpath>
             </field>
@@ -73,11 +78,7 @@
             <field name="inherit_id" ref="product.product_template_search_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
-
-                                <field name="arabic_name" string="Arabic Name" filter_domain="[('arabic_name','ilike',self)]"/>
-
-<!--                                <filter string="Arabic Name" name="arabic_name_filter" domain="[('arabic_name', 'ilike', '%')]"/>-->
-
+                    <field name="arabic_name" string="Arabic Name" filter_domain="[('arabic_name','ilike',self)]"/>
                 </xpath>
             </field>
         </record>
@@ -92,8 +93,6 @@
                 </xpath>
             </field>
         </record>
-
-
 
     </data>
 </odoo>

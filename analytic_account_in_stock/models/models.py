@@ -8,8 +8,7 @@ class CustomStockPickingInherit(models.Model):
     _inherit = 'stock.picking'
 
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account', required=False,
-                                          index=True,
-                                          states={'done': [('readonly', True)], 'cancel': [('readonly', True)]})
+                                          index=True,)
     picking_type_return = fields.Boolean(related='picking_type_id.is_return')
 
 

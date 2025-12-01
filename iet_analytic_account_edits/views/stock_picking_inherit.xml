@@ -1,36 +1,35 @@
 <odoo>
     <data>
 
-<!--        <record id="view_picking_form_inh" model="ir.ui.view">-->
-<!--            <field name="name">inherit view_picking_form</field>-->
-<!--            <field name="model">stock.picking</field>-->
-<!--            <field name="inherit_id" ref="stock.view_picking_form"/>-->
-<!--            <field name="type">form</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='analytic_account_id']" position="after">-->
-<!--                    <field name="analytic_account_reference"-->
-<!--                           attrs='{"readonly": [["state","in",["done","cancel"]]], "required": [["picking_type_code","=","outgoing"]]}'/>-->
-<!--                </xpath>-->
+        <!--        <record id="view_picking_form_inh" model="ir.ui.view">-->
+        <!--            <field name="name">inherit view_picking_form</field>-->
+        <!--            <field name="model">stock.picking</field>-->
+        <!--            <field name="inherit_id" ref="stock.view_picking_form"/>-->
+        <!--            <field name="type">form</field>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='analytic_account_id']" position="after">-->
+        <!--                    <field name="analytic_account_reference"-->
+        <!--                           attrs='{"readonly": [["state","in",["done","cancel"]]], "required": [["picking_type_code","=","outgoing"]]}'/>-->
+        <!--                </xpath>-->
 
-<!--                <xpath expr="//field[@name='analytic_account_id']" position="attributes">-->
-<!--                    <attribute name="attrs">{"readonly": [(1, '=', 1)]}</attribute>-->
-<!--                </xpath>-->
+        <!--                <xpath expr="//field[@name='analytic_account_id']" position="attributes">-->
+        <!--                    <attribute name="attrs">{"readonly": [(1, '=', 1)]}</attribute>-->
+        <!--                </xpath>-->
 
-<!--            </field>-->
-<!--        </record>-->
+        <!--            </field>-->
+        <!--        </record>-->
 
 
-        <record id="view_picking_form_inh" model="ir.ui.view">
-            <field name="name">inherit view_picking_form</field>
+        <record id="view_picking_form_inh_iet" model="ir.ui.view">
+            <field name="name">inherit view_picking_form iet</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="type">form</field>
             <field name="arch" type="xml">
+
                 <xpath expr="//field[@name='analytic_account_id']" position="after">
                     <field name="analytic_account_ref_id"/>
                 </xpath>
-
-
 
             </field>
         </record>

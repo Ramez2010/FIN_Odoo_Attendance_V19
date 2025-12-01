@@ -23,11 +23,11 @@
             <field name="name">sub.category.tree</field>
             <field name="model">sub.category</field>
             <field name="arch" type="xml">
-                <tree string="Sub Category">
+                <list string="Sub Category">
                     <field name="serial"/>
                     <field name="name"/>
                     <field name="parent"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -35,7 +35,7 @@
         <record id="action_sub_category" model="ir.actions.act_window">
             <field name="name">Sub Categories</field>
             <field name="res_model">sub.category</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
         </record>
 
         <!-- Category Menu Item -->

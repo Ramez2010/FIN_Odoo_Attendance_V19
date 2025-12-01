@@ -8,17 +8,15 @@ import base64
 import logging
 import werkzeug
 import json
-try:
-    from jwt.exceptions import DecodeError
-except ImportError:
-    from jwt import InvalidTokenError as DecodeError
+import xml.etree.ElementTree as ET  # Fixed missing import for xml class
+from jwt.exceptions import DecodeError
 from ast import literal_eval
 from functools import wraps
 from base64 import b64decode
-from odoo import http, _,fields,tools
+from odoo import http, _, fields, tools
 from odoo.fields import Datetime, Date, Selection
 from odoo.addons.mobikul_odoo_attendance.tools.jwt_token import jwt_encode, jwt_decode
-from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone, fcmDeviceCheck, fcmDeviceCheckAlreadyAssignedToUser, _pushNotification, _tokenUpdate,getDefaultData, _languageData, _get_image_url, _get_employee_profile_url, mobikul_display_address
+from odoo.addons.mobikul_odoo_attendance.tools.constdata import mobikulFormatTimeZone, fcmDeviceCheck, _pushNotification, _tokenUpdate, getDefaultData, _languageData, _get_image_url, _get_employee_profile_url, mobikul_display_address
 from odoo.http import request
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
@@ -26,10 +24,10 @@ from odoo.tools import format_datetime
 _logger = logging.getLogger(__name__)
 
 
-def get_jwt_token(secret, *args, algorithm = "HS256", **kwargs):
+def get_jwt_token(secret, *args, algorithm="HS256", **kwargs):
     payload = {
-      "partner_id": args[0],
-      "user_id": args[1]
+        "partner_id": args[0],
+        "user_id": args[1]
     }
     token = jwt_encode(payload, secret, algorithm)
     return token
@@ -65,7 +63,6 @@ class xml(object):
 
 class MobikulAttendanceAPI(http.Controller):
 
-
     def _wrap2xml(self, apiName, data):
         resp_xml = "<?xml version='1.0' encoding='UTF-8'?>"
         resp_xml += '<odoo xmlns:xlink="http://www.w3.org/1999/xlink">'
@@ -74,7 +71,6 @@ class MobikulAttendanceAPI(http.Controller):
         resp_xml += "</%s>" % apiName
         resp_xml += '</odoo>'
         return resp_xml
-
 
     def _response(self, apiName, response, ctype='json'):
         if response.get("context"):
@@ -93,11 +89,10 @@ class MobikulAttendanceAPI(http.Controller):
         ]
         return werkzeug.wrappers.Response(body, headers=headers)
 
-
     def __decorateMe(method):
         @wraps(method)
         def wrapped(self, *args, **kwargs):
-            _logger.info("======kwargs====%r",kwargs)
+            _logger.info("======kwargs====%r", kwargs)
             self.authenticate = kwargs.get('authenticate', False)
 
             self.authorize = kwargs.get('authorize', False)
@@ -122,7 +117,6 @@ class MobikulAttendanceAPI(http.Controller):
             return method(self, *args, **kwargs)
         return wrapped
 
-
     def __authenticate(self):
         """
         Authenticate user through the login header provided in the header
@@ -141,10 +135,27 @@ class MobikulAttendanceAPI(http.Controller):
         if True:
             user = request.env['res.users'].sudo().search([('login', '=', credentials['login'])])
             if user:
-                user.with_user(user)._check_credentials(credentials['pwd'],{'interactive':True})
+                # user.with_user(user)._check_credentials(credentials['pwd'],{'interactive':True})
+                mobikul_credentials = {
+                    "type": "password",
+                    "password": credentials['pwd'],
+                }
+                user.with_user(user)._check_credentials(mobikul_credentials, {'interactive': True})
+                request.params['login_success'] = True
+                credentials = {
+                    "login": credentials["login"],
+                    "pwd": credentials["pwd"],
+                    "type": "password",
+                    "password": credentials['pwd'],
+                }
+                # user_custom = request.env['res.users'].sudo()._login_custom(request.db, credentials, None)
+                user_custom = request.env['res.users'].sudo()._login_custom(credentials["login"])
+                # env = api.Environment(cr, uid, {})
+
+                # if uid:
                 response['success'] = True
                 response['responseCode'] = 200
-                response['user'] = user
+                response['user'] = user_custom if user_custom else user
                 response['message'] = 'Success'
                 response['authorizeToken'] = get_jwt_token(self.secret_key, user.partner_id.id, user.id)
                 # .decode('utf-8')
@@ -158,7 +169,6 @@ class MobikulAttendanceAPI(http.Controller):
         #     response['details'] = "%r" % e
         return response
 
-
     def __authorize(self):
         """
         Authorize user through the provided jwt token
@@ -170,21 +180,23 @@ class MobikulAttendanceAPI(http.Controller):
         if token:
             token = token.split(" ")[1]
         try:
+            if not secret:
+                secret = "dummySecretKey"
             payload = jwt_decode(token, secret, 'HS256')
             USER = request.env['res.users'].sudo()
             if payload:
                 user = USER.browse(payload['user_id'])
-                if user:
+                user_custom = request.env['res.users'].sudo()._login_custom(user.login)
+                if user_custom or user:
                     response['success'] = True
                     response['responseCode'] = 200
-                    response['user'] = user
+                    response['user'] = user_custom if user_custom else user
                     response['message'] = _('Authorized successfully!!!')
         except DecodeError as de:
-            _logger.info("this is issue %r",de)
+            _logger.info("this is issue %r", de)
             response['message'] = _('Invalid token')
             response['details'] = _("%s".format(de.args[0]))
         return response
-
 
     @__decorateMe
     def __auth(self, *args, **kwargs):
@@ -193,8 +205,8 @@ class MobikulAttendanceAPI(http.Controller):
         """
         result = {'success': True, 'responseCode': 200}
 
-        #----------- Authentication Part Starts here ---------#
-        #This is use here as we need mobikul Obj in all case
+        # ----------- Authentication Part Starts here ---------#
+        # This is use here as we need mobikul Obj in all case
         mobikul_attendance = request.env['mobikul.attendance'].sudo().search([], limit=1)
         self.secret_key = mobikul_attendance.api_key
         if self.authorize:
@@ -202,9 +214,9 @@ class MobikulAttendanceAPI(http.Controller):
 
         if self.authenticate:
             result.update(self.__authenticate())
-        #----------- Ends here ---------#
+        # ----------- Ends here ---------#
 
-        #----- Getting some defalut data/context for all the API's-----#
+        # ----- Getting some defalut data/context for all the API's-----#
         user = result.pop('user', '')
         app_lang = mobikul_attendance.default_lang and mobikul_attendance.default_lang.code or "en_US"
         company_id = mobikul_attendance.company_id.id or 1
@@ -212,72 +224,93 @@ class MobikulAttendanceAPI(http.Controller):
             "base_url": self.base_url,
             'lang': app_lang,
             'lang_obj': request.env['res.lang']._lang_get(app_lang),
-            'company_id':company_id,
-            "mobikulAttObj":mobikul_attendance
+            'company_id': company_id,
+            "mobikulAttObj": mobikul_attendance
         }
 
-        #---- Data/Context which is only added when we get user from Authentication part ---#
+        # ---- Data/Context which is only added when we get user from Authentication part ---#
         if user:
-            #----- Security Device Check  -----#
-            result.update(fcmDeviceCheck(self,user,kwargs.get("deviceId", False),kwargs.get("notCheckFcm")))
-            #---- Context update----#
+            # ----- Security Device Check  -----#
+            result.update(fcmDeviceCheck(self, user, kwargs.get("notCheckFcm")))
+            # ---- Context update----#
             if result['success']:
                 result["context"].update({
                     'uid': user.id,
                     'partner_id': user.partner_id.id,
                     "user": user,
                 })
-        result.update(getDefaultData(self,mobikul_attendance))
+        result.update(getDefaultData(self, mobikul_attendance))
         return result
 
-    def _get_user_data(self,context,empfull_details = False,private_info=False):
+    def _get_user_data(self, context, empfull_details=False, private_info=False):
         """
             empfull_details: True for all data of employess,
             private_info: True to return all private data of user
             Return: Dic of the employee details
         """
         userObj = context.get('user')
-        company = request.env['res.company'].browse([context.get('company_id')])
-        employeeObj = userObj.with_company(company).employee_id
-        response = {"success":False,"message":_("Employee Not Found"),"responseCode":400}
+        # company = request.env['res.company'].browse([context.get('company_id')])
+        # employeeObj = userObj.with_company(company).employee_id
+        employeeObj = userObj.employee_id
+        response = {"success": False, "message": _("Employee Not Found"), "responseCode": 400}
+
         if employeeObj.id:
             context["employeeObj"] = employeeObj
             temp = {}
+            base_url = http.request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+
             temp.update({
-                "id":employeeObj.id,
-                "name":employeeObj.name or "",
-                "companyId":userObj.company_id.id or 1,
-                "workMobile":employeeObj.mobile_phone or "",
-                "workPhone":employeeObj.work_phone or "",
-                "workEmail":employeeObj.work_email or "",
-                "jobTitle":employeeObj.job_title or "",
-                "customerProfileImage":_get_employee_profile_url(self.base_url,employeeObj.id,employeeObj.write_date),
+                "id": employeeObj.id,
+                "name": employeeObj.name or "",
+                "companyId": userObj.company_id.id or 1,
+                "workMobile": employeeObj.mobile_phone or "",
+                "workPhone": employeeObj.work_phone or "",
+                "workEmail": employeeObj.work_email or "",
+                "jobTitle": employeeObj.job_title or "",
+                "customerProfileImage": _get_employee_profile_url(base_url, employeeObj.id, employeeObj.write_date),
             })
+
             if empfull_details:
+                work_addr_str = employeeObj.address_id._display_address() if employeeObj.address_id else ""
+
                 temp.update({
-                    "departmentId":employeeObj.department_id and employeeObj.department_id.name or "",
-                    "categoryIds":employeeObj.category_ids.mapped('name'),
-                    "workLocation":employeeObj.work_location_id and employeeObj.work_location_id.name or "",
-                    "workAddress":mobikul_display_address(employeeObj.address_id._display_address(), employeeObj.address_id.name),
-                    "worrkingHours":employeeObj.resource_calendar_id and employeeObj.resource_calendar_id.name or "",
-                    "timezone":employeeObj.tz
+                    "departmentId": employeeObj.department_id and employeeObj.department_id.name or "",
+                    "categoryIds": employeeObj.category_ids.mapped('name'),
+                    "workLocation": employeeObj.work_location_id and employeeObj.work_location_id.name or "",
+                    "workAddress": mobikul_display_address(work_addr_str,
+                                                           employeeObj.address_id.name if employeeObj.address_id else ""),
+                    "worrkingHours": employeeObj.resource_calendar_id and employeeObj.resource_calendar_id.name or "",
+                    "timezone": employeeObj.tz
                 })
+
             if private_info:
+                private_address_parts = [
+                    employeeObj.private_street,
+                    employeeObj.private_street2,
+                    employeeObj.private_city,
+                    employeeObj.private_state_id.name if employeeObj.private_state_id else False,
+                    employeeObj.private_zip,
+                    employeeObj.private_country_id.name if employeeObj.private_country_id else False
+                ]
+                private_addr_str = "\n".join([str(p) for p in private_address_parts if p])
+
                 response['user_private_info'] = {
-                    'address':mobikul_display_address(employeeObj.address_home_id._display_address(), employeeObj.address_home_id.name),
-                    'phone':employeeObj.phone or "",
-                    'email':employeeObj.private_email or "",
-                    'kmFromHome':employeeObj.km_home_work or 0,
+                    'address': mobikul_display_address(private_addr_str, employeeObj.name),
+                    'phone': employeeObj.phone or "",
+                    'email': employeeObj.private_email or "",
+                    'kmFromHome': employeeObj.km_home_work or 0,
                 }
+
+
             response.update({
-                'employeeDetails':temp or {},
+                'employeeDetails': temp or {},
                 "success": True,
-                "responseCode":200,
+                "responseCode": 200,
                 "message": _('Login Successfully')
             })
         return response
 
-    def _get_attendance_state(self,context):
+    def _get_attendance_state(self, context):
         """
             Provide the updated steat and other attendance detail of employee
         """
@@ -297,12 +330,12 @@ class MobikulAttendanceAPI(http.Controller):
             if lastCheckout and now > lastCheckout:
                 checkoutToday = False
         response.update({
-            'attendanceState':employeeObj.attendance_state or "",
-            'presentState':employeeObj.hr_presence_state or "",
-            'hoursToday':employeeObj.hours_today or 0.0,
-            'workHours':employeeObj.last_attendance_id.worked_hours,
-            'lastCheckinTime': Datetime.to_string(mobikulFormatTimeZone(employeeObj.last_check_in,employeeObj.tz)) or "",
-            'lastCheckoutTime': Datetime.to_string(mobikulFormatTimeZone(employeeObj.last_check_out,employeeObj.tz)) or "",
+            'attendanceState': employeeObj.attendance_state or "",
+            'presentState': employeeObj.hr_presence_state or "",
+            'hoursToday': employeeObj.hours_today or 0.0,
+            'workHours': employeeObj.last_attendance_id.worked_hours,
+            'lastCheckinTime': Datetime.to_string(mobikulFormatTimeZone(employeeObj.last_check_in, employeeObj.tz)) or "",
+            'lastCheckoutTime': Datetime.to_string(mobikulFormatTimeZone(employeeObj.last_check_out, employeeObj.tz)) or "",
         })
         if not checkoutToday:
             response.update({
@@ -311,38 +344,36 @@ class MobikulAttendanceAPI(http.Controller):
             })
         return response
 
-
-    @http.route('/v2/mobikul/odoo_attendance/splash_page', type='http', auth="none", methods=['GET'])
+    # Read-only request -> added readonly=True
+    @http.route('/v2/mobikul/odoo_attendance/splash_page', type='http', auth="none", methods=['GET'], readonly=True)
     def splash_page(self):
         response = self.__auth()
         if response.get('success'):
-            response.update({'message':_("Splash Page")})
+            response.update({'message': _("Splash Page")})
             response.update(_languageData(response.get("context")))
         return self._response('SPLASH_PAGE', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/login', type='http', auth="none", methods=['POST'],csrf = False)
+    # Login writes/updates tokens -> readonly=False (default)
+    @http.route('/v2/mobikul/odoo_attendance/login', type='http', auth="none", methods=['POST'], csrf=False)
     def login_page(self):
-        response = self.__auth(authenticate=True,notCheckFcm = True)
+        response = self.__auth(authenticate=True, notCheckFcm=True)
         if response.get('success'):
             context = response.get('context')
             if context.get('uid'):
-                # Custom Logic to ensure that only 1 user using the same deviceId
-                response.update(fcmDeviceCheckAlreadyAssignedToUser(self,context.get('partner_id'),self._mData.get("fcmDeviceId", "")))
+                response.update(self._get_user_data(context))
+                _logger.info("=========response=====%r", response)
                 if response.get('success'):
-                    response.update(self._get_user_data(context))
-                    _logger.info("=========response=====%r",response)
-                    if response.get('success'):
-                        _tokenUpdate(self,context.get('partner_id'))
-                        _pushNotification(self._mData.get("fcmToken", ""), condition='login',
-                                        customer_id=context.get('partner_id'))
-                    else:
-                        response.pop("authorizeToken")
-
+                    _tokenUpdate(self, context.get('partner_id'))
+                    _pushNotification(self._mData.get("fcmToken", ""), condition='login',
+                                      customer_id=context.get('partner_id'))
+                else:
+                    response.pop("authorizeToken")
         return self._response('Login', response)
 
-    @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'])
+    # Read-only request -> added readonly=True
+    @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'], readonly=True)
     def public_employee_image_token(self, employee_id, **kwargs):
-        response = self.__auth(authorize=True,notCheckFcm = True)
+        response = self.__auth(authorize=True)
         if response.get('success'):
             employee = request.env['hr.employee'].sudo().browse(employee_id)
             if employee and employee.image_128:
@@ -360,17 +391,18 @@ class MobikulAttendanceAPI(http.Controller):
             "Error": f"Unautorized"
         }, status=401)
 
-    @http.route('/v2/mobikul/odoo_attendance/logout', type='http', auth="none", methods=['POST'], csrf = False)
+    # Logout writes/updates tokens -> readonly=False (default)
+    @http.route('/v2/mobikul/odoo_attendance/logout', type='http', auth="none", methods=['POST'], csrf=False)
     def logout_page(self):
-        response = self.__auth(authorize=True,notCheckFcm = True)
+        response = self.__auth(authorize=True, notCheckFcm=True)
         if response.get('success'):
             context = response.get('context')
-            # Don't remove the assigned customer_id to the token!
-            # if context.get('uid'):
-            #     _tokenUpdate(self)
+            if context.get('uid'):
+                _tokenUpdate(self)
         return self._response('Login', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/homepage', type='http', auth="none", methods=['GET'])
+    # Read-only request -> added readonly=True
+    @http.route('/v2/mobikul/odoo_attendance/homepage', type='http', auth="none", methods=['GET'], readonly=True)
     def homepage(self):
         response = self.__auth(authorize=True)
         if response.get('success'):
@@ -381,25 +413,24 @@ class MobikulAttendanceAPI(http.Controller):
                     response.update(self._get_attendance_state(context))
         return self._response('Homepage', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/profile', type='http', auth="none", methods=['GET'])
+    # Read-only request -> added readonly=True
+    @http.route('/v2/mobikul/odoo_attendance/profile', type='http', auth="none", methods=['GET'], readonly=True)
     def profile(self):
         response = self.__auth(authorize=True)
         if response.get('success'):
             context = response.get('context')
             if context.get('uid'):
                 '''We can trigger this private infor part according to front end as well with some key'''
-                response.update(self._get_user_data(context,empfull_details=True,private_info=True))
+                response.update(self._get_user_data(context, empfull_details=True, private_info=True))
         return self._response('Profile', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/changeState', type='http', auth="none", methods=['PUT'],csrf = False)
+    # Write operation (Change State) -> readonly=False (default)
+    @http.route('/v2/mobikul/odoo_attendance/changeState', type='http', auth="none", methods=['PUT'], csrf=False)
     def checkin_checkout(self, **kwargs):
         """
         Api To Chnage the state of the user from checkin -> checkout and vice versa
         """
-        requestInput = request.httprequest.data and json.loads(
-            request.httprequest.data.decode('utf-8')) or {}
-        requestFcmDeviceId = requestInput.get("fcmDeviceId")
-        response = self.__auth(authorize=True,deviceId=requestFcmDeviceId)
+        response = self.__auth(authorize=True)
 
         # geolocation_tracking = True
         latitude = self._mData.get('latitude')
@@ -416,20 +447,10 @@ class MobikulAttendanceAPI(http.Controller):
         if not message:
             message = False
 
-        # Analytic Account
-        analytic_account_id = False
-        if self._mData.get('analytic_account_id'):
-            analytic_account_id = self._mData.get('analytic_account_id')
-
         data_list = [message, latitude, longitude]
-
 
         response['latitude'] = latitude
         response['longitude'] = longitude
-
-        if analytic_account_id:
-            data_list.append(analytic_account_id)
-            response["analytic_account_id"] = analytic_account_id
 
         if response.get('success'):
             context = response.get('context')
@@ -438,27 +459,26 @@ class MobikulAttendanceAPI(http.Controller):
                 if response.get('success'):
                     try:
                         employeeObj = context.get("employeeObj")
-                        employeeObj.sh_attendance_action_change(data_list)
+                        # employeeObj.sh_attendance_action_change(data_list)
+                        employeeObj._attendance_action_change()
                         response.update(self._get_attendance_state(context))
                         if response.get('attendanceState') == "checked_in":
                             response['message'] = "Welcome %s!" % (response.get("employeeDetails")['name'])
                             _pushNotification(self._mData.get("fcmToken", ""), condition='checkin',
-                                   customer_id=context.get('partner_id'))
+                                              customer_id=context.get('partner_id'))
                         else:
                             response['message'] = "Goodbye %s!" % (response.get("employeeDetails")['name'])
                             _pushNotification(self._mData.get("fcmToken", ""), condition='checkout',
-                                   customer_id=context.get('partner_id'))
+                                              customer_id=context.get('partner_id'))
                     except Exception as e:
                         response['success'] = False
                         response['message'] = _("%s".format(e.args[0]))
                         response['responseCode'] = 400
-
-        _logger.info("=========clockinout-response=====%r",response)
-
         return self._response('Checkin Checkout', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/history', type='http', auth="none", methods=['GET'])
-    def history(self,date_begin=None, date_end=None):
+    # Read-only request -> added readonly=True
+    @http.route('/v2/mobikul/odoo_attendance/history', type='http', auth="none", methods=['GET'], readonly=True)
+    def history(self, date_begin=None, date_end=None):
         """
         Return the list of all attendance of employee
         """
@@ -468,10 +488,10 @@ class MobikulAttendanceAPI(http.Controller):
             if context.get('uid'):
                 response.update(self._get_user_data(context))
                 if response.get('success'):
-                    #TODO to get default limit from view
+                    # TODO to get default limit from view
                     limit = self._mData.get('limit') or 10
                     offset = self._mData.get('offset') or 0
-                    step = offset+limit
+                    step = offset + limit
                     employeeObj = context.get("employeeObj")
                     hrAttendance = request.env['hr.attendance'].sudo()
                     domain = [("employee_id", "=", employeeObj.id)]
@@ -480,20 +500,21 @@ class MobikulAttendanceAPI(http.Controller):
                     attendacen_li = []
                     attendances = hrAttendance.with_company(context.get('company_id')).search(domain, limit=limit, offset=offset)
                     for empAtd in attendances:
-                        _checkin = empAtd.check_in and mobikulFormatTimeZone(empAtd.check_in,employeeObj.tz) or ""
-                        _checkout = empAtd.check_out and mobikulFormatTimeZone(empAtd.check_out,employeeObj.tz) or ""
+                        _checkin = empAtd.check_in and mobikulFormatTimeZone(empAtd.check_in, employeeObj.tz) or ""
+                        _checkout = empAtd.check_out and mobikulFormatTimeZone(empAtd.check_out, employeeObj.tz) or ""
                         attendacen_li.append({
-                            "day":empAtd.check_in and empAtd.check_in.strftime('%A') or '',
-                            "checkInDate":_checkin and _checkin.strftime('%Y-%m-%d') or '',
-                            "checkOutDate":_checkout and _checkout.strftime('%Y-%m-%d') or '',
-                            "checkinTime":_checkin and  _checkin.strftime('%I:%M %p') or '',
-                            "checkoutTime":_checkout and _checkout.strftime('%I:%M %p') or '',
+                            "day": empAtd.check_in and empAtd.check_in.strftime('%A') or '',
+                            "checkInDate": _checkin and _checkin.strftime('%Y-%m-%d') or '',
+                            "checkOutDate": _checkout and _checkout.strftime('%Y-%m-%d') or '',
+                            "checkinTime": _checkin and _checkin.strftime('%I:%M %p') or '',
+                            "checkoutTime": _checkout and _checkout.strftime('%I:%M %p') or '',
                             "workedHours": empAtd.worked_hours
                         })
                     response["attendaceList"] = attendacen_li
         return self._response('Attendance History', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/passwordReset', type='http', auth="none", methods=['POST'],csrf = False)
+    # Write operation (Reset Password) -> readonly=False (default)
+    @http.route('/v2/mobikul/odoo_attendance/passwordReset', type='http', auth="none", methods=['POST'], csrf=False)
     def passWordReset(self):
         response = self.__auth()
         if response.get('success'):
@@ -502,18 +523,19 @@ class MobikulAttendanceAPI(http.Controller):
                 result = mobikulAttendce.resetPassword(self._mData.get('login', False))
             else:
                 result = {
-                    "success":False,
-                    "message":_('Reset Password is not allowed'),
-                    "responseCode":400
+                    "success": False,
+                    "message": _('Reset Password is not allowed'),
+                    "responseCode": 400
                 }
             response.update(result)
         return self._response('resetPassword', response)
 
-    @http.route('/v2/mobikul/odoo_attendance/allNotifications', type='http', auth="none", methods=['GET'],csrf = False)
+    # Read-only request -> added readonly=True
+    @http.route('/v2/mobikul/odoo_attendance/allNotifications', type='http', auth="none", methods=['GET'], csrf=False, readonly=True)
     def getAllNotifications(self, **kwargs):
         response = self.__auth(authorize=True)
         if response.get('success'):
-            Partner = response.get('context',{}).get('user').partner_id
+            Partner = response.get('context', {}).get('user').partner_id
             fields = ['id', 'name', 'title', 'subtitle', 'body', 'banner',
                       'icon', 'period', 'datatype', 'is_read', 'write_date']
             domain = [('customer_id', '=', Partner.id)]

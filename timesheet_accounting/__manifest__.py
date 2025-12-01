@@ -11,5 +11,6 @@
         'views/res_setting.xml',
     ],
     'installable': True,
+    "license": "AGPL-3",
     'application': False,
 }

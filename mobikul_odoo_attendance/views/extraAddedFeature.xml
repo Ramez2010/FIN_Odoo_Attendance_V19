@@ -54,16 +54,16 @@
         <field name="name">mobikul.attendance.notification.template.tree</field>
         <field name="model">mobikul.attendance.notification.template</field>
         <field name="arch" type="xml">
-            <tree string="Push Notification Templates">
+            <list string="Push Notification Templates">
                 <field name="name"/>
                 <field name="notification_title"/>
-            </tree>
+            </list>
         </field>
     </record>
     <record id="mobikul_atd_notification_templates_action" model="ir.actions.act_window">
         <field name="name">Push Notifications Templates</field>
         <field name="res_model">mobikul.attendance.notification.template</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <!-- <field name="view_type">form</field> -->
         <field name="help" type="html">
           <p class="oe_view_nocontent_create">
@@ -80,14 +80,16 @@
         <field name="arch" type="xml">
             <form string="Attendance Push Notification">
                 <header>
-                    <button name="action_confirm" states="draft" type="object" string="Confirm" class="oe_highlight"/>
-                    <button name="action_draft" states="cancel,hold" type="object" string="Set to Draft"/>
-                    <button name="action_hold" states="confirm" type="object" string="Set to Hold"/>
-                    <button name="action_confirm" states="hold" type="object" string="Release Hold" class="oe_highlight"/>
-                    <button name="action_cancel" states="draft,hold" type="object" string="Cancel"/>
-                    <button name="push_now" states="confirm" type="object" string="Push now" class="oe_highlight"/>
-                    <button name="duplicate_me" states="done" type="object" string="Duplicate" />
-                    <button name="push_now" states="error" type="object" string="Retry" class="oe_highlight"/>
+                    <button name="action_confirm"
+                            invisible="state != 'draft'"
+                            type="object" string="Confirm" class="oe_highlight"/>
+                    <button name="action_draft" invisible="state not in ['cancel', 'hold']" type="object" string="Set to Draft"/>
+                    <button name="action_hold" invisible="state != 'confirm'" type="object" string="Set to Hold"/>
+                    <button name="action_confirm" invisible="state != 'hold'" type="object" string="Release Hold" class="oe_highlight"/>
+                    <button name="action_cancel" invisible="state not in ['draft', 'hold']" type="object" string="Cancel"/>
+                    <button name="push_now" invisible="state != 'confirm'" type="object" string="Push now" class="oe_highlight"/>
+                    <button name="duplicate_me" invisible="state != 'done'" type="object" string="Duplicate" />
+                    <button name="push_now" invisible="state != 'error'" type="object" string="Retry" class="oe_highlight"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
                 </header>
                 <sheet>
@@ -107,8 +109,8 @@
                     </div>
                     <br/>
                     <br/>
-                    <separator string="Result" colspan="4" attrs="{'invisible': [('state', 'not in', ['done','error'])]}"/>
-                            <field name="summary" colspan="4" attrs="{'invisible': [('state', 'not in', ['done','error'])]}"/>
+                    <separator string="Result" colspan="4" invisible="state not in ['done','error']"/>
+                            <field name="summary" colspan="4" invisible="state not in ['done','error']"/>
                     <notebook>
                         <page string="Information">
                         <separator string="Content to be displayed in Push Notification" colspan="4"/>
@@ -122,8 +124,12 @@
                                     <field name="notification_type"/>
                                 </group>
                                 <group>
-                                    <field name="topic_id" attrs="{'invisible': [('notification_type', 'in', ['token-auto','token-manual'])], 'required': [('notification_type', '=', 'topic')]}" widget="selection"/>
-                                    <field name="device_ids" attrs="{'invisible': [('notification_type', 'in', ['topic','token-auto'])], 'required': [('notification_type', '=', 'token-manual')]}" widget="many2many_tags" quick_create="false"/>
+                                    <field name="topic_id"
+                                           invisible="notification_type in ['token-auto','token-manual']"
+                                           required="notification_type == 'topic'" widget="selection"/>
+                                    <field name="device_ids"
+                                           invisible="notification_type in ['topic','token-auto']"
+                                           required="notification_type == 'token-manual'" widget="many2many_tags" quick_create="false"/>
                                 </group>
                             </group>
                             <separator string="Others" colspan="4"/>
@@ -158,17 +164,17 @@
         <field name="name">mobikul.attendance.notification.tree</field>
         <field name="model">mobikul.attendance.notification</field>
         <field name="arch" type="xml">
-            <tree string="Attendance Push Notifications" >
+            <list string="Attendance Push Notifications" >
                 <field name="name"/>
                 <field name="activation_date" invisible="1"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
     <record id="mobikul_atd_notification_action" model="ir.actions.act_window">
         <field name="name">Mobikul Attendance Push Notifications</field>
         <field name="res_model">mobikul.attendance.notification</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <!-- <field name="view_type">form</field> -->
         <field name="view_id" ref="mobikul_atd_notification_view_tree"/>
         <field name="search_view_id" ref="mobikul_atd_notification_filter_view"/>
@@ -185,16 +191,16 @@
         <field name="name">fcm_attendance_topics.tree</field>
         <field name="model">fcm.attendance.topics</field>
         <field name="arch" type="xml">
-            <tree string="All FCM Topics" editable="top">
+            <list string="All FCM Topics" editable="top">
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="fcm_attendance_topics_action" model="ir.actions.act_window">
         <field name="name">FCM Registered Topics</field>
         <field name="res_model">fcm.attendance.topics</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <!-- <field name="view_type">form</field> -->
         <field name="view_id" ref="fcm_attendance_topics_view_tree"/>
     </record>

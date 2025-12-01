@@ -1,4 +1,5 @@
 from ast import literal_eval
+import base64
 from odoo import api, fields, models, _, SUPERUSER_ID
 from datetime import datetime
 from odoo.exceptions import UserError
@@ -12,7 +13,7 @@ import pytz
 _logger = logging.getLogger(__name__)
 import re
 
-def fcmDeviceCheck(self,user,deviceId=False,dontCheck=False):
+def fcmDeviceCheck(self,user,dontCheck=False):
     '''
         This function is used to manage reset case and logout from all device case
         In case of reset passwrd customer id will removed from registered device
@@ -20,44 +21,13 @@ def fcmDeviceCheck(self,user,deviceId=False,dontCheck=False):
     '''
     response = {"success":True}
     fcmObj = request.env['fcm.attendance.devices'].sudo()
-    if deviceId == False:
-        if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
-            response.update({
-                "success":False,
-                "loginAgain":True,
-                "message":_('Authorization Revoked.\n Please Login Again!'),
-                "responseCode":400
-            })
-    else:
-        if fcmObj.search_count([("customer_id","=",user.partner_id.id),("device_id","=",deviceId)]) == 0 and not dontCheck:
-            response.update({
-                "success":False,
-                "loginAgain":True,
-                "message":_('Authorization Revoked.\n Please Login Again!'),
-                "responseCode":400
-            })
-    return response
-
-def fcmDeviceCheckAlreadyAssignedToUser(self,userId,deviceId):
-    '''
-        This function is used to check if the customer has assigned_id already or the deviceId
-        is already used. We want to restrict that multiple users use the same device.
-    '''
-    response = {"success":True}
-    fcmObj = request.env['fcm.attendance.devices'].sudo()
-    #if fcmObj.search_count([("customer_id","=",userId)]) == 0 and fcmObj.search_count([("device_id","=",deviceId)]) == 0:
-    if fcmObj.search_count([("customer_id","=",userId)]) == 0: # temp fix for APTE
-        return response
-
-    if fcmObj.search_count([("customer_id","=",userId), ("device_id","=",deviceId)]) == 1:
-        return response
-
-    response.update({
-        "success":False,
-        "loginAgain":True,
-        "message":_('This device is registered to another user.\nPlease contact your HR for assistance.'),
-        "responseCode":400
-    })
+    if fcmObj.search_count([("customer_id","=",user.partner_id.id)]) == 0 and not dontCheck:
+        response.update({
+            "success":False,
+            "loginAgain":True,
+            "message":_('Authorization Revoked Please Login Again!'),
+            "responseCode":400
+        })
     return response
 
 def _pushNotification(token, condition='signup', customer_id=False):
@@ -123,10 +93,8 @@ def _get_employee_profile_url(base_url, record_id, write_date=0):
 
 def _tokenUpdate(self, customer_id=False,removeAllAuth=False):
     FcmRegister = request.env['fcm.attendance.devices'].sudo()
-    # already_registered = FcmRegister.search(
-    #     [('device_id', '=', self._mData.get("fcmDeviceId"))])
     already_registered = FcmRegister.search(
-        [('device_id', '=', self._mData.get("fcmDeviceId")), ("customer_id","=",customer_id)]) #temporary
+        [('device_id', '=', self._mData.get("fcmDeviceId"))])
     if already_registered:
         already_registered.write(
             {'token': self._mData.get("fcmToken"), 'customer_id': customer_id})

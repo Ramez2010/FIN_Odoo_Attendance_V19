@@ -7,29 +7,22 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
 
-            <!--            <xpath expr="//field[@name='origin']" position="after">-->
-            <!--                <field name="analytic_account_id"-->
-            <!--                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": ["|",["picking_type_code","=","outgoing"],["picking_type_name","=","Return Customers"]]}'/>-->
-            <!--                <field name="is_updated" invisible="1"/>-->
-            <!--                <field name="picking_type_name" invisible="1"/>-->
-            <!--            </xpath>-->
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="picking_type_return" invisible="1"/>
                 <field name="analytic_account_id"
-                       attrs='{"readonly": [["state","in",["done","cancel"]]], "required": [("picking_type_code","=","outgoing"),
-                        ("picking_type_return","!=",True)]}'/>
+                       readonly="state in ['done', 'cancel']"
+                       required="picking_type_code == 'outgoing' and picking_type_return != True"/>
 
                 <field name="is_updated" invisible="1"/>
                 <field name="is_return_ref" invisible="1"/>
-                <!--                <field name="picking_type_name" invisible="1"/>-->
-            </xpath>
+                </xpath>
 
             <xpath expr="//button[@name='action_confirm']" position="after">
                 <button name="button_update_analytic_account"
                         string="Update Analytic Account Journal Entries"
                         type="object"
                         class="oe_highlight"
-                        attrs="{'invisible': ['|', ('is_updated', '=', True), ('is_return_ref', '=', False)]}"
+                        invisible="is_updated == True or is_return_ref == False"
                         groups="analytic_account_in_stock.group_button_update_analytic_account"
                 />
             </xpath>
@@ -37,7 +30,6 @@
         </field>
     </record>
 
-    <!-- Inherit Form View to Modify it -->
     <record id="view_account_asset_form_inherit" model="ir.ui.view">
         <field name="name">account.asset.form</field>
         <field name="model">account.asset</field>
@@ -45,7 +37,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='method']" position="replace">
-                <field name="method" attrs="{'invisible': [('asset_type', '!=', 'purchase')]}" required="0"/>
+                <field name="method" required="0"/>
             </xpath>
 
         </field>

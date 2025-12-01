@@ -9,7 +9,6 @@
     'license': 'LGPL-3',
     'depends': [
         'hr_payroll',
-        'hr_contract',
         'hr',
     ],
     'data': ['views/hr_contract.xml',],

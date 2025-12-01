@@ -8,13 +8,6 @@
             <field name="inherit_id" ref="sale.view_sale_order_pivot"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount_total']" position="after">
-                    <!--                    <field name="TVQ_TVI_EX" type="measure"/>-->
-                    <!--                    <field name="TVQ_TVI_INC" type="measure"/>-->
-                    <!--                    <field name="IN_INC_QT_INC" type="measure"/>-->
-                    <!--                    <field name="TVQ_DR" type="measure"/>-->
-                    <!--                    <field name="DR_TO_TVQ_EX" type="measure"/>-->
-                    <!--                    <field name="TVI_DR_EX" type="measure"/>-->
-                    <!--                    <field name="DR_TO_TVI_EX" type="measure"/>-->
                     <field name="total_expense" type="measure"/>
                     <field name="total_invoiced_untaxed" type="measure"/>
                     <field name="total_invoiced" type="measure"/>

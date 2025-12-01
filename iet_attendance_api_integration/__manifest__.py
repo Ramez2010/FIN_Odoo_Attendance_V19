@@ -10,7 +10,7 @@
     """,
 
     'author': 'Mahmoud Salah',
-    'maintainer': 'Mahmoud Salah',
+    "version": "19.0.1.0.1",
     'category': 'Human Resources/Attendance',
     "license": "OPL-1",
 

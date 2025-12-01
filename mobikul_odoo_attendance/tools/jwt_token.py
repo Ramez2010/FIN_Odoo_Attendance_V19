@@ -29,7 +29,10 @@ def jwt_decode(jwt_token, secret, algorithm):
 
     :return: dict
     """
+    if not secret:
+        secret = "dummySecretKey"
     payload = jwt.decode(jwt_token, secret, algorithm)
+
     return payload
 
 # if __name__ == "__main__":

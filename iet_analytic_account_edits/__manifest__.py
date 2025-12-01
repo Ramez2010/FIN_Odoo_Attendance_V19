@@ -12,9 +12,8 @@
     'author': "Mohammed Abd Elkhalek",
     'website': "https://www.intelligent-experts.com",
 
-
     'category': 'Accounting/Accounting',
-    'version': '16.0.0.0',
+    'version': '19.0.0.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'analytic', 'stock', 'custom_analytic_account', 'analytic_account_in_stock'],
@@ -26,5 +25,5 @@
         'views/stock_picking_inherit.xml',
         'views/analytic_account.xml',
     ],
-
+    'license': 'LGPL-3',
 }

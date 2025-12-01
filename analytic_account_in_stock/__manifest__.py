@@ -13,6 +13,7 @@
     'author': "Mohamed0halim",
     'website': "linkedin.com/in/mo-halim",
     'version': '0.1',
+    "license": "LGPL-3",
 
     'depends': ['base', 'stock', 'account_asset'],
     # always loaded

@@ -1,9 +1,9 @@
 from odoo import _, api, fields, models
 
 
-class HrContract(models.Model):
-    _inherit = 'hr.contract'
-    _description = 'Hr Contract'
+class HrVersion(models.Model):
+    _inherit = 'hr.version'
+    _description = 'Hr Version Inherit'
 
     meal_allowance = fields.Float(string='Meal Allowance')
     mobil_allowance = fields.Float(string='Mobil Allowance')

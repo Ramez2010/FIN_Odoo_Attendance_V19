@@ -17,7 +17,7 @@ class MobileAttendanceSettings(models.TransientModel):
         return self.env['mobikul.attendance'].search([], limit=1).id
 
     mobikul_atd_app = fields.Many2one('mobikul.attendance', string="Mobikul Attendance APP",
-                                  default=_default_m_attendance, required=True)
+                                  default=_default_m_attendance)
     attendance_app_name = fields.Char('App Name', related='mobikul_atd_app.name')
     m_attendance_reset_password = fields.Boolean(
         string='Enable password reset', help="This allows users to trigger a password reset from App")

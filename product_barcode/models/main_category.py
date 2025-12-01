@@ -9,24 +9,25 @@ class MainCategory(models.Model):
     name = fields.Char(string='Name')
     serial = fields.Char(string='Serial', readonly=True, copy=False)
 
-    @api.model
-    def create(self, vals):
-        if vals.get('serial', 'New') == 'New':
-            vals['serial'] = self.env['ir.sequence'].next_by_code('main.category.sequence') or 'New'
-        return super(MainCategory, self).create(vals)
-
-    def name_get(self):
-        result = []
+    @api.depends('name', 'serial')
+    def _compute_display_name(self):
         for record in self:
             name = record.name
             serial = record.serial
-            display_name = f"{name} - {serial}" if name and serial else name or serial
-            result.append((record.id, display_name))
-        return result
+            if name and serial:
+                record.display_name = f"{name} - {serial}"
+            else:
+                record.display_name = name or serial or ""
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('serial', 'New') == 'New':
+                vals['serial'] = self.env['ir.sequence'].next_by_code('main.category.sequence') or 'New'
+        return super(MainCategory, self).create(vals_list)
 
     def unlink(self):
         product_templates = self.env['product.template'].search([('main_category_id', 'in', self.ids)])
         if product_templates:
             raise ValidationError("Cannot delete Main Category because it is referenced by a product.")
-
         return super(MainCategory, self).unlink()

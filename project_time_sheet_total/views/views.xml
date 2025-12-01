@@ -32,7 +32,7 @@
                         <group>
                             <group string="Hr TimeSheet" name="timesheet">
                                 <field name="timesheet_lines" widget="one2many_list" colspan="4" nolabel="1">
-                                    <tree>
+                                    <list>
                                         <field name="employee_id"/>
                                         <field name="date"/>
                                         <field name="project_id"/>
@@ -40,20 +40,8 @@
                                         <field name="task_id"/>
                                         <field name="unit_amount"/>
                                         <!--                                        <field name="work_percentage" invisible="0" optional="hide"/>-->
-                                    </tree>
+                                    </list>
                                 </field>
-
-                            </group>
-                        </group>
-                        <group string="Payslip Computation" name="payslip_compute">
-                            <group>
-                                <field name="work_entry_count" string="Work Entry Days"/>
-                                <field name="timesheet_count" string="Time Sheet Days"/>
-                                <field name="absence_count" string="Absence Days"/>
-                            </group>
-                            <group>
-                                <field name="num_days" string="Payslip Period Days"/>
-                                <field name="payslip_computable_days"/>
                             </group>
                         </group>
                     </page>

@@ -3,18 +3,18 @@
         <field name="name">fcm_attendance_devices.tree</field>
         <field name="model">fcm.attendance.devices</field>
         <field name="arch" type="xml">
-            <tree string="Registered Devices">
+            <list string="Registered Devices">
                 <field name="customer_id"/>
                 <field name="device_id"/>
                 <field name="create_date"/>
                 <field name="write_date"/>
-            </tree>
+            </list>
         </field>
     </record>
     <record id="fcm_attendance_devices_action" model="ir.actions.act_window">
         <field name="name">FCM Registered Devices</field>
         <field name="res_model">fcm.attendance.devices</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="fcm_attendance_devices_view_tree"/>
     </record>
 
@@ -23,12 +23,12 @@
         <field name="name">mobikul_attendance_massages.tree</field>
         <field name="model">mobikul.attendance.messages</field>
         <field name="arch" type="xml">
-            <tree string="Notification Messages" create="false">
+            <list string="Notification Messages" create="false">
                 <field name="name"/>
                 <field name="is_read"/>
                 <field name="customer_id"/>
                 <field name="create_date"/>
-            </tree>
+            </list>
         </field>
     </record>
     <record id="mobikul_attendance_massages_view_form" model="ir.ui.view">
@@ -73,10 +73,11 @@
                     </notebook>
                 </sheet>
                 <div>
-                    <div class="oe_edit_only" attrs="{'invisible': [('banner', '=', False)]}">
+                    <div class="oe_edit_only"
+                         invisible="not banner">
                         <h1>Change Banner Image</h1>
                     </div>
-                    <div class="oe_edit_only" attrs="{'invisible': [('banner', '!=', False)]}">
+                    <div class="oe_edit_only" invisible="banner">
                         <h1>Upload Banner Image</h1>
                     </div>
                     <field name="banner" widget="image" colspan="4"/>
@@ -90,18 +91,17 @@
         <field name="arch" type="xml">
             <search string="Mobikul Attendance Notification Messages">
                 <field name="customer_id"/>
-                <group expand="0" string="Group By">
-                        <filter string="Customer" name="customer" context="{'group_by':'customer_id'}"/>
-                </group>
+                        <filter string="Customer" name="customer_filter" context="{'group_by':'customer_id'}"/>
+
             </search>
         </field>
     </record>
     <record id="mobikul_attendance_massages_templates_action" model="ir.actions.act_window">
+        <field name="context">{'search_default_group_customer': 1}</field>
         <field name="name">Mobikul Attendance Messages</field>
         <field name="res_model">mobikul.attendance.messages</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="mobikul_attendance_massages_view_tree"/>
-        <field name="context">{'search_default_group_customer_id': 1}</field>
 
         <field name="search_view_id" ref="mobikul_attendance_massages_filter_view"/>
         <field name="help" type="html">

@@ -1,107 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Search View -->
+    <record id="view_overtime_request_search" model="ir.ui.view">
+        <field name="name">view_overtime_request_search</field>
+        <field name="model">overtime.request</field>
+        <field name="arch" type="xml">
+            <search string="Search Overtime Requests">
+                <field name="employee_id" string="Employee"/>
+                <field name="project_id" string="Project"/>
 
-        <record id="view_overtime_request_search" model="ir.ui.view">
-            <field name="name">view_overtime_request_search</field>
-            <field name="model">overtime.request</field>
-            <field name="arch" type="xml">
-                <search string="Search Overtime Requests">
-                    <field name="employee_id" string="Employee"/>
-                    <field name="project_id" string="Project"/>
-                </search>
-            </field>
-        </record>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
+    <record model="ir.ui.view" id="view_overtime_tree">
+        <field name="name">overtime.tree</field>
+        <field name="model">overtime.request</field>
+        <field name="arch" type="xml">
+            <list string="Overtime Requests" decoration-info="state == 'draft'"
+                  decoration-success="state == 'approved'" decoration-danger="state == 'cancelled'">
+                <field name="ref" string="Reference"/>
+                <field name="employee_id"/>
+                <field name="request_date" readonly="state != 'draft'"/>
+                <field name="project_id"/>
+                <field name="state" string="Status"/>
+                <field name="required_overtime_hours" string="Required OVT hours"/>
+                <field name="amount"/>
+            </list>
+        </field>
+    </record>
 
-        <!-- List/Tree View -->
-        <record model="ir.ui.view" id="view_overtime_tree">
-            <field name="name">overtime.tree</field>
-            <field name="model">overtime.request</field>
-            <field name="arch" type="xml">
-                <tree string="Overtime Requests" decoration-info="state == 'draft'"
-                      decoration-success="state == 'approved'" decoration-danger="state == 'cancelled'">
-                    <field name="ref" string="Reference"/>
-                    <field name="employee_id"/>
-                    <field name="request_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                    <field name="project_id"/>
-                    <field name="state" string="Status"/>
-                    <field name="required_overtime_hours" string="Required OVT hours"/>
-                    <field name="amount"/>
-                </tree>
-            </field>
-        </record>
-
-        <!-- Form View -->
-        <record id="view_overtime_form" model="ir.ui.view">
-            <field name="name">overtime.form</field>
-            <field name="model">overtime.request</field>
-            <field name="arch" type="xml">
-                <form string="Overtime Requests">
-                    <header>
-                        <button name="action_approve" string="approve" class="btn-primary" type="object" states="draft"
-                                groups="iet_overtime_request.overtime_manager_group"/>
-                        <button name="action_cancel" string="Cancel" class="btn-secondary" type="object"
-                                states="approved" groups="iet_overtime_request.overtime_manager_group"/>
-                        <button name="action_reset_to_draft" string="Reset To Draft" class="btn-secondary" type="object"
-                                states="cancelled" groups="iet_overtime_request.overtime_manager_group"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,approved,cancelled"/>
-                    </header>
-                    <sheet>
-                        <div class="oe_title">
-                            <label for="ref"/>
-                            <h1>
-                                <field name="ref"/>
-                            </h1>
-                        </div>
-                        <group>
-                            <field name="employee_id" string="Employee"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="request_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="description" string="Description"/>
-                        </group>
-                        <group string="Details">
-                            <field name="project_id" string="Project" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="required_overtime_hours" string="Required hours"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="amount" string="Amount"/>
-                            <field name="journal_entry_id" string="Journal Entry"/>
-
-                        </group>
-                    </sheet>
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids"/>
-                        <field name="activity_ids"/>
-                        <field name="message_ids"/>
+    <record id="view_overtime_form" model="ir.ui.view">
+        <field name="name">overtime.form</field>
+        <field name="model">overtime.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_approve" string="Approve" class="btn-primary" type="object"
+                            invisible="state != 'draft'"
+                            groups="iet_overtime_request.overtime_manager_group"/>
+                    <button name="action_cancel" string="Cancel" class="btn-secondary" type="object"
+                            invisible="state != 'approved'"
+                            groups="iet_overtime_request.overtime_manager_group"/>
+                    <button name="action_reset_to_draft" string="Reset To Draft" class="btn-secondary" type="object"
+                            invisible="state != 'cancelled'"
+                            groups="iet_overtime_request.overtime_manager_group"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="ref"/>
+                        <h1>
+                            <field name="ref"/>
+                        </h1>
                     </div>
-                </form>
-            </field>
-        </record>
+                    <group>
+                        <field name="employee_id" string="Employee" readonly="state != 'draft'"/>
+                        <field name="request_date" readonly="state != 'draft'"/>
+                        <field name="description" string="Description"/>
+                    </group>
+                    <group string="Details">
+                        <field name="project_id" string="Project" readonly="state != 'draft'"/>
+                        <field name="required_overtime_hours" string="Required hours" readonly="state != 'draft'"/>
+                        <field name="amount" string="Amount"/>
+                        <field name="journal_entry_id" string="Journal Entry"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
 
+    <record model="ir.actions.act_window" id="overtime_action_window">
+        <field name="name">Overtime Requests</field>
+        <field name="res_model">overtime.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_overtime_request_search"/>
 
-        <!-- Action -->
-        <record model="ir.actions.act_window" id="overtime_action_window">
-            <field name="name">Overtime Requests</field>
-            <field name="res_model">overtime.request</field>
-            <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_overtime_request_search"/>
-            <field name="help" type="html">
-                <p class="oe_view_nocontent_create">
-                    Create your first overtime request
-                </p>
-            </field>
-        </record>
+        <field name="context">{'search_default_group_employee': 1}</field>
 
-        <!-- Share Button in action menu -->
-        <record id="model_reset_to_draft" model="ir.actions.server">
-            <field name="name">Draft</field>
-            <field name="model_id" ref="iet_overtime_request.model_overtime_request"/>
-            <field name="binding_model_id" ref="iet_overtime_request.model_overtime_request"/>
-            <field name="binding_view_types">tree</field>
-            <field name="state">code</field>
-            <field name="code">action = records.action_reset_to_draft()</field>
-        </record>
+        <field name="help">
+            <p class="oe_view_nocontent_create">
+                Create your first overtime request
+            </p>
+        </field>
+    </record>
 
-
+    <record id="model_reset_to_draft" model="ir.actions.server">
+        <field name="name">Draft</field>
+        <field name="model_id" ref="iet_overtime_request.model_overtime_request"/>
+        <field name="binding_model_id" ref="iet_overtime_request.model_overtime_request"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_reset_to_draft()</field>
+    </record>
     </data>
 </odoo>

@@ -22,17 +22,17 @@ class Picking(models.Model):
 
     def button_validate(self):
         result = super().button_validate()
-    #     for line in self.move_ids.move_line_ids:
-    #         # if line.display_type == 'product' or not line.move_id.is_invoice(include_receipts=True):
-    #         distribution = self.env['account.analytic.distribution.model']._get_distribution({
-    #             "product_id": line.product_id.id,
-    #             "product_categ_id": line.product_id.categ_id.id,
-    #             "partner_id": self.partner_id.id,
-    #             "partner_category_id": self.partner_id.category_id.ids,
-    #             "account_prefix": self.analytic_account_id.code,
-    #             "company_id": self.company_id.id,
-    #         })
-    #         line.analytic_distribution = distribution or line.analytic_distribution
-    # # for move in self.move_line_ids:
-    #     #     move.analytic_account_line_id = self.analytic_account_id.id
+        #     for line in self.move_ids.move_line_ids:
+        #         # if line.display_type == 'product' or not line.move_id.is_invoice(include_receipts=True):
+        #         distribution = self.env['account.analytic.distribution.model']._get_distribution({
+        #             "product_id": line.product_id.id,
+        #             "product_categ_id": line.product_id.categ_id.id,
+        #             "partner_id": self.partner_id.id,
+        #             "partner_category_id": self.partner_id.category_id.ids,
+        #             "account_prefix": self.analytic_account_id.code,
+        #             "company_id": self.company_id.id,
+        #         })
+        #         line.analytic_distribution = distribution or line.analytic_distribution
+        # # for move in self.move_line_ids:
+        #     #     move.analytic_account_line_id = self.analytic_account_id.id
         return result

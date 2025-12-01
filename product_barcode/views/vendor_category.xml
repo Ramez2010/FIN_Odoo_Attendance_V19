@@ -23,12 +23,12 @@
             <field name="name">vendor.category.tree</field>
             <field name="model">vendor.category</field>
             <field name="arch" type="xml">
-                <tree string="Manufacture Category">
+                <list string="Manufacture Category">
                     <field name="serial"/>
                     <field name="name"/>
                     <field name="parent"/>
                     <field name="partner"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -36,7 +36,7 @@
         <record id="action_vendor_category" model="ir.actions.act_window">
             <field name="name">Manufacture Categories</field>
             <field name="res_model">vendor.category</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
         </record>
 
         <!-- Category Menu Item -->

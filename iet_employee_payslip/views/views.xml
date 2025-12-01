@@ -4,7 +4,7 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <field name="work_email" position="after">
+            <field name="private_phone" position="after">
                 <field name="employee_payment_type"/>
             </field>
         </field>

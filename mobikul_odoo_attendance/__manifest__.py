@@ -47,8 +47,7 @@
                               'views/extraAddedFeature.xml',
                               'views/menus.xml',
                               'data/defaultdata.xml',
-                              'data/attendanceSequnce.xml',
-                              'data/cron_for_create_attendance_notifications.xml'
+                              'data/attendanceSequnce.xml'
 
                             ],
   "demo"                 :  [],
@@ -61,5 +60,5 @@
   "price"                :  199.0,
   "currency"             :  "USD",
   "pre_init_hook"        :  "pre_init_check",
-  "external_dependencies": {"python" : ["jwt", "google-auth"]},
+  "external_dependencies": {"python" : ["jwt"]},
 }

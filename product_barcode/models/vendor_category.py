@@ -11,26 +11,31 @@ class VendorCategory(models.Model):
     parent = fields.Many2one('main.category', required=True, string='Main Category')
     partner = fields.Many2one('res.partner')
 
-    @api.model
-    def create(self, vals):
-        # if vals.get('serial', 'New') == 'New':
-        #     vals['serial'] = self.env['ir.sequence'].next_by_code('vendor.category.sequence') or 'New'
-        # return super(VendorCategory, self).create(vals) 
-        res = super(VendorCategory, self).create(vals)
-        count = self.search_count([('parent', '=', res.parent.id)])
-        res.serial = str(count).zfill(4)
-        return res
-
-    def name_get(self):
-        result = []
+    @api.depends('name', 'serial', 'parent.name', 'parent.serial')
+    def _compute_display_name(self):
         for record in self:
             name = record.name
             serial = record.serial
-            parent = record.parent.name
-            parent_serial = record.parent.serial
-            display_name = f" {parent} - {parent_serial} / {name} - {serial}" if name and serial else name or serial
-            result.append((record.id, display_name))
-        return result
+
+            parent_name = record.parent.name or ''
+            parent_serial = record.parent.serial or ''
+
+            if name and serial:
+                record.display_name = f" {parent_name} - {parent_serial} / {name} - {serial}"
+            else:
+                record.display_name = name or serial or ""
+
+    @api.model_create_multi
+    def create(self, vals_list):
+
+        records = super(VendorCategory, self).create(vals_list)
+
+        for record in records:
+            if record.parent:
+                count = self.search_count([('parent', '=', record.parent.id)])
+                record.serial = str(count).zfill(4)
+
+        return records
 
     def unlink(self):
         product_templates = self.env['product.template'].search([('vendor_category_id', 'in', self.ids)])

@@ -1,7 +1,7 @@
 
 from ast import literal_eval
 from odoo import api, fields, models, _, SUPERUSER_ID
-from datetime import datetime, timedelta
+from datetime import datetime
 from odoo.exceptions import UserError
 import random
 import json
@@ -92,51 +92,22 @@ class MobikulAtdNotificationTemplate(models.Model):
             to_data = {
                 "registration_ids": [r['token'] for r in reg_data]
             }
+        notification = dict(title=self.notification_title,
+                            body=self.notification_body, sound="default")
+        if self.notification_color:
+            notification['color'] = self.notification_color
+        if self.notification_tag:
+            notification['tag'] = self.notification_tag
 
-        # Determine whether to use `token` or `tokens`
-        fcm_recipient = {}
-
-        # Check if 'to_data' is a dictionary
-        if isinstance(to_data, dict):
-            if 'to' in to_data and isinstance(to_data['to'], str):  # Single token
-                fcm_recipient["tokens"] = [to_data['to']]  # Single token
-            elif 'registration_ids' in to_data and isinstance(to_data['registration_ids'], list):  # Multiple tokens
-                fcm_recipient["tokens"] = to_data['registration_ids']  # Multiple tokens
-            else:
-                raise ValueError(f"No valid recipient specified (token, tokens, or topic). Data: {json.dumps(to_data, indent=2)}")
-        else:
-            raise ValueError(f"No valid recipient specified (token, tokens, or topic). Data: {json.dumps(to_data, indent=2)}")
-
-
-        notification = dict(
-            title=self.notification_title,
-            body=self.notification_body,
-        )
-
-        android_config = {
-            "notification": {
-                "click_action": "FLUTTER_NOTIFICATION_CLICK",
-                "color": self.notification_color if self.notification_color else "#FFFFFF",
-                "tag": self.notification_tag if self.notification_tag else None
-            },
-            "priority": "high"
-        }
-
+        fcm_payload = dict(notification=notification)
+        fcm_payload.update(to_data)
         data_message = dict(type="", id="", domain="", image="", name="")
         data_message['name'] = self.notification_title
         data_message['type'] = 'none'
         data_message['image'] = _get_image_url(self._context.get(
             'base_url'), 'mobikul.attendance.notification.template', self.id, 'image', self.write_date)
-        data_message['notificationId'] = str(random.randint(1, 99999))
-
-        fcm_payload = {
-            "message": {
-                "notification": notification,
-                "data": data_message,
-                "android": android_config
-            }
-        }
-
+        data_message['notificationId'] = random.randint(1, 99999)
+        fcm_payload['data'] = data_message
         domain = [('res_model', '=', self._name),
             ('res_field', '=', 'image'),
             ('res_id', 'in', [self.id])]
@@ -146,22 +117,7 @@ class MobikulAtdNotificationTemplate(models.Model):
                 title=self.notification_title, body=self.notification_body, customer_id=customer_id,
                 banner=attachment.datas, datatype='default'
             )
-
-        allStatus = True
-        allSummary = ""
-        for token in fcm_recipient["tokens"]:
-            try:
-                fcm_payload["message"]["token"] = token
-                status, summary = self._pushMe(self._get_key(), json.dumps(fcm_payload).encode('utf8'), customer_id and data or False)  # Replace with your function to send the API request
-                if not status:
-                    allStatus = False
-                    allSummary += f"Failed to send notification to {token}: {summary}\n"
-                else:
-                    allSummary += f"{summary}\n"
-            except Exception as e:
-                allStatus = False
-                allSummary += f"Failed to send notification to {token}: {str(e)}\n"
-        return [allStatus, allSummary]
+        return self._pushMe(self._get_key(), json.dumps(fcm_payload).encode('utf8'), customer_id and data or False)
 
     name = fields.Char('Name', required=True, translate=True)
     notification_color = fields.Char('Color', default='PURPLE')
@@ -272,56 +228,6 @@ class MobikulAtdNotification(models.Model):
         action['views'] = [(self.env.ref('mobikul_odoo_attendance.mobikul_atd_notification_view_form').id, 'form')]
         action['res_id'] = self.copy().id
         return action
-
-    def create_attendance_notification(self):
-        # Create the record with translations
-        apte_topic_id = self.env['fcm.attendance.topics'].sudo().search([
-            ('name', '=', 'apte')
-        ], limit=1)
-        print(apte_topic_id.name)
-        if apte_topic_id:
-            record = self.create({
-                'name': 'Daily check in reminder',
-                'notification_title': 'Daily check in reminder',
-                'notification_type': 'topic',
-                'topic_id': apte_topic_id.id,
-                'notification_body': 'please check in if you started your work ',
-            })
-
-            # Set the Arabic translation
-            record.with_context(lang='ar_001').name = 'تذكير بتسجيل الدخول اليومي '
-            record.with_context(lang='ar_001').notification_title = 'تذكير بتسجيل الدخول اليومي '
-            record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الدخول اذا بدأت العمل.'
-            record.action_confirm()
-            record.push_now()
-            # record._message_auto_subscribe()
-            # return record
-
-    def create_departure_notification(self):
-        # Create the record with translations
-        apte_topic_id = self.env['fcm.attendance.topics'].sudo().search([
-            ('name', '=', 'apte')
-        ], limit=1)
-        print(apte_topic_id.name)
-        if apte_topic_id:
-            record = self.create({
-                'name': 'Daily check out reminder',
-                'notification_title': 'Daily check out reminder',
-                'notification_type': 'topic',
-                'topic_id': apte_topic_id.id,
-                'notification_body': 'please check out if you started your work ',
-            })
-
-            # Set the Arabic translation
-            record.with_context(lang='ar_001').name = 'تذكير بتسجيل الخروج اليومي '
-            record.with_context(lang='ar_001').notification_title = 'تذكير بتسجيل الخروج اليومي '
-            record.with_context(lang='ar_001').notification_body = 'يرجي تسجيل بصمة الخروج اذا بدأت العمل.'
-            record.action_confirm()
-            record.push_now()
-            # record._message_auto_subscribe()
-            # return record
-
-
 
 class MobikulAtdNotificationMessages(models.Model):
     _name = 'mobikul.attendance.messages'

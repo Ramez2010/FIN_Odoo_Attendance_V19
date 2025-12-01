@@ -49,15 +49,15 @@ class ProductMoveReportWizard(models.TransientModel):
         )
         flat_product_moves = [{
             'move_type':
-            'in' if self.location_id == move.location_dest_id else 'out',
+                'in' if self.location_id == move.location_dest_id else 'out',
             'date':
-            move.date,
+                move.date,
             'operation_type':
-            move.picking_code,
+                move.picking_code,
             'reference':
-            move.reference,
+                move.reference,
             'qty':
-            move.qty_done,
+                move.qty_done,
         } for move in product_moves]
         data = {
             'form': self.read()[0],

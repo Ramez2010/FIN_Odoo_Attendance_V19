@@ -18,7 +18,7 @@ class AccountAnalyticLine(models.Model):
         self.timesheet_start_date = config_settings.get('timesheet_start_date')
         self.timesheet_end_date = config_settings.get('timesheet_end_date')
 
-    # @api.depends('employee_id', 'employee_id.contract_id.wage', 'timesheet_start_date', 'timesheet_end_date')
+    # @api.depends('employee_id', 'employee_id.version_id.wage', 'timesheet_start_date', 'timesheet_end_date')
     def _compute_custom_amount(self):
         for line in self:
             # work_entries = self.env['hr.work.entry'].search([
@@ -42,7 +42,7 @@ class AccountAnalyticLine(models.Model):
 
             duration = sum(work_entries.mapped('duration'))
 
-            line.custom_amount = line.employee_id.contract_id.wage / duration if duration > 0 else 0
+            line.custom_amount = line.employee_id.version_id.wage / duration if duration > 0 else 0
 
     @api.depends('employee_id')
     def _compute_is_worker(self):
@@ -68,7 +68,7 @@ class AccountAnalyticLine(models.Model):
         total_hours = sum(line.unit_amount for line in lines)
         return total_hours
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         employee_id = vals.get('employee_id')
         date = vals.get('date')

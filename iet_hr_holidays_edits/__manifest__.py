@@ -14,9 +14,9 @@
     'website': "https://www.intelligent-experts.com",
 
     'category': 'Human Resources/Time Off',
-    'version': '16.0.0.0',
+    'version': '19.0.0.0',
 
-    # any module necessary for this one to work correctly
+    "license": "AGPL-3",
     'depends': ['base', 'hr_holidays'],
 
     # always loaded

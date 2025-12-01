@@ -14,7 +14,7 @@
     'category': 'Base',
     "license": "OPL-1",
 
-    # any module necessary for this one to work correctly
+    "version": "19.0.0.1.0",
     'depends': ['base'],
 
     # always loaded

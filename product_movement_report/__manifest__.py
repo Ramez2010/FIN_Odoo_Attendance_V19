@@ -1,24 +1,24 @@
 {
     'name':
-    "Product Moves Report",
+        "Product Moves Report",
     'summary':
-    """Product Moves Report        """,
+        """Product Moves Report        """,
     'description':
-    """Product Moves Report """,
+        """Product Moves Report """,
     'sequence':
-    1,
+        1,
     'application':
-    True,
+        True,
     'author':
-    "Code Flex",
+        "Code Flex",
     'website':
-    "http://www.yourcompany.com",
+        "http://www.yourcompany.com",
     'category':
-    'Uncategorized',
+        'Uncategorized',
     'version':
-    '0.1',
+        '0.1',
     'license':
-    'LGPL-3',
+        'LGPL-3',
     'depends': [
         'base',
         'stock',
@@ -39,5 +39,5 @@
     #     ],
     # },
     "auto_install":
-    True,
+        True,
 }

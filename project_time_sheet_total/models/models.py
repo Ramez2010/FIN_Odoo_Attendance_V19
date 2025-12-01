@@ -4,16 +4,12 @@ from odoo import models, fields, api
 from odoo.tools import float_compare, float_round
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-import calendar
 
 
 class HrPayrollInherit(models.Model):
     _inherit = "hr.payslip"
 
-    timesheet_lines = fields.One2many('account.analytic.line', compute='_compute_timesheet_lines')
-    timesheet_count = fields.Integer(compute='_compute_timesheet_lines')
-    work_entry_count = fields.Integer(compute='_compute_work_entry_lines')
-    absence_count = fields.Integer(compute='_compute_absence_count')
+    timesheet_lines = fields.Many2many('account.analytic.line', compute='_compute_timesheet_lines',store=True)
     attendance_hours = fields.Float(string='Attendance Work Hours', compute='_compute_attendance_hours')
     timesheet_hours = fields.Float(string='Timesheet Hours',compute='_compute_work_hours')  # Corrected `field.Float` to `fields.Float`
     required_hours = fields.Float(string='Required Hours', compute='_compute_required_hours')
@@ -25,20 +21,12 @@ class HrPayrollInherit(models.Model):
     worked_days_hours = fields.Float(string='Worked Days Hours', compute='_compute_worked_days_hours')  # Added this field
     timesheet_cost = fields.Float(string="Timesheet Cost", default=0.0, compute='_compute_timesheet_hours_cost')
     overtime_cost = fields.Float(string="Overtime Cost", default=0.0, compute='_compute_overtime_hours_cost')
-    num_days = fields.Integer(compute="_get_num_days", store=True)
-    payslip_computable_days = fields.Integer(compute='_compute_payslip_computable_days')
 
-    @api.depends('date_from', 'date_to')
-    def _get_num_days(self):
-        for rec in self:
-            if rec.date_from and rec.date_to:
-                rec.num_days = (rec.date_to - rec.date_from).days + 1
-
-    @api.onchange('employee_id', 'date_from', 'date_to', 'timesheet_lines', 'contract_id', 'contract_id.resource_calendar_id.full_time_required_hours')
+    @api.onchange('employee_id', 'date_from', 'date_to', 'timesheet_lines', 'version_id', 'contract_id.resource_calendar_id.full_time_required_hours')
     def _compute_required_hours(self):
         for rec in self:
-            if rec.contract_id and rec.contract_id.resource_calendar_id:
-                rec.required_hours = rec.contract_id.resource_calendar_id.full_time_required_hours * 4  # Hours/week multiplied by number of weeks (4)
+            if rec.version_id and rec.version_id.resource_calendar_id:
+                rec.required_hours = rec.version_id.resource_calendar_id.full_time_required_hours * 4  # Hours/week multiplied by number of weeks (4)
             else:
                 rec.required_hours = 0.0
 
@@ -50,48 +38,14 @@ class HrPayrollInherit(models.Model):
     @api.depends('timesheet_lines', 'timesheet_lines.date')
     def _compute_timesheet_lines(self):
         for record in self:
-            record.timesheet_lines = self.env['account.analytic.line']
-            record.timesheet_count = 0
             if record.employee_id and record.date_from and record.date_to:
-                timesheet_lines = self.env['account.analytic.line'].search([
+                record.timesheet_lines = self.env['account.analytic.line'].search([
                     ('employee_id', '=', record.employee_id.id),
                     ('date', '>=', record.date_from),
                     ('date', '<=', record.date_to)
                 ])
-                if timesheet_lines:
-                    record.timesheet_lines = timesheet_lines
-                    print(timesheet_lines)
-                    print(len(timesheet_lines))
-                    record.timesheet_count = len(timesheet_lines)
-
-
-    def _compute_work_entry_lines(self):
-        for record in self:
-            record.work_entry_count = 0
-            if record.employee_id and record.date_from and record.date_to:
-                work_entry_lines = self.env['hr.work.entry'].search([
-                    ('employee_id', '=', record.employee_id.id),
-                    ('date_start', '>=', datetime.combine(record.date_from, datetime.min.time())),
-                    ('date_start', '<=', datetime.combine(record.date_to, datetime.min.time())),
-                    ('work_entry_type_id.code', '=', 'WORK100')
-                ])
-                if work_entry_lines:
-                    record.work_entry_count = len(work_entry_lines)
-
-    @api.depends('timesheet_count', 'work_entry_count')
-    def _compute_absence_count(self):
-        for record in self:
-            record.absence_count = 0
-            if record.work_entry_count and record.work_entry_count >= record.timesheet_count:
-                record.absence_count = record.work_entry_count - record.timesheet_count
-
-    @api.depends('num_days', 'absence_count')
-    def _compute_payslip_computable_days(self):
-        for record in self:
-            record.payslip_computable_days = 0
-            if record.num_days:
-                record.payslip_computable_days = record.num_days - record.absence_count
-
+            else:
+                record.timesheet_lines = self.env['account.analytic.line']
 
     @api.depends('timesheet_lines.unit_amount', 'task_time')
     def _compute_work_hours(self):
@@ -126,7 +80,7 @@ class HrPayrollInherit(models.Model):
     @api.depends('overtime_hours')
     def _compute_overtime_hours_cost(self):
         for rec in self:
-            rec.overtime_cost = rec.overtime_hours * rec.employee_id.contract_id.overtime_rate
+            rec.overtime_cost = rec.overtime_hours * rec.employee_id.version_id.overtime_rate
     @api.depends('timesheet_hours')
     def _compute_timesheet_hours_cost(self):
         for rec in self:

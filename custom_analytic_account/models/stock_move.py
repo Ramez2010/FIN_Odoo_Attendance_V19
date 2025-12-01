@@ -5,13 +5,13 @@ class StockMove(models.Model):
     _inherit = "stock.move"
 
     def _prepare_account_move_line(
-        self,
-        qty,
-        cost,
-        credit_account_id,
-        debit_account_id,
-        svl_id,
-        description,
+            self,
+            qty,
+            cost,
+            credit_account_id,
+            debit_account_id,
+            svl_id,
+            description,
     ):
         res = super()._prepare_account_move_line(
             qty,

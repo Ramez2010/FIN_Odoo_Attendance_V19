@@ -3,17 +3,17 @@ from odoo import models, fields, api
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
     # analytic_account_id = fields.Many2one(
     #     'account.analytic.account',
     #     'Analytic Account',
     #     copy=False,
+    #     store=True,
     # )
+
     # project_id = fields.Many2one(
     #     'project.project',
     #     ' Project',
-    # )
-    # analytic_account_id = fields.Many2one(
-    #     compute="_compute_analytic_account_id", store=True,
     # )
 
     @api.onchange('partner_id')
@@ -24,42 +24,23 @@ class SaleOrder(models.Model):
         return {
             'domain': {'analytic_account_id': [('partner_id', '=', self.partner_id.id)]}
         }
-    #
+
     # @api.depends('project_id')
     # def _compute_analytic_account_id(self):
     #     for rec in self:
     #         if rec.project_id:
     #             rec.analytic_account_id = rec.project_id.analytic_account_id
 
-    def _prepare_invoice(self, *args, **kwargs):
-        invoice_values = super()._prepare_invoice(*args, **kwargs)
-        invoice_values['analytic_account_id'] = self.analytic_account_id.id
+    def _prepare_invoice(self):
+        invoice_values = super()._prepare_invoice()
+        if self.analytic_account_id:
+            invoice_values['analytic_account_id'] = self.analytic_account_id.id
         return invoice_values
 
     def _create_invoices(self, grouped=False, final=False, date=None):
         moves = super()._create_invoices(grouped, final, date)
-        moves.analytic_account_id = self.analytic_account_id
-        for line in moves.line_ids:
-            line.analytic_account_id = self.analytic_account_id.id
+        if self.analytic_account_id:
+            moves.write({'analytic_account_id': self.analytic_account_id.id})
+            for line in moves.line_ids:
+                line.write({'analytic_account_id': self.analytic_account_id.id})
         return moves
-
-    # @api.onchange('partner_id')
-    # def select_analytic_account_id(self):
-    #     print('select_analytic_account_id')
-    #     for order in self:
-    #         if order.partner_id:
-    #             related_accounts = self.env['account.analytic.account'].search(
-    #                 [
-    #                     ('partner_id', '=', order.partner_id.id),
-    #                 ])
-    #             order.analytic_account_id = related_accounts[
-    #                 -1] if related_accounts else None
-    #
-    # def default_get(self, fields_list):
-    #     data = super(SaleOrder, self).default_get(fields_list)
-    #     account = self.env['account.analytic.account'].search([
-    #         ('partner_id', '=', self.partner_id.id)
-    #     ])
-    #     if account:
-    #         data['analytic_account_id'] = account[0].id
-    #     return data

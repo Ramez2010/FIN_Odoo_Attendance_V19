@@ -1,11 +1,9 @@
 <odoo>
     <data>
-<!--        set code if not with a server action-->
         <record id="set_analytic_account_sequence_code" model="ir.actions.server">
             <field name="name">Set Analytic Account ID</field>
             <field name="model_id" ref="analytic.model_account_analytic_account"/>
             <field name="binding_model_id" ref="analytic.model_account_analytic_account"/>
-            <field name="binding_view_types">list</field>
             <field name="state">code</field>
             <field name="code">
                 action = records.action_set_analytic_account_sequence_code()

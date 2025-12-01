@@ -2,7 +2,8 @@
 <odoo>
 
 	<!-- Menu items hierachy -->
-	<menuitem id="menu_m_attendance_title" name="Mobikul Attendance" sequence="10" web_icon="mobikul_odoo_attendance,static/description/icon.png" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+	<menuitem id="menu_m_attendance_title" name="Mobikul Attendance" sequence="10" web_icon="mobikul_odoo_attendance,static/description/icon.png"
+              groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
 
 	<menuitem id="menu_m_attendacne_dash" name="Dashboard" parent="menu_m_attendance_title" sequence="0" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
 	<menuitem id="menu_m_attendacne" name="Attendance" parent="menu_m_attendance_title" sequence="1" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>

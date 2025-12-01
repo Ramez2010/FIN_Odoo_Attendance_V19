@@ -11,10 +11,10 @@ class Overtime(models.Model):
 
 
     ref = fields.Char(string='Reference', readonly=True, default='new')
-    employee_id = fields.Many2one('hr.employee', string='Employee', required=True, tracking=True)
+    employee_id = fields.Many2one('hr.employee', string='Employee', required=True, tracking=True,store=True)
     request_date = fields.Date(string='Request Date', default=fields.Date.context_today)
-    project_id = fields.Many2one('account.analytic.account', string='Project', required=True)
-    required_overtime_hours = fields.Float(string='Required Hours', required=True)
+    project_id = fields.Many2one('account.analytic.account', string='Project', required=True,store=True)
+    required_overtime_hours = fields.Float(store=True,string='Required Hours', required=True)
     description = fields.Html(string='Description', tracking=True)
     amount = fields.Float(string='Amount', default=0.0, compute='_compute_amount',store=True)
     state = fields.Selection([
@@ -24,7 +24,7 @@ class Overtime(models.Model):
     ], default='draft', tracking=True)
     journal_entry_id = fields.Many2one('account.move', string='Journal Entry', readonly=True)
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         if vals.get('ref', 'new') == 'new':
             vals['ref'] = self.env['ir.sequence'].next_by_code('overtime_seq') or 'new'
@@ -125,11 +125,11 @@ class Overtime(models.Model):
 
         for rec in self:
             try:
-                if not rec.employee_id.contract_id:
+                if not rec.employee_id.version_id:
                     raise exceptions.ValidationError('Employee must have a contract.')
-                if not rec.employee_id.contract_id.overtime_rate:
+                if not rec.employee_id.version_id.overtime_rate:
                     raise exceptions.ValidationError('Employee contract must have an overtime rate.')
-                rec.amount = rec.required_overtime_hours * rec.employee_id.contract_id.overtime_rate
+                rec.amount = rec.required_overtime_hours * rec.employee_id.version_id.overtime_rate
             except:
                 rec.amount = 0.0
 
