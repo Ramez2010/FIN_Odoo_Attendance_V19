@@ -2,7 +2,7 @@
 <odoo>
     <data>
     <!-- This Menu Item will appear in the Upper bar, That's why It needs NO parent or action -->
-    <menuitem id="overtime_root" name="Overtime"
+    <menuitem id="overtime_root1" name="Overtime"
               web_icon="iet_overtime_request,static/description/overtime.png"/>
     <!-- This Menu Item Must have a parent -->
     <menuitem id="overtime_request_menu"
