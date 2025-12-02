@@ -2,6 +2,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime
 
+
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
 
@@ -69,17 +70,22 @@ class AccountAnalyticLine(models.Model):
         return total_hours
 
     @api.model_create_multi
-    def create(self, vals):
-        employee_id = vals.get('employee_id')
-        date = vals.get('date')
-        if employee_id and date:
-            employee = self.env['hr.employee'].browse(employee_id)
-            # working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
-            working_hour = 24
-            total_hours_for_day = self._get_total_hours_for_day(employee, date)
-            if (vals.get('unit_amount', 0) + total_hours_for_day) > working_hour:
-                raise ValidationError(f"Total logged hours for the day cannot exceed {working_hour:.2f} hours.")
-        return super(AccountAnalyticLine, self).create(vals)
+    def create(self, vals_list):
+        for vals in vals_list:
+            employee_id = vals.get('employee_id')
+            date = vals.get('date')
+
+            if employee_id and date:
+                employee = self.env['hr.employee'].browse(employee_id)
+                # working_hour = employee.resource_calendar_id.hours_per_day if employee.resource_calendar_id else 8
+                working_hour = 24
+
+                total_hours_for_day = self._get_total_hours_for_day(employee, date)
+
+                if (vals.get('unit_amount', 0) + total_hours_for_day) > working_hour:
+                    raise ValidationError(f"Total logged hours for the day cannot exceed {working_hour:.2f} hours.")
+
+        return super(AccountAnalyticLine, self).create(vals_list)
 
     def write(self, vals):
         for record in self:

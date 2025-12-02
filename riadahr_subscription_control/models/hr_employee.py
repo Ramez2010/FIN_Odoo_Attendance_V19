@@ -4,13 +4,12 @@ from odoo.exceptions import UserError
 class HREmployee(models.Model):
     _inherit = 'hr.employee'
 
-    @api.model
-    def create(self, vals):
-        # If a user is being assigned during creation, check the limit
-        if vals.get('user_id'):
-            self._check_user_limit()
-
-        return super(HREmployee, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('user_id'):
+                self._check_user_limit()
+        return super(HREmployee, self).create(vals_list)
 
     def write(self, vals):
         # Check if an employee is being unarchived

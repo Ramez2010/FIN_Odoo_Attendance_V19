@@ -25,10 +25,11 @@ class Overtime(models.Model):
     journal_entry_id = fields.Many2one('account.move', string='Journal Entry', readonly=True)
 
     @api.model_create_multi
-    def create(self, vals):
-        if vals.get('ref', 'new') == 'new':
-            vals['ref'] = self.env['ir.sequence'].next_by_code('overtime_seq') or 'new'
-        res = super(Overtime, self).create(vals)
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('ref', 'new') == 'new':
+                vals['ref'] = self.env['ir.sequence'].next_by_code('overtime_seq') or 'new'
+        res = super(Overtime, self).create(vals_list)
         return res
 
     def action_approve(self):

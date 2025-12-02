@@ -250,10 +250,11 @@ class MobikulAtdNotificationMessages(models.Model):
         default='default',
         help="Notification Messages Data Type for your Mobikul App.")
 
-    @api.model
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].next_by_code('mobikul.attendance.messages')
-        return super(MobikulAtdNotificationMessages, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('mobikul.attendance.messages')
+        return super(MobikulAtdNotificationMessages, self).create(vals_list)
 
     def _compute_period(self):
         for i in self:
