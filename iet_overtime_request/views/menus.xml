@@ -9,5 +9,5 @@
               name="Overtime Request"
               parent="overtime_root1"
               sequence="0"
-              action="overtime_action_window"/>
+              action="overtime_action_window1"/>
 </odoo>

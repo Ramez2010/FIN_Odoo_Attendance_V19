@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.ui.view" id="view_overtime_tree">
+    <record model="ir.ui.view" id="view_overtime_tree1">
         <field name="name">overtime.list</field>
         <field name="model">overtime.request</field>
         <field name="arch" type="xml">
@@ -17,7 +17,7 @@
         </field>
     </record>
 
-    <record id="view_overtime_form" model="ir.ui.view">
+    <record id="view_overtime_form1" model="ir.ui.view">
         <field name="name">overtime.form</field>
         <field name="model">overtime.request</field>
         <field name="arch" type="xml">
@@ -58,7 +58,7 @@
         </field>
     </record>
 
-    <record model="ir.actions.act_window" id="overtime_action_window">
+    <record model="ir.actions.act_window" id="overtime_action_window1">
         <field name="name">Overtime Requests</field>
         <field name="res_model">overtime.request</field>
         <field name="view_mode">list,form</field>
