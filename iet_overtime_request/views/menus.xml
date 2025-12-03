@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-    <!-- This Menu Item will appear in the Upper bar, That's why It needs NO parent or action -->
+
     <menuitem id="overtime_root" name="Overtime"
               sequence="0"
               web_icon="iet_overtime_request,static/description/overtime.png"/>
@@ -11,5 +10,4 @@
               parent="overtime_root"
               sequence="0"
               action="overtime_action_window"/>
-    </data>
 </odoo>
