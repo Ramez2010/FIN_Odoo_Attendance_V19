@@ -8,6 +8,7 @@
     <menuitem id="overtime_request_menu"
               name="Overtime Request"
               parent="overtime_root"
+              sequence="0"
               action="overtime_action_window"/>
     </data>
 </odoo>
