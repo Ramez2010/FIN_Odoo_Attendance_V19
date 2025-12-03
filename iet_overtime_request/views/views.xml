@@ -77,4 +77,4 @@
         <field name="code">action = records.action_reset_to_draft()</field>
     </record>
 
-    </odoo>
+</odoo>
