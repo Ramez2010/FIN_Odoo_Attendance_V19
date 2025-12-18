@@ -9,18 +9,37 @@ from dateutil.relativedelta import relativedelta
 class HrPayrollInherit(models.Model):
     _inherit = "hr.payslip"
 
-    timesheet_lines = fields.Many2many('account.analytic.line', compute='_compute_timesheet_lines')
-    attendance_hours = fields.Float(string='Attendance Work Hours', compute='_compute_attendance_hours')
-    timesheet_hours = fields.Float(string='Timesheet Hours',compute='_compute_work_hours', store=True)  # Corrected `field.Float` to `fields.Float`
-    required_hours = fields.Float(string='Required Hours', compute='_compute_required_hours')
+    timesheet_lines = fields.Many2many(
+        'account.analytic.line',
+        compute='_compute_timesheet_lines',
+        string='Timesheet Lines'
+    )
+    timesheet_hours = fields.Float(
+        string='Timesheet Hours',
+        compute='_compute_timesheet_hours',
+        store=False
+    )
+    hours_shortfall = fields.Float(
+        compute='_compute_hours_shortfall',
+        store=False
+    )
+
+    progress = fields.Float(
+        compute='_compute_progress',
+        store=False,
+        group_operator="avg")
+    timesheet_cost = fields.Float(
+        string="Timesheet Cost",
+        default=0.0,
+        compute='_compute_timesheet_hours_cost',
+        store=False)
+    attendance_hours = fields.Float(string='Attendance Work Hours', compute='_compute_attendance_hours', store=True)
+    required_hours = fields.Float(string='Required Hours', compute='_compute_required_hours', store=True)
     all_lines = fields.Char(string="All Lines")
-    hours_shortfall = fields.Float(compute='_compute_work_hours', store=True)
-    progress = fields.Float(compute='_compute_work_hours', store=True, group_operator="avg")
     task_time = fields.Float(default=0.0)
-    overtime_hours = fields.Float(compute="get_overtime_hours")
-    worked_days_hours = fields.Float(string='Worked Days Hours', compute='_compute_worked_days_hours')  # Added this field
-    timesheet_cost = fields.Float(string="Timesheet Cost", default=0.0, compute='_compute_timesheet_hours_cost')
-    overtime_cost = fields.Float(string="Overtime Cost", default=0.0, compute='_compute_overtime_hours_cost')
+    overtime_hours = fields.Float(compute="get_overtime_hours", store=False)
+    overtime_cost = fields.Float(string="Overtime Cost", default=0.0, compute='_compute_overtime_hours_cost',store=False)
+    worked_days_hours = fields.Float(string='Worked Days Hours', compute='_compute_worked_days_hours', store=True)
 
     @api.onchange('employee_id', 'date_from', 'date_to', 'timesheet_lines', 'version_id', 'contract_id.resource_calendar_id.full_time_required_hours')
     def _compute_required_hours(self):
