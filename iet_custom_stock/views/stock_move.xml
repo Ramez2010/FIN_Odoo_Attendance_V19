@@ -30,7 +30,10 @@
                         location_dest_id, 'default_company_id': company_id}
                     </attribute>
 
-                    <attribute name="readonly">not show_operations or state == 'cancel' or (state == 'done' and
+<!--                    <attribute name="readonly">not show_operations or state == 'cancel' or (state == 'done' and-->
+<!--                        is_locked)-->
+<!--                    </attribute>   -->
+                    <attribute name="readonly">state == 'cancel' or (state == 'done' and
                         is_locked)
                     </attribute>
 
