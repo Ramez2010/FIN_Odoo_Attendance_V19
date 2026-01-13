@@ -40,6 +40,31 @@ class StockReturnPicking(models.TransientModel):
     @api.depends('product_return_moves.product_id')
     def _compute_allowed_products(self):
         for wizard in self:
-            sale_products = wizard.picking_id.sale_id.order_line.mapped('product_id') if wizard.picking_id.sale_id else self.env['product.product']
+            picking_products = wizard.picking_id.move_ids.mapped('product_id')
             existing_lines_products = wizard.product_return_moves.mapped('product_id')
-            wizard.allowed_products = sale_products - existing_lines_products
+            wizard.allowed_products = picking_products - existing_lines_products
+    
+    
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        picking = self.env['stock.picking'].browse(self.env.context.get('active_id'))
+        if not picking:
+            return res
+
+        moves = []
+        for move in picking.move_ids:
+            if move.quantity <= 0:
+                continue
+
+            moves.append((0, 0, {
+                'product_id': move.product_id.id,
+                'quantity': move.quantity,
+                'move_id': move.id,
+                'uom_id': move.product_uom.id,
+            }))
+
+        res['product_return_moves'] = moves
+        res['picking_id'] = picking.id
+        return res
