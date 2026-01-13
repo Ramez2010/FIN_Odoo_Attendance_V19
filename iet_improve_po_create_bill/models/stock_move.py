@@ -17,8 +17,7 @@ class StockPicking(models.Model):
                 if not dest_account:
                     continue
                 lines = AccountMoveLine.search([
-                    ('account_id', '=', dest_account.id),
-                    '|', ('name', '=', picking.name), ('ref', '=', picking.name)
+                    ('account_id', '=', dest_account.id),'|', ('name', 'ilike', picking.name),('ref', 'ilike', picking.name)
                 ])
 
                 for line in lines:
