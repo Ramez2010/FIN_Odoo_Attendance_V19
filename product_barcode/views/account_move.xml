@@ -13,7 +13,7 @@
                     <attribute name="invisible">0</attribute>
                 </xpath>
                 <xpath expr="//field[@name='sale_id']" position="after">
-                    <field name="analytic_account_id_2" string="Analytic Account"/>
+                    <field name="analytic_account_id_2" string="Analytic Account" invisible="1"/>
                 </xpath>
 
             </field>

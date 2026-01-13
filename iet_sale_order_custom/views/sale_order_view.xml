@@ -8,12 +8,12 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="display_project_id"/>
+                    <field name="display_project_id" options="{'no_quick_create': True}"/>
                     <field name="analytic_account_id" readonly="1" force_save="1"/>
                 </xpath>
 
                 <xpath expr="//field[@name='user_id']" position="after">
-                    <field name="employee"/>
+                    <field name="employee" required="1"/>
                 </xpath>
 
             </field>

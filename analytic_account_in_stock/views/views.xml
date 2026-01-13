@@ -18,11 +18,18 @@
                 </xpath>
 
             <xpath expr="//button[@name='action_confirm']" position="after">
+<!--                <button name="button_update_analytic_account"-->
+<!--                        string="Update Analytic Account Journal Entries"-->
+<!--                        type="object"-->
+<!--                        class="oe_highlight"-->
+<!--                        invisible="is_updated == True or is_return_ref == False"-->
+<!--                        groups="analytic_account_in_stock.group_button_update_analytic_account"-->
+<!--                />-->
                 <button name="button_update_analytic_account"
                         string="Update Analytic Account Journal Entries"
                         type="object"
                         class="oe_highlight"
-                        invisible="is_updated == True or is_return_ref == False"
+                        invisible="1"
                         groups="analytic_account_in_stock.group_button_update_analytic_account"
                 />
             </xpath>
