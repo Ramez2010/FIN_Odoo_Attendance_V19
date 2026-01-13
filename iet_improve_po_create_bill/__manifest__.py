@@ -10,6 +10,7 @@
         'views/purchase_order.xml',
         'views/sale_order.xml',
         'views/project.xml',
+        'views/picking_return.xml',
     ],
     'installable': True,
     'application': False,

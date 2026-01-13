@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import models,fields,api,_
 
 
 class StockPicking(models.Model):
@@ -26,3 +26,21 @@ class StockPicking(models.Model):
                         line.analytic_distribution = {str(analytic_account.id): 100}
 
         return res
+
+
+
+class StockReturnPicking(models.TransientModel):
+    _inherit = 'stock.return.picking'
+
+    allowed_products = fields.Many2many(
+        'product.product',
+        string="Allowed Products",
+        compute='_compute_allowed_products'
+    )
+
+    @api.depends('product_return_moves.product_id')
+    def _compute_allowed_products(self):
+        for wizard in self:
+            sale_products = wizard.picking_id.sale_id.order_line.mapped('product_id') if wizard.picking_id.sale_id else self.env['product.product']
+            existing_lines_products = wizard.product_return_moves.mapped('product_id')
+            wizard.allowed_products = sale_products - existing_lines_products
