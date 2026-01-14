@@ -5,7 +5,7 @@
     'description': """arabic_product_name""",
     'author': "M.Saber",
     'category': 'product',
-    'version': '0.1',
+    'version': '19.0.3.1',
     'depends': ['base', 'product', 'purchase', 'account'],
     'data': [
         'views/views.xml',

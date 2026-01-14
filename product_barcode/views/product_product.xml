@@ -6,7 +6,7 @@
         <field name="model">product.product</field>
         <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='product_tag_ids']" position="after">
+            <xpath expr="//field[@name='barcode']" position="after">
                     <field name="main_category_id"/>
                     <field name="vendor_category_id" domain="[('parent','=',main_category_id)]" string="Manufacture Category"/>
                     <field name="sub_category_id" domain="[('parent','=',vendor_category_id)]"/>
