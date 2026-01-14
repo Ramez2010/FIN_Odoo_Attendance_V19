@@ -15,7 +15,7 @@ class SaleOrder(models.Model):
         default=0.0,
         compute='_compute_total_expense',
         string='Total Expense',
-        group_operator='sum'
+        
     )
 
     total_invoiced_untaxed = fields.Float(
@@ -23,7 +23,7 @@ class SaleOrder(models.Model):
         default=0.0,
         compute='_compute_total_invoiced_untaxed',
         string='Total Untaxed Invoiced',
-        group_operator='sum'
+        
     )
 
     total_invoiced = fields.Float(
@@ -31,7 +31,7 @@ class SaleOrder(models.Model):
         default=0.0,
         compute='_compute_total_invoiced',
         string='Total Invoiced',
-        group_operator='sum'
+        
     )
 
     pivot_total_payments = fields.Float(
@@ -39,7 +39,7 @@ class SaleOrder(models.Model):
         string='Total Payment Collected',
         default=0.0,
         compute='_compute_total_payments',
-        group_operator='sum'
+        
     )
 
     pivot_amount_due = fields.Float(
@@ -47,7 +47,7 @@ class SaleOrder(models.Model):
         compute='compute_amount_due',
         default=0.0,
         string='Total Payment Due',
-        group_operator='sum'
+        
     )
 
     total_income = fields.Float(
@@ -55,7 +55,7 @@ class SaleOrder(models.Model):
         compute='_compute_total_income',
         default=0.0,
         string='Total Income',
-        group_operator='sum'
+        
     )
 
     deduction = fields.Float(
@@ -63,7 +63,7 @@ class SaleOrder(models.Model):
         compute='_compute_total_deduction',
         default=0.0,
         string='Total Deduction',
-        group_operator='sum'
+        
     )
 
     quote_income = fields.Float(
@@ -71,7 +71,7 @@ class SaleOrder(models.Model):
         compute='_compute_quote_income',
         default=0.0,
         string='Total Quotation Income',
-        group_operator='sum'
+        
     )
 
     quote_income_percentage = fields.Float(
@@ -79,7 +79,7 @@ class SaleOrder(models.Model):
         compute='_compute_quote_income_percentage',
         default=0.0,
         string='Total Quotation Income %',
-        group_operator='avg'
+        
     )
 
     quote_expense = fields.Float(
@@ -87,7 +87,7 @@ class SaleOrder(models.Model):
         compute='_compute_quote_expense',
         default=0.0,
         string='Total Quotation Expense',
-        group_operator='sum'
+        
     )
 
     quote_expense_percentage = fields.Float(
@@ -95,7 +95,7 @@ class SaleOrder(models.Model):
         compute='_compute_quote_expense_percentage',
         default=0.0,
         string='Total Quotation Expense %',
-        group_operator='avg'
+        
     )
 
     profit = fields.Float(
@@ -103,7 +103,7 @@ class SaleOrder(models.Model):
         compute='_compute_profit',
         default=0.0,
         string='Profit',
-        group_operator='sum'
+        
     )
 
     profit_percentage = fields.Float(
@@ -111,7 +111,7 @@ class SaleOrder(models.Model):
         compute='_compute_profit_percentage',
         default=0.0,
         string='Profit %',
-        group_operator='avg'
+        
     )
 
     income_expense = fields.Float(
@@ -119,7 +119,7 @@ class SaleOrder(models.Model):
         compute='_compute_income_expense',
         default=0.0,
         string='Income Expense',
-        group_operator='sum'
+        
     )
 
     income_expense_percentage = fields.Float(
@@ -127,7 +127,7 @@ class SaleOrder(models.Model):
         compute='_compute_income_expense_percentage',
         default=0.0,
         string='Income Expense %',
-        group_operator='avg'
+        
     )
 
     invoice_expense = fields.Float(
@@ -135,7 +135,7 @@ class SaleOrder(models.Model):
         compute='_compute_invoice_expense',
         default=0.0,
         string='Invoice Expense',
-        group_operator='sum'
+        
     )
 
     invoice_expense_percentage = fields.Float(
@@ -143,7 +143,7 @@ class SaleOrder(models.Model):
         compute='_compute_invoice_expense_percentage',
         default=0.0,
         string='Invoice Expense %',
-        group_operator='avg'
+        
     )
 
     egp_total = fields.Float(
@@ -151,7 +151,7 @@ class SaleOrder(models.Model):
         required=False,
         store=True,
         compute='_compute_egp_total',
-        group_operator='sum'
+        
     )
 
 

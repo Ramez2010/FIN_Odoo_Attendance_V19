@@ -26,8 +26,7 @@ class HrPayrollInherit(models.Model):
 
     progress = fields.Float(
         compute='_compute_progress',
-        store=False,
-        group_operator="avg")
+        store=False,)
     timesheet_cost = fields.Float(
         string="Timesheet Cost",
         default=0.0,
