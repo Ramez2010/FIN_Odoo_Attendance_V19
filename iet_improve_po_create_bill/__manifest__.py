@@ -5,7 +5,7 @@
     'category': 'Uncategorized',
     'version': '1.0',
     'license': 'LGPL-3',
-    'depends': ['base', 'purchase','sale','project','stock'],
+    'depends': ['base', 'purchase','sale','project','stock','sale_project'],
     'data': [
         'views/purchase_order.xml',
         'views/sale_order.xml',
