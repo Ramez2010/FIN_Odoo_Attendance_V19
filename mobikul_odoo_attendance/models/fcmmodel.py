@@ -127,7 +127,7 @@ class MobikulAtdNotificationTemplate(models.Model):
     notification_body = fields.Text('Body', translate=True)
     image = fields.Binary('Image', attachment=True)
     device_id = fields.Many2one('fcm.attendance.devices', string='Select Device')
-    total_views = fields.Integer('Total # Views', default=0, readonly=1, copy=False)
+    total_views = fields.Integer('Total # Views', default=0,readonly=True, copy=False)
     condition = fields.Selection([
         ('login', "Employee Login"),
         ('checkin', "Employee Checkin"),

@@ -251,7 +251,8 @@ class MobikulAttendanceAPI(http.Controller):
         userObj = context.get('user')
         # company = request.env['res.company'].browse([context.get('company_id')])
         # employeeObj = userObj.with_company(company).employee_id
-        employeeObj = userObj.employee_id
+        # employeeObj = userObj.employee_id
+        employeeObj = request.env['hr.employee'].sudo().search([('user_id', '=', userObj.id)], limit=1)
         response = {"success": False, "message": _("Employee Not Found"), "responseCode": 400}
 
         if employeeObj.id:
@@ -345,7 +346,7 @@ class MobikulAttendanceAPI(http.Controller):
         return response
 
     # Read-only request -> added readonly=True
-    @http.route('/v2/mobikul/odoo_attendance/splash_page', type='http', auth="none", methods=['GET'], readonly=True)
+    @http.route('/v2/mobikul/odoo_attendance/splash_page', type='http', auth="public", methods=['GET'], readonly=True)
     def splash_page(self):
         response = self.__auth()
         if response.get('success'):
@@ -354,7 +355,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('SPLASH_PAGE', response)
 
     # Login writes/updates tokens -> readonly=False (default)
-    @http.route('/v2/mobikul/odoo_attendance/login', type='http', auth="none", methods=['POST'], csrf=False)
+    @http.route('/v2/mobikul/odoo_attendance/login', type='http', auth="public", methods=['POST'], csrf=False)
     def login_page(self):
         response = self.__auth(authenticate=True, notCheckFcm=True)
         if response.get('success'):
@@ -371,7 +372,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Login', response)
 
     # Read-only request -> added readonly=True
-    @http.route('/image/employee/<int:employee_id>', type='http', auth="none", methods=['GET'], readonly=True)
+    @http.route('/image/employee/<int:employee_id>', type='http', auth="public", methods=['GET'], readonly=True)
     def public_employee_image_token(self, employee_id, **kwargs):
         response = self.__auth(authorize=True)
         if response.get('success'):
@@ -392,7 +393,7 @@ class MobikulAttendanceAPI(http.Controller):
         }, status=401)
 
     # Logout writes/updates tokens -> readonly=False (default)
-    @http.route('/v2/mobikul/odoo_attendance/logout', type='http', auth="none", methods=['POST'], csrf=False)
+    @http.route('/v2/mobikul/odoo_attendance/logout', type='http', auth="public", methods=['POST'], csrf=False)
     def logout_page(self):
         response = self.__auth(authorize=True, notCheckFcm=True)
         if response.get('success'):
@@ -402,7 +403,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Login', response)
 
     # Read-only request -> added readonly=True
-    @http.route('/v2/mobikul/odoo_attendance/homepage', type='http', auth="none", methods=['GET'], readonly=True)
+    @http.route('/v2/mobikul/odoo_attendance/homepage', type='http', auth="public", methods=['GET'], readonly=True)
     def homepage(self):
         response = self.__auth(authorize=True)
         if response.get('success'):
@@ -414,7 +415,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Homepage', response)
 
     # Read-only request -> added readonly=True
-    @http.route('/v2/mobikul/odoo_attendance/profile', type='http', auth="none", methods=['GET'], readonly=True)
+    @http.route('/v2/mobikul/odoo_attendance/profile', type='http', auth="public", methods=['GET'], readonly=True)
     def profile(self):
         response = self.__auth(authorize=True)
         if response.get('success'):
@@ -425,7 +426,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Profile', response)
 
     # Write operation (Change State) -> readonly=False (default)
-    @http.route('/v2/mobikul/odoo_attendance/changeState', type='http', auth="none", methods=['PUT'], csrf=False)
+    @http.route('/v2/mobikul/odoo_attendance/changeState', type='http', auth="public", methods=['PUT'], csrf=False)
     def checkin_checkout(self, **kwargs):
         """
         Api To Chnage the state of the user from checkin -> checkout and vice versa
@@ -477,7 +478,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Checkin Checkout', response)
 
     # Read-only request -> added readonly=True
-    @http.route('/v2/mobikul/odoo_attendance/history', type='http', auth="none", methods=['GET'], readonly=True)
+    @http.route('/v2/mobikul/odoo_attendance/history', type='http', auth="public", methods=['GET'], readonly=True)
     def history(self, date_begin=None, date_end=None):
         """
         Return the list of all attendance of employee
@@ -514,7 +515,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('Attendance History', response)
 
     # Write operation (Reset Password) -> readonly=False (default)
-    @http.route('/v2/mobikul/odoo_attendance/passwordReset', type='http', auth="none", methods=['POST'], csrf=False)
+    @http.route('/v2/mobikul/odoo_attendance/passwordReset', type='http', auth="public", methods=['POST'], csrf=False)
     def passWordReset(self):
         response = self.__auth()
         if response.get('success'):
@@ -531,7 +532,7 @@ class MobikulAttendanceAPI(http.Controller):
         return self._response('resetPassword', response)
 
     # Read-only request -> added readonly=True
-    @http.route('/v2/mobikul/odoo_attendance/allNotifications', type='http', auth="none", methods=['GET'], csrf=False, readonly=True)
+    @http.route('/v2/mobikul/odoo_attendance/allNotifications', type='http', auth="public", methods=['GET'], csrf=False, readonly=True)
     def getAllNotifications(self, **kwargs):
         response = self.__auth(authorize=True)
         if response.get('success'):
