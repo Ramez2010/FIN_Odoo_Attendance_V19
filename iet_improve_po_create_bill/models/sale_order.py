@@ -32,8 +32,6 @@ class SaleOrderLine(models.Model):
 
             if line.product_id:
                 line.name = ''
-                print(f'Product {line.product_id.name}')
-                print(f'Product {line.name}')
                 continue
 
             if line.is_downpayment:
@@ -44,10 +42,3 @@ class SaleOrderLine(models.Model):
         for line in self:
             if line.product_id and not line.is_downpayment:
                 line.name = False
-                print(f'line,anme from on change==>{line.name}')
-
-    def create(self, vals_list):
-        for vals in vals_list:
-            print(f"Manual name entered: {vals_list}")
-            print(f"Manual name entered: {vals.get('name')}")
-        return super().create(vals_list)
