@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record id="account.action_move_out_invoice" model="ir.actions.act_window">
-            <field name="domain">[('journal_id.name', '=', 'Sales Journal')]</field>
+            <field name="domain">[('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
         </record>
 
 <!--        <record id="account.action_move_out_receipt" model="ir.actions.act_window">-->
