@@ -1,0 +1,171 @@
+# -*- coding: utf-8 -*-
+import logging
+
+from odoo import http, fields
+from odoo.http import request
+
+from ..utils import response_helper
+from .employee import authenticate_request
+from .subscription import require_active_subscription
+
+_logger = logging.getLogger(__name__)
+
+
+class InboxController(http.Controller):
+    @http.route(
+        '/api/odoo-attendance/inbox/messages',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        csrf=False,
+        cors='*',
+    )
+    def list_messages(self, **kwargs):
+        """
+        List inbox messages for the authenticated mobile employee.
+        """
+        try:
+            sub_resp = require_active_subscription()
+            if sub_resp:
+                return sub_resp
+
+            auth_result = authenticate_request()
+            if not auth_result:
+                return response_helper.unauthorized_response('Invalid or missing authentication token')
+
+            employee_app, _hr_employee = auth_result
+
+            limit = int(kwargs.get('limit') or 50)
+            offset = int(kwargs.get('offset') or 0)
+            limit = max(1, min(limit, 200))
+            offset = max(0, offset)
+
+            Recipient = request.env['odoo.attendance.inbox.recipient'].sudo()
+            recs = Recipient.search(
+                [('employee_app_id', '=', employee_app.id)],
+                limit=limit,
+                offset=offset,
+                order='delivered_at desc, id desc',
+            )
+
+            items = []
+            for rec in recs:
+                msg = rec.message_id
+                items.append(
+                    {
+                        'id': rec.id,
+                        'name': msg.name or '',
+                        'body': msg.body or '',
+                        'message_type': msg.message_type or 'broadcast',
+                        'sent_at': msg.sent_at.isoformat() if msg.sent_at else (rec.delivered_at.isoformat() if rec.delivered_at else fields.Datetime.now().isoformat()),
+                        'is_read': bool(rec.is_read),
+                        'read_at': rec.read_at.isoformat() if rec.read_at else None,
+                    }
+                )
+
+            unread_count = Recipient.search_count(
+                [('employee_app_id', '=', employee_app.id), ('is_read', '=', False)]
+            )
+
+            return response_helper.success_response(
+                {
+                    'items': items,
+                    'unread_count': unread_count,
+                    'limit': limit,
+                    'offset': offset,
+                }
+            )
+        except Exception as e:
+            _logger.exception(f'Error in inbox/messages: {e}')
+            return response_helper.server_error_response('An error occurred')
+
+    @http.route(
+        '/api/odoo-attendance/inbox/messages/<int:message_id>',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        csrf=False,
+        cors='*',
+    )
+    def get_message_by_id(self, message_id, **kwargs):
+        """
+        Get a single inbox message by its original message ID.
+        """
+        try:
+            sub_resp = require_active_subscription()
+            if sub_resp:
+                return sub_resp
+
+            auth_result = authenticate_request()
+            if not auth_result:
+                return response_helper.unauthorized_response('Invalid or missing authentication token')
+
+            employee_app, _hr_employee = auth_result
+
+            Message = request.env['odoo.attendance.inbox.message'].sudo()
+            msg = Message.search([('id', '=', message_id)], limit=1)
+            if not msg:
+                return response_helper.not_found_response('Message not found')
+
+            # Check if this employee is a recipient of this message
+            Recipient = request.env['odoo.attendance.inbox.recipient'].sudo()
+            recipient_entry = Recipient.search([
+                ('message_id', '=', msg.id),
+                ('employee_app_id', '=', employee_app.id),
+            ], limit=1)
+            
+            if not recipient_entry:
+                return response_helper.forbidden_response('You do not have access to this message.')
+
+            return response_helper.success_response({
+                'id': recipient_entry.id,
+                'name': msg.name or '',
+                'body': msg.body or '',
+                'message_type': msg.message_type or 'broadcast',
+                'sent_at': msg.sent_at.isoformat() if msg.sent_at else (recipient_entry.delivered_at.isoformat() if recipient_entry.delivered_at else fields.Datetime.now().isoformat()),
+                'is_read': bool(recipient_entry.is_read),
+                'read_at': recipient_entry.read_at.isoformat() if recipient_entry.read_at else None,
+            })
+        except Exception as e:
+            _logger.exception(f'Error in inbox get_message_by_id: {e}')
+            return response_helper.server_error_response('An error occurred')
+
+    @http.route(
+        '/api/odoo-attendance/inbox/messages/<int:recipient_id>/read',
+        type='http',
+        auth='public',
+        methods=['POST'],
+        csrf=False,
+        cors='*',
+    )
+    def mark_read(self, recipient_id, **kwargs):
+        """
+        Mark a recipient entry as read.
+        """
+        try:
+            sub_resp = require_active_subscription()
+            if sub_resp:
+                return sub_resp
+
+            auth_result = authenticate_request()
+            if not auth_result:
+                return response_helper.unauthorized_response('Invalid or missing authentication token')
+
+            employee_app, _hr_employee = auth_result
+
+            Recipient = request.env['odoo.attendance.inbox.recipient'].sudo()
+            rec = Recipient.search(
+                [('id', '=', recipient_id), ('employee_app_id', '=', employee_app.id)],
+                limit=1,
+            )
+            if not rec:
+                return response_helper.not_found_response('Message not found')
+
+            if not rec.is_read:
+                rec.write({'is_read': True, 'read_at': fields.Datetime.now()})
+
+            return response_helper.success_response({'ok': True})
+        except Exception as e:
+            _logger.exception(f'Error in inbox mark_read: {e}')
+            return response_helper.server_error_response('An error occurred')
+

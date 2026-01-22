@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Security Group for FIN Attendance Managers -->
+        <record id="group_odoo_attendance_manager" model="res.groups">
+            <field name="name">FIN Attendance Manager</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+            <field name="comment">Can manage mobile app employee accounts and sessions</field>
+        </record>
+        
+    </data>
+</odoo>
