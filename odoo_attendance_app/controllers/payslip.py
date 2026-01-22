@@ -109,7 +109,7 @@ class PayslipController(http.Controller):
             if not report:
                 return response_helper.server_error_response('Payslip report is not available.')
 
-            pdf_content, _content_type = report.sudo()._render_qweb_pdf([slip.id])
+            pdf_content, _content_type = report.sudo()._render_qweb_pdf(res_ids=[slip.id])
             filename = (slip.name or slip.number or f'payslip_{slip.id}').replace('/', '-') + '.pdf'
             headers = [
                 ('Content-Type', 'application/pdf'),
