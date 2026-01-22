@@ -3,4 +3,4 @@ from . import models
 from . import controllers
 from . import utils
 from . import wizard
-from . import hooks
+from .hooks import post_init_cleanup_transfer_actions
