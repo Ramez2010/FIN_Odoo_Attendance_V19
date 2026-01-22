@@ -50,7 +50,7 @@ class AnalyticsController(http.Controller):
             
             # Get query parameters
             search_query = request.params.get('q', '').strip()
-            limit = int(request.params.get('limit', 20))
+            limit = int(request.params.get('limit', 0))
             
             # Search analytic accounts
             AnalyticAccount = request.env['account.analytic.account'].sudo()
@@ -83,3 +83,4 @@ class AnalyticsController(http.Controller):
         except Exception as e:
             _logger.exception(f'Error in search_analytics endpoint: {str(e)}')
             return response_helper.server_error_response('An error occurred')
+
