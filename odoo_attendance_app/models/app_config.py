@@ -301,6 +301,32 @@ class OdooAttendanceAppConfig(models.Model):
             _logger.info('Far-away alert cron sent %d notifications', alerts_sent)
         return True
 
+    def action_run_far_away_monitoring(self):
+        self.ensure_one()
+        if not self.far_away_monitoring_enabled:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Far-away Alerts',
+                    'message': 'Far-away monitoring is currently disabled.',
+                    'sticky': False,
+                    'type': 'warning',
+                },
+            }
+
+        ok = self._run_far_away_monitoring()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Far-away Alerts',
+                'message': 'Far-away alert check completed.',
+                'sticky': False,
+                'type': 'success' if ok else 'warning',
+            },
+        }
+
     def _notify_managers_far_away(
         self,
         hr_employee,
