@@ -22,7 +22,17 @@ def _search_analytic_accounts(env, hr_employee, search_query, limit):
     domain = _build_analytic_access_domain(hr_employee)
     if search_query:
         domain.extend(['|', ('name', 'ilike', search_query), ('code', 'ilike', search_query)])
-    accounts = AnalyticAccount.search(domain, limit=limit or False, order='name')
+    limit_value = limit or False
+    accounts = AnalyticAccount.search(domain, limit=limit_value, order='name')
+    if not accounts:
+        _logger.info(
+            'No accessible analytic accounts returned for employee %s, falling back to all active accounts.',
+            hr_employee.id,
+        )
+        fallback = [('active', '=', True)]
+        if search_query:
+            fallback.extend(['|', ('name', 'ilike', search_query), ('code', 'ilike', search_query)])
+        accounts = AnalyticAccount.search(fallback, limit=limit_value, order='name')
     return [
         {
             'id': account.id,
