@@ -47,6 +47,21 @@ class OdooAttendanceAppConfig(models.Model):
         help='Used by Live Map. Stored in system parameters as odoo_attendance_app.google_maps_api_key.',
     )
 
+    mobile_project_source = fields.Selection(
+        [
+            ('projects', 'Projects (project.project)'),
+            ('analytic_account', 'Account Analytic Account (account.analytic.account)'),
+            ('analytic_account_id', 'Analytic Account ID (sale.order analytic_account_id)'),
+        ],
+        string='Check-in Project Source',
+        default='analytic_account',
+        required=True,
+        help=(
+            'Select which records should be listed when employees pick a project/analytic account '
+            'during mobile check-in.'
+        ),
+    )
+
     license_status = fields.Char(string='License Status', compute='_compute_license_state', store=False)
     license_valid_until = fields.Datetime(string='Valid Until', compute='_compute_license_state', store=False)
     license_last_check = fields.Datetime(string='Last Check', compute='_compute_license_state', store=False)
@@ -116,6 +131,10 @@ class OdooAttendanceAppConfig(models.Model):
         result.setdefault(
             'google_maps_api_key',
             (icp.get_param('odoo_attendance_app.google_maps_api_key', default='') or '').strip(),
+        )
+        result.setdefault(
+            'mobile_project_source',
+            (icp.get_param('odoo_attendance_app.mobile_project_source', default='analytic_account') or 'analytic_account'),
         )
 
         cron = self.env.ref(
@@ -238,6 +257,7 @@ class OdooAttendanceAppConfig(models.Model):
         icp.set_param('odoo_attendance_app.fcm_project_id', (self.fcm_project_id or '').strip())
         icp.set_param('odoo_attendance_app.fcm_service_account_json', (self.fcm_service_account_json or '').strip())
         icp.set_param('odoo_attendance_app.message_timezone', (self.message_timezone or '').strip())
+        icp.set_param('odoo_attendance_app.mobile_project_source', (self.mobile_project_source or 'analytic_account'))
         icp.set_param('odoo_attendance_app.google_maps_api_key', (self.google_maps_api_key or '').strip())
 
         cron = self.env.ref(

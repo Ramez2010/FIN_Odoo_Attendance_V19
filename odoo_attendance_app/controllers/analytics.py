@@ -10,6 +10,75 @@ from .subscription import require_active_subscription
 _logger = logging.getLogger(__name__)
 
 
+def _get_mobile_project_source(env):
+    """
+    Read the configured mobile project source (projects, analytic accounts, or sale order field).
+    """
+    return (
+        env['ir.config_parameter']
+        .sudo()
+        .get_param('odoo_attendance_app.mobile_project_source', default='analytic_account')
+        or 'analytic_account'
+    )
+
+
+def _build_analytic_access_domain(hr_employee):
+    return [
+        ('active', '=', True),
+        '|', ('x_allow_all_employees', '=', True),
+             ('x_allowed_employee_ids', 'in', [hr_employee.id]),
+    ]
+
+
+def _search_analytic_accounts(env, hr_employee, search_query, limit):
+    AnalyticAccount = env['account.analytic.account'].sudo()
+    domain = _build_analytic_access_domain(hr_employee)
+    if search_query:
+        domain.extend(['|', ('name', 'ilike', search_query), ('code', 'ilike', search_query)])
+    accounts = AnalyticAccount.search(domain, limit=limit or False, order='name')
+    return [
+        {
+            'id': account.id,
+            'name': account.name,
+            'code': account.code or '',
+            'source': 'analytic_account',
+        }
+        for account in accounts
+    ]
+
+
+def _search_projects(env, hr_employee, search_query, limit):
+    Project = env['project.project'].sudo()
+    domain = [
+        ('active', '=', True),
+        ('analytic_account_id', '!=', False),
+        ('analytic_account_id.active', '=', True),
+        '|', ('analytic_account_id.x_allow_all_employees', '=', True),
+             ('analytic_account_id.x_allowed_employee_ids', 'in', [hr_employee.id]),
+    ]
+    if search_query:
+        domain.extend(['|', ('name', 'ilike', search_query), ('analytic_account_id.name', 'ilike', search_query)])
+    projects = Project.search(domain, limit=limit or False, order='name')
+    seen = set()
+    results = []
+    for project in projects:
+        analytic = project.analytic_account_id
+        if not analytic or analytic.id in seen:
+            continue
+        seen.add(analytic.id)
+        code = analytic.code or getattr(project, 'code', '') or ''
+        results.append({
+            'id': analytic.id,
+            'name': project.name or analytic.name or '',
+            'code': code,
+            'source': 'projects',
+            'project_id': project.id,
+            'project_name': project.name,
+            'analytic_account_name': analytic.name,
+        })
+    return results
+
+
 class AnalyticsController(http.Controller):
     """
     Analytic account search endpoints.
@@ -53,33 +122,14 @@ class AnalyticsController(http.Controller):
             limit = int(request.params.get('limit', 0))
             
             # Search analytic accounts
-            AnalyticAccount = request.env['account.analytic.account'].sudo()
+            project_source = _get_mobile_project_source(request.env)
+            if project_source == 'projects':
+                results = _search_projects(request.env, hr_employee, search_query, limit)
+            else:
+                results = _search_analytic_accounts(request.env, hr_employee, search_query, limit)
 
-            # Visible if allow-all, or employee explicitly allowed
-            domain = [
-                ('active', '=', True),
-                '|', ('x_allow_all_employees', '=', True),
-                     ('x_allowed_employee_ids', 'in', [hr_employee.id]),
-            ]
-            
-            # Add search filter if query provided
-            if search_query:
-                domain.append('|')
-                domain.append(('name', 'ilike', search_query))
-                domain.append(('code', 'ilike', search_query))
-            
-            accounts = AnalyticAccount.search(domain, limit=limit, order='name')
-            
-            results = []
-            for account in accounts:
-                results.append({
-                    'id': account.id,
-                    'name': account.name,
-                    'code': account.code or '',
-                })
-            
             return response_helper.success_response(results)
-            
+
         except Exception as e:
             _logger.exception(f'Error in search_analytics endpoint: {str(e)}')
             return response_helper.server_error_response('An error occurred')
