@@ -105,11 +105,14 @@ class PayslipController(http.Controller):
             if not slip.exists() or slip.employee_id.id != hr_employee.id:
                 return response_helper.forbidden_response('Payslip not found')
 
-            report = request.env.ref('hr_payroll.action_report_payslip', raise_if_not_found=False)
+            report_ref = 'hr_payroll.action_report_payslip'
+            report = request.env.ref(report_ref, raise_if_not_found=False)
             if not report:
                 return response_helper.server_error_response('Payslip report is not available.')
 
-            pdf_content, _content_type = report.sudo()._render_qweb_pdf(res_ids=[slip.id])
+            pdf_content, _content_type = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
+                report_ref, res_ids=[slip.id]
+            )
             filename = (slip.name or slip.number or f'payslip_{slip.id}').replace('/', '-') + '.pdf'
             headers = [
                 ('Content-Type', 'application/pdf'),
