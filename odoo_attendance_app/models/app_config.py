@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 import pytz
+
+from ..utils.geofence_helper import get_geofence_locations, haversine_km
+
+_logger = logging.getLogger(__name__)
 
 
 class OdooAttendanceAppConfig(models.Model):
@@ -45,6 +51,15 @@ class OdooAttendanceAppConfig(models.Model):
     google_maps_api_key = fields.Char(
         string='Google Maps API Key',
         help='Used by Live Map. Stored in system parameters as odoo_attendance_app.google_maps_api_key.',
+    )
+
+    far_away_monitoring_enabled = fields.Boolean(
+        string='Far-away Alerts (sites)',
+        default=False,
+        help=(
+            'When enabled, the system checks every 30 minutes whether checked-in employees '
+            'are outside their project geofence radius and notifies their managers.'
+        ),
     )
 
     license_status = fields.Char(string='License Status', compute='_compute_license_state', store=False)
@@ -210,6 +225,124 @@ class OdooAttendanceAppConfig(models.Model):
 
         license_helper.refresh_license_from_server(self.env)
         return True
+
+    def _cron_far_away_monitoring(self):
+        record = self.search([], order='id desc', limit=1)
+        if not record:
+            return True
+        record._run_far_away_monitoring()
+        return True
+
+    def _run_far_away_monitoring(self):
+        self.ensure_one()
+        if not self.far_away_monitoring_enabled:
+            return True
+
+        Attendance = self.env['hr.attendance'].sudo()
+        Location = self.env['hr.employee.location.latest'].sudo()
+        EmployeeApp = self.env['odoo.attendance.employee'].sudo()
+
+        checked_in = Attendance.search([('check_out', '=', False)])
+        alerts_sent = 0
+        for attendance in checked_in:
+            analytic = attendance.x_analytic_account_id
+            if not analytic or not analytic.x_enable_geofence:
+                continue
+
+            locations = get_geofence_locations(analytic)
+            if not locations:
+                continue
+
+            hr_employee = attendance.employee_id
+            location_record = Location.search([('employee_id', '=', hr_employee.id)], limit=1)
+            if not location_record or location_record.reachable_status != 'reachable':
+                continue
+
+            lat = location_record.latitude
+            lng = location_record.longitude
+            entries = [
+                (haversine_km(lat_cfg, lng_cfg, lat, lng), radius, lat_cfg, lng_cfg)
+                for lat_cfg, lng_cfg, radius in locations
+            ]
+            if not entries:
+                continue
+            if any(distance <= radius for distance, radius, _, _ in entries):
+                continue
+
+            actual_distance_km, allowed_radius_km, loc_lat, loc_lng = min(entries, key=lambda entry: entry[0] - entry[1])
+            employee_app = EmployeeApp.search([('employee_id', '=', hr_employee.id)], limit=1)
+            if not employee_app:
+                continue
+
+            manager_hr = employee_app.manager_employee_ids
+            if not manager_hr:
+                continue
+
+            manager_apps = EmployeeApp.with_context(prefetch_fields=False).search([
+                ('employee_id', 'in', manager_hr.ids),
+                ('is_active', '=', True),
+            ])
+            if not manager_apps:
+                continue
+
+            self._notify_managers_far_away(
+                hr_employee=hr_employee,
+                analytic_account=analytic,
+                location_record=location_record,
+                actual_distance_km=actual_distance_km,
+                allowed_radius_km=allowed_radius_km,
+                manager_apps=manager_apps,
+                location_lat=loc_lat,
+                location_lng=loc_lng,
+            )
+            alerts_sent += 1
+
+        if alerts_sent:
+            _logger.info('Far-away alert cron sent %d notifications', alerts_sent)
+        return True
+
+    def _notify_managers_far_away(
+        self,
+        hr_employee,
+        analytic_account,
+        location_record,
+        actual_distance_km,
+        allowed_radius_km,
+        manager_apps,
+        location_lat,
+        location_lng,
+    ):
+        excess_km = max(actual_distance_km - allowed_radius_km, 0)
+        map_url = (
+            f'https://www.google.com/maps/search/?api=1&query='
+            f'{location_record.latitude:.6f}%2C{location_record.longitude:.6f}'
+        )
+        lines = [
+            f'{hr_employee.display_name} is {actual_distance_km:.2f} km from '
+            f'{analytic_account.name or "the project"} locations.',
+            f'Allowed radius: {allowed_radius_km:.2f} km (exceeded by {excess_km:.2f} km).',
+            f'Configured location: {location_lat:.6f}, {location_lng:.6f}',
+            f'Current location: {location_record.latitude:.6f}, {location_record.longitude:.6f}',
+            f'Timestamp (UTC): {location_record.timestamp_utc}',
+            f'Map: {map_url}',
+        ]
+        try:
+            message = self.env['odoo.attendance.inbox.message'].sudo().create(
+                {
+                    'name': f'Far Away Alert: {hr_employee.display_name}',
+                    'body': '\n'.join(lines),
+                    'message_type': 'attendance',
+                    'target_all': False,
+                    'target_employee_app_ids': [(6, 0, manager_apps.ids)],
+                }
+            )
+            message.action_send_now()
+        except Exception as exc:
+            _logger.warning(
+                'Failed to send far-away alert for employee=%s: %s',
+                hr_employee.display_name,
+                exc,
+            )
 
     @api.model_create_multi
     def create(self, vals_list):

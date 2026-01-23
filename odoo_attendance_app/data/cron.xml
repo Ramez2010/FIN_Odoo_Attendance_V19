@@ -33,4 +33,15 @@
         <field name="active">True</field>
         <field name="active">True</field>
     </record>
+
+    <record id="ir_cron_far_away_monitoring" model="ir.cron">
+        <field name="name">Attendance App: Far-away alerts</field>
+        <field name="model_id" ref="odoo_attendance_app.model_odoo_attendance_app_config"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_far_away_monitoring()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
 </odoo>

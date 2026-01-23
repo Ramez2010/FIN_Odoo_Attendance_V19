@@ -11,7 +11,7 @@ from odoo.exceptions import ValidationError
 from .employee import authenticate_request
 from .subscription import require_active_subscription
 from ..utils import response_helper
-import math
+from ..utils.geofence_helper import get_geofence_locations, haversine_km
 
 _logger = logging.getLogger(__name__)
 
@@ -89,34 +89,6 @@ def _send_manager_attendance_notification(*, employee_app, hr_employee, event, a
         msg.action_send_now()
     except Exception as e:
         _logger.warning(f'Failed to send manager notification: {e}')
-
-
-def _haversine_km(lat1, lon1, lat2, lon2):
-    R = 6371.0
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c
-
-
-def _get_geofence_locations(analytic_account):
-    locations = []
-    if not analytic_account:
-        return locations
-    for loc in analytic_account.x_location_ids:
-        if loc.latitude and loc.longitude and loc.radius_km and loc.radius_km > 0:
-            locations.append((float(loc.latitude), float(loc.longitude), float(loc.radius_km)))
-    if locations:
-        return locations
-    lat_cfg = analytic_account.x_location_lat or 0.0
-    lng_cfg = analytic_account.x_location_lng or 0.0
-    radius = analytic_account.x_location_radius_km or 0.0
-    if radius > 0 and lat_cfg != 0 and lng_cfg != 0:
-        locations.append((float(lat_cfg), float(lng_cfg), float(radius)))
-    return locations
 
 
 class AttendanceController(http.Controller):
@@ -228,7 +200,7 @@ class AttendanceController(http.Controller):
                 return response_helper.validation_error_response('please take selfie and try again')
 
             # Geofence validation: if radius set (>0), require GPS and enforce distance
-            locations = _get_geofence_locations(analytic_account)
+            locations = get_geofence_locations(analytic_account)
             # Skip geofence unless enabled and locations are configured
             if analytic_account.x_enable_geofence and locations:
                 if gps_lat is None or gps_lng is None:
@@ -238,7 +210,7 @@ class AttendanceController(http.Controller):
 
                 within_radius = False
                 for lat_cfg, lng_cfg, radius in locations:
-                    distance_km = _haversine_km(
+                    distance_km = haversine_km(
                         lat_cfg,
                         lng_cfg,
                         float(gps_lat),
@@ -454,7 +426,7 @@ class AttendanceController(http.Controller):
                 )
             
             # Geofence validation: if radius set (>0), require GPS and enforce distance (check-out)
-            locations = _get_geofence_locations(analytic_account) if analytic_account else []
+            locations = get_geofence_locations(analytic_account) if analytic_account else []
 
             # Skip geofence unless enabled and locations are configured
             if analytic_account and analytic_account.x_enable_geofence and locations:
@@ -465,7 +437,7 @@ class AttendanceController(http.Controller):
 
                 within_radius = False
                 for lat_cfg, lng_cfg, radius in locations:
-                    distance_km = _haversine_km(
+                    distance_km = haversine_km(
                         lat_cfg,
                         lng_cfg,
                         float(gps_lat),

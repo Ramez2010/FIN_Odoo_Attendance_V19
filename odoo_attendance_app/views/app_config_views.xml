@@ -15,6 +15,12 @@
                     <group string="Live Map">
                         <field name="google_maps_api_key" placeholder="AIza..."/>
                     </group>
+                    <group string="Far-away Monitoring">
+                        <field name="far_away_monitoring_enabled"/>
+                        <div class="text-muted">
+                            When enabled, the system checks every 30 minutes whether checked-in employees are outside their project geofences and alerts their managers.
+                        </div>
+                    </group>
                     <group string="Cleanup Schedule">
                         <field name="cron_interval_number"/>
                         <field name="cron_interval_type"/>
