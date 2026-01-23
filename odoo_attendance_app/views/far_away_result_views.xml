@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_odoo_attendance_far_away_result_tree" model="ir.ui.view">
+        <field name="name">odoo.attendance.far.away.result.list</field>
+        <field name="model">odoo.attendance.far.away.result</field>
+        <field name="arch" type="xml">
+            <list string="Far-away Alerts">
+                <field name="timestamp"/>
+                <field name="employee_id"/>
+                <field name="analytic_account_id"/>
+                <field name="allowed_radius_km"/>
+                <field name="actual_distance_km"/>
+                <field name="excess_km"/>
+                <field name="location_timestamp"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_odoo_attendance_far_away_result_form" model="ir.ui.view">
+        <field name="name">odoo.attendance.far.away.result.form</field>
+        <field name="model">odoo.attendance.far.away.result</field>
+        <field name="arch" type="xml">
+            <form string="Far-away Alert">
+                <sheet>
+                    <group>
+                        <field name="timestamp"/>
+                        <field name="employee_id"/>
+                        <field name="employee_app_id"/>
+                        <field name="analytic_account_id"/>
+                    </group>
+                    <group>
+                        <field name="allowed_radius_km"/>
+                        <field name="actual_distance_km"/>
+                        <field name="excess_km"/>
+                    </group>
+                    <group string="Location">
+                        <field name="project_latitude"/>
+                        <field name="project_longitude"/>
+                        <field name="current_latitude"/>
+                        <field name="current_longitude"/>
+                        <field name="current_location_url" widget="url"/>
+                        <field name="location_timestamp"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_odoo_attendance_far_away_results" model="ir.actions.act_window">
+        <field name="name">Far-away Alerts</field>
+        <field name="res_model">odoo.attendance.far.away.result</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_odoo_attendance_far_away_result_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Shows all far-away checks executed by the attendance app.
+            </p>
+        </field>
+    </record>
+</odoo>

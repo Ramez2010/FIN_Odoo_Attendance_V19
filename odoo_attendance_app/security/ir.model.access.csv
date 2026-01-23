@@ -17,3 +17,5 @@ access_odoo_attendance_inbox_recipient_manager,odoo.attendance.inbox.recipient m
 access_odoo_attendance_inbox_recipient_hr_user,odoo.attendance.inbox.recipient hr user,model_odoo_attendance_inbox_recipient,hr.group_hr_user,1,1,0,0
 access_hr_employee_location_latest_manager,hr.employee.location.latest manager,model_hr_employee_location_latest,group_odoo_attendance_manager,1,1,1,1
 access_hr_employee_location_latest_hr_user,hr.employee.location.latest hr_user,model_hr_employee_location_latest,hr.group_hr_user,1,1,1,0
+access_odoo_attendance_far_away_result_manager,odoo.attendance.far.away.result manager,model_odoo_attendance_far_away_result,group_odoo_attendance_manager,1,0,0,0
+access_odoo_attendance_far_away_result_hr_user,odoo.attendance.far.away.result hr user,model_odoo_attendance_far_away_result,hr.group_hr_user,1,0,0,0

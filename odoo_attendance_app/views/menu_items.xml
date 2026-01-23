@@ -36,6 +36,13 @@
               action="hr_attendance.hr_attendance_action"
               sequence="30"/>
 
+    <menuitem id="menu_odoo_attendance_far_away_alerts"
+              name="Far-away Alerts"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_far_away_results"
+              sequence="35"
+              groups="hr.group_hr_user,group_odoo_attendance_manager"/>
+
     <menuitem id="menu_odoo_attendance_config"
               name="Settings"
               parent="menu_odoo_attendance_root"

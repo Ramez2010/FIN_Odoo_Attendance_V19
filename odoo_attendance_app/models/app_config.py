@@ -285,6 +285,21 @@ class OdooAttendanceAppConfig(models.Model):
             if not manager_apps:
                 continue
 
+            excess_km = max(actual_distance_km - allowed_radius_km, 0)
+            self.env['odoo.attendance.far.away.result'].sudo().create({
+                'employee_id': hr_employee.id,
+                'employee_app_id': employee_app.id,
+                'analytic_account_id': analytic.id,
+                'timestamp': fields.Datetime.now(),
+                'allowed_radius_km': allowed_radius_km,
+                'actual_distance_km': actual_distance_km,
+                'excess_km': excess_km,
+                'project_latitude': loc_lat,
+                'project_longitude': loc_lng,
+                'current_latitude': lat,
+                'current_longitude': lng,
+                'location_timestamp': location_record.timestamp_utc,
+            })
             self._notify_managers_far_away(
                 hr_employee=hr_employee,
                 analytic_account=analytic,
@@ -294,6 +309,7 @@ class OdooAttendanceAppConfig(models.Model):
                 manager_apps=manager_apps,
                 location_lat=loc_lat,
                 location_lng=loc_lng,
+                excess_km=excess_km,
             )
             alerts_sent += 1
 
@@ -337,8 +353,10 @@ class OdooAttendanceAppConfig(models.Model):
         manager_apps,
         location_lat,
         location_lng,
+        excess_km=None,
     ):
-        excess_km = max(actual_distance_km - allowed_radius_km, 0)
+        if excess_km is None:
+            excess_km = max(actual_distance_km - allowed_radius_km, 0)
         map_url = (
             f'https://www.google.com/maps/search/?api=1&query='
             f'{location_record.latitude:.6f}%2C{location_record.longitude:.6f}'

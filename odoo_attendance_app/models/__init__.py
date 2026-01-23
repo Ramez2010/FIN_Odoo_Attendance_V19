@@ -8,6 +8,7 @@ from . import app_config
 from . import inbox_message
 from . import hr_employee_extension
 from . import hr_employee_location_latest
+from . import far_away_result
 
 # Ensure DB columns exist for lightweight live-location request state.
 # This is a guarded, idempotent ALTER TABLE so it is safe to run on startup

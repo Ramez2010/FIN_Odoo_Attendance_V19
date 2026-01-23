@@ -52,6 +52,7 @@ Technical:
         'views/app_config_views.xml',
         'views/attachment_views.xml',
         'views/inbox_message_views.xml',
+        'views/far_away_result_views.xml',
         'views/live_map_views.xml',
         'views/hr_employee_extension_views.xml',
         'views/menu_items.xml',
