@@ -36,7 +36,6 @@ Technical:
         'hr_attendance',
         'hr_holidays',
         'analytic',
-        'project',
         'web_map',
     ],
     'external_dependencies': {

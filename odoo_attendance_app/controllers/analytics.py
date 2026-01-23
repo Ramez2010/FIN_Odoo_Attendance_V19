@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
 from odoo import http
 from odoo.http import request
@@ -8,18 +7,6 @@ from ..utils import response_helper
 from .subscription import require_active_subscription
 
 _logger = logging.getLogger(__name__)
-
-
-def _get_mobile_project_source(env):
-    """
-    Read the configured mobile project source (projects, analytic accounts, or sale order field).
-    """
-    return (
-        env['ir.config_parameter']
-        .sudo()
-        .get_param('odoo_attendance_app.mobile_project_source', default='analytic_account')
-        or 'analytic_account'
-    )
 
 
 def _build_analytic_access_domain(hr_employee):
@@ -47,42 +34,6 @@ def _search_analytic_accounts(env, hr_employee, search_query, limit):
         }
         for account in accounts
     ]
-
-
-def _search_projects(env, hr_employee, search_query, limit):
-    Project = env['project.project'].sudo()
-    domain = [
-        ('active', '=', True),
-        ('analytic_account_id', '!=', False),
-        ('analytic_account_id.active', '=', True),
-        '|', ('analytic_account_id.x_allow_all_employees', '=', True),
-             ('analytic_account_id.x_allowed_employee_ids', 'in', [hr_employee.id]),
-    ]
-    if search_query:
-        domain.extend(['|', ('name', 'ilike', search_query), ('analytic_account_id.name', 'ilike', search_query)])
-    projects = Project.search(domain, limit=limit or False, order='name')
-    seen = set()
-    results = []
-    for project in projects:
-        analytic = project.analytic_account_id
-        if not analytic or analytic.id in seen:
-            continue
-        seen.add(analytic.id)
-        code = analytic.code or getattr(project, 'code', '') or ''
-        display_code = (analytic.code or str(analytic.id)).strip()
-        title = project.name or analytic.name or ''
-        label = f'[{display_code}] {title}' if title else f'[{display_code}]'
-        results.append({
-            'id': analytic.id,
-            'name': label,
-            'code': code,
-            'source': 'projects',
-            'project_id': project.id,
-            'project_name': project.name,
-            'analytic_account_name': analytic.name,
-        })
-    return results
-
 
 class AnalyticsController(http.Controller):
     """
@@ -127,11 +78,7 @@ class AnalyticsController(http.Controller):
             limit = int(request.params.get('limit', 0))
             
             # Search analytic accounts
-            project_source = _get_mobile_project_source(request.env)
-            if project_source == 'projects':
-                results = _search_projects(request.env, hr_employee, search_query, limit)
-            else:
-                results = _search_analytic_accounts(request.env, hr_employee, search_query, limit)
+            results = _search_analytic_accounts(request.env, hr_employee, search_query, limit)
 
             return response_helper.success_response(results)
 
