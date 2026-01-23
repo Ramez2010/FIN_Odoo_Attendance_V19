@@ -39,7 +39,7 @@ def _search_analytic_accounts(env, hr_employee, search_query, limit):
     return [
         {
             'id': account.id,
-            'name': account.name,
+            'name': f'[{account.id}] {account.name}' if account.name else f'[{account.id}]',
             'code': account.code or '',
             'source': 'analytic_account',
         }
