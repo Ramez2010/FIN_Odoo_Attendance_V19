@@ -67,9 +67,13 @@ def _search_projects(env, hr_employee, search_query, limit):
             continue
         seen.add(analytic.id)
         code = analytic.code or getattr(project, 'code', '') or ''
+        display_name_parts = [str(analytic.id)]
+        title = project.name or analytic.name
+        if title:
+            display_name_parts.append(title)
         results.append({
             'id': analytic.id,
-            'name': project.name or analytic.name or '',
+            'name': ' - '.join(display_name_parts),
             'code': code,
             'source': 'projects',
             'project_id': project.id,
