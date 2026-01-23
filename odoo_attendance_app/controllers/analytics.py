@@ -39,7 +39,9 @@ def _search_analytic_accounts(env, hr_employee, search_query, limit):
     return [
         {
             'id': account.id,
-            'name': f'[{account.id}] {account.name}' if account.name else f'[{account.id}]',
+            'name': f'[{(account.code or str(account.id)).strip()}] {account.name}'
+            if account.name
+            else f'[{(account.code or str(account.id)).strip()}]',
             'code': account.code or '',
             'source': 'analytic_account',
         }
@@ -67,13 +69,12 @@ def _search_projects(env, hr_employee, search_query, limit):
             continue
         seen.add(analytic.id)
         code = analytic.code or getattr(project, 'code', '') or ''
-        display_name_parts = [str(analytic.id)]
-        title = project.name or analytic.name
-        if title:
-            display_name_parts.append(title)
+        display_code = (analytic.code or str(analytic.id)).strip()
+        title = project.name or analytic.name or ''
+        label = f'[{display_code}] {title}' if title else f'[{display_code}]'
         results.append({
             'id': analytic.id,
-            'name': ' - '.join(display_name_parts),
+            'name': label,
             'code': code,
             'source': 'projects',
             'project_id': project.id,
