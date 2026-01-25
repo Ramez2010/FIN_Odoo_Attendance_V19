@@ -61,6 +61,11 @@ class OdooAttendanceAppConfig(models.Model):
             'are outside their project geofence radius and notifies their managers.'
         ),
     )
+    far_away_notify_managers = fields.Boolean(
+        string='Notify Managers',
+        default=True,
+        help='When disabled, far-away checks still record results but no push/inbox messages are sent.',
+    )
 
     license_status = fields.Char(string='License Status', compute='_compute_license_state', store=False)
     license_valid_until = fields.Datetime(string='Valid Until', compute='_compute_license_state', store=False)
@@ -300,17 +305,18 @@ class OdooAttendanceAppConfig(models.Model):
                 'current_longitude': lng,
                 'location_timestamp': location_record.timestamp_utc,
             })
-            self._notify_managers_far_away(
-                hr_employee=hr_employee,
-                analytic_account=analytic,
-                location_record=location_record,
-                actual_distance_km=actual_distance_km,
-                allowed_radius_km=allowed_radius_km,
-                manager_apps=manager_apps,
-                location_lat=loc_lat,
-                location_lng=loc_lng,
-                excess_km=excess_km,
-            )
+            if self.far_away_notify_managers:
+                self._notify_managers_far_away(
+                    hr_employee=hr_employee,
+                    analytic_account=analytic,
+                    location_record=location_record,
+                    actual_distance_km=actual_distance_km,
+                    allowed_radius_km=allowed_radius_km,
+                    manager_apps=manager_apps,
+                    location_lat=loc_lat,
+                    location_lng=loc_lng,
+                    excess_km=excess_km,
+                )
             alerts_sent += 1
 
         if alerts_sent:
