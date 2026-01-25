@@ -405,20 +405,14 @@ class OdooAttendanceInboxMessage(models.Model):
         Recipient = self.env['odoo.attendance.inbox.recipient'].sudo()
         now = fields.Datetime.now()
 
-        existing = Recipient.search([('message_id', '=', self.id)])
-        existing_emp_ids = set(existing.mapped('employee_app_id').ids)
-
-        to_create = []
-        for emp in targets:
-            if emp.id in existing_emp_ids:
-                continue
-            to_create.append(
-                {
-                    'message_id': self.id,
-                    'employee_app_id': emp.id,
-                    'delivered_at': now,
-                }
-            )
+        to_create = [
+            {
+                'message_id': self.id,
+                'employee_app_id': emp.id,
+                'delivered_at': now,
+            }
+            for emp in targets
+        ]
         if to_create:
             Recipient.create(to_create)
 
@@ -599,13 +593,6 @@ class OdooAttendanceInboxRecipient(models.Model):
     is_read = fields.Boolean(string='Read', default=False, index=True)
     read_at = fields.Datetime(string='Read At', readonly=True)
 
-    _sql_constraints = [
-        (
-            'uniq_msg_employee',
-            'unique(message_id, employee_app_id)',
-            'This employee already received this message.',
-        ),
-    ]
 
     def action_mark_read(self):
         now = fields.Datetime.now()

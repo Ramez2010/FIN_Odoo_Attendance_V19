@@ -57,7 +57,7 @@ class InboxController(http.Controller):
                         'name': msg.name or '',
                         'body': msg.body or '',
                         'message_type': msg.message_type or 'broadcast',
-                        'sent_at': msg.sent_at.isoformat() if msg.sent_at else (rec.delivered_at.isoformat() if rec.delivered_at else fields.Datetime.now().isoformat()),
+                        'sent_at': (rec.delivered_at or msg.sent_at or fields.Datetime.now()).isoformat(),
                         'is_read': bool(rec.is_read),
                         'read_at': rec.read_at.isoformat() if rec.read_at else None,
                     }
@@ -122,7 +122,7 @@ class InboxController(http.Controller):
                 'name': msg.name or '',
                 'body': msg.body or '',
                 'message_type': msg.message_type or 'broadcast',
-                'sent_at': msg.sent_at.isoformat() if msg.sent_at else (recipient_entry.delivered_at.isoformat() if recipient_entry.delivered_at else fields.Datetime.now().isoformat()),
+                'sent_at': (recipient_entry.delivered_at or msg.sent_at or fields.Datetime.now()).isoformat(),
                 'is_read': bool(recipient_entry.is_read),
                 'read_at': recipient_entry.read_at.isoformat() if recipient_entry.read_at else None,
             })
