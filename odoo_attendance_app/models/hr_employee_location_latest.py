@@ -31,13 +31,7 @@ class HrEmployeeLocationLatest(models.Model):
 
     @api.depends('timestamp_utc', 'employee_id.attendance_state')
     def _compute_reachable_status(self):
-        # Freshness window in minutes from config (default 2)
-        timeout_minutes = int(self.env['ir.config_parameter'].sudo().get_param(
-            'odoo_attendance_app.live_location_timeout_minutes', '15'))
-        limit_time = fields.Datetime.now() - timedelta(minutes=timeout_minutes)
-        
         for record in self:
-            # If employee is not checked in, treat as unreachable (explicit)
             if record.employee_id and record.employee_id.attendance_state != 'checked_in':
                 record.reachable_status = 'unreachable'
                 record.unreachable_reason = 'Employee not checked-in'
@@ -48,9 +42,5 @@ class HrEmployeeLocationLatest(models.Model):
                 record.unreachable_reason = 'No location data'
                 continue
 
-            if record.timestamp_utc < limit_time:
-                record.reachable_status = 'unreachable'
-                record.unreachable_reason = 'No recent location update'
-            else:
-                record.reachable_status = 'reachable'
-                record.unreachable_reason = False
+            record.reachable_status = 'reachable'
+            record.unreachable_reason = False
