@@ -67,6 +67,15 @@ class OdooAttendanceAppConfig(models.Model):
         help='When disabled, far-away checks still record results but no push/inbox messages are sent.',
     )
 
+    # Diagnostics: show last/next run so it's obvious whether the cron is running on Odoo.sh.
+    far_away_last_run_at = fields.Datetime(string='Far-away Last Run', readonly=True)
+    far_away_last_run_count = fields.Integer(string='Far-away Last Run Alerts', readonly=True)
+    far_away_last_run_error = fields.Char(string='Far-away Last Run Error', readonly=True)
+
+    far_away_cron_active = fields.Boolean(string='Far-away Cron Active', compute='_compute_far_away_cron_status', store=False)
+    far_away_cron_nextcall = fields.Datetime(string='Far-away Next Run', compute='_compute_far_away_cron_status', store=False)
+    far_away_cron_interval = fields.Char(string='Far-away Cron Interval', compute='_compute_far_away_cron_status', store=False)
+
     license_status = fields.Char(string='License Status', compute='_compute_license_state', store=False)
     license_valid_until = fields.Datetime(string='Valid Until', compute='_compute_license_state', store=False)
     license_last_check = fields.Datetime(string='Last Check', compute='_compute_license_state', store=False)
@@ -231,16 +240,55 @@ class OdooAttendanceAppConfig(models.Model):
         license_helper.refresh_license_from_server(self.env)
         return True
 
+    def _get_far_away_cron(self):
+        """Best-effort lookup of the scheduled action record for far-away monitoring."""
+        cron = self.env.ref('odoo_attendance_app.ir_cron_far_away_monitoring', raise_if_not_found=False)
+        if cron:
+            return cron.sudo()
+        return self.env['ir.cron'].sudo().search(
+            [('name', '=', 'Attendance App: Far-away alerts')],
+            limit=1,
+        )
+
+    @api.depends('far_away_monitoring_enabled')
+    def _compute_far_away_cron_status(self):
+        cron = self._get_far_away_cron()
+        for rec in self:
+            if not cron:
+                rec.far_away_cron_active = False
+                rec.far_away_cron_nextcall = False
+                rec.far_away_cron_interval = ''
+                continue
+            rec.far_away_cron_active = bool(cron.active)
+            rec.far_away_cron_nextcall = cron.nextcall
+            rec.far_away_cron_interval = f'{cron.interval_number} {cron.interval_type}'
+
+    def _sync_far_away_cron(self):
+        """Keep the scheduled action aligned with the config toggle."""
+        cron = self._get_far_away_cron()
+        if not cron:
+            return
+        cron.write(
+            {
+                'active': bool(self.far_away_monitoring_enabled),
+                'interval_number': 30,
+                'interval_type': 'minutes',
+            }
+        )
+
     def _cron_far_away_monitoring(self):
         record = self.search([], order='id desc', limit=1)
         if not record:
             return True
-        record._run_far_away_monitoring()
+        record._run_far_away_monitoring(via_cron=True)
         return True
 
-    def _run_far_away_monitoring(self):
+    def _run_far_away_monitoring(self, via_cron=False):
         self.ensure_one()
+        self.sudo().write({'far_away_last_run_at': fields.Datetime.now(), 'far_away_last_run_error': False})
         if not self.far_away_monitoring_enabled:
+            if via_cron:
+                self._sync_far_away_cron()
             return True
 
         Attendance = self.env['hr.attendance'].sudo()
@@ -319,8 +367,11 @@ class OdooAttendanceAppConfig(models.Model):
                 )
             alerts_sent += 1
 
+        self.sudo().write({'far_away_last_run_count': alerts_sent})
         if alerts_sent:
-            _logger.info('Far-away alert cron sent %d notifications', alerts_sent)
+            _logger.info('Far-away alert run sent %d notifications', alerts_sent)
+        if via_cron:
+            self._sync_far_away_cron()
         return True
 
     def action_run_far_away_monitoring(self):
@@ -337,7 +388,8 @@ class OdooAttendanceAppConfig(models.Model):
                 },
             }
 
-        ok = self._run_far_away_monitoring()
+        ok = self._run_far_away_monitoring(via_cron=False)
+        self._sync_far_away_cron()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -347,6 +399,20 @@ class OdooAttendanceAppConfig(models.Model):
                 'sticky': False,
                 'type': 'success' if ok else 'warning',
             },
+        }
+
+    def action_open_far_away_cron(self):
+        self.ensure_one()
+        cron = self._get_far_away_cron()
+        if not cron:
+            return False
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Far-away Scheduled Action',
+            'res_model': 'ir.cron',
+            'view_mode': 'form',
+            'res_id': cron.id,
+            'target': 'current',
         }
 
     def _notify_managers_far_away(
@@ -452,6 +518,9 @@ class OdooAttendanceAppConfig(models.Model):
                     'active': True,
                 }
             )
+
+        # Keep the far-away monitoring cron aligned with the toggle.
+        self._sync_far_away_cron()
 
     @api.model
     def action_open_settings(self):

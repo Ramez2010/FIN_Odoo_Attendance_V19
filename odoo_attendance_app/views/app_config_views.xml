@@ -21,7 +21,16 @@
                     <div class="text-muted">
                         When enabled, the system checks every 30 minutes whether checked-in employees are outside their project geofences and alerts their managers.
                     </div>
+                    <group col="4">
+                        <field name="far_away_last_run_at" readonly="1"/>
+                        <field name="far_away_last_run_count" readonly="1"/>
+                        <field name="far_away_last_run_error" readonly="1"/>
+                        <field name="far_away_cron_nextcall" readonly="1"/>
+                        <field name="far_away_cron_active" readonly="1"/>
+                        <field name="far_away_cron_interval" readonly="1"/>
+                    </group>
                     <button name="action_run_far_away_monitoring" type="object" string="Run now" class="oe_highlight"/>
+                    <button name="action_open_far_away_cron" type="object" string="Open Scheduled Action"/>
                 </group>
                 <group string="Setup Guide">
                     <div class="alert alert-info">

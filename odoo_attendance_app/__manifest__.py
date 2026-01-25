@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'FIN Attendance',
-    'version': '19.0.1.0.9',
+    'version': '19.0.1.0.10',
     'category': 'Human Resources',
     'summary': 'Mobile attendance tracking with GPS, analytics, and time-off management',
     'description': """
