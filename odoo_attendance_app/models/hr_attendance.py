@@ -76,6 +76,8 @@ class HrAttendance(models.Model):
         string='Check-in Note',
         help='Mandatory note provided by the user at check-in'
     )
+
+    message_in = fields.Char(string='Check-in Message')
     
     # Check-out GPS Data (optional separate fields)
     x_checkout_gps_lat = fields.Float(
