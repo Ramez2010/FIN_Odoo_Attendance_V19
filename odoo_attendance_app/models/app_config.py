@@ -373,7 +373,7 @@ class OdooAttendanceAppConfig(models.Model):
             f'Allowed radius: {allowed_radius_km:.2f} km (exceeded by {excess_km:.2f} km).',
             f'Configured location: {location_lat:.6f}, {location_lng:.6f}',
             f'Current location: {location_record.latitude:.6f}, {location_record.longitude:.6f}',
-            f'Timestamp (UTC): {location_record.timestamp_utc}',
+            f'Timestamp ({self._timestamp_timezone_label()}): {self._format_timestamp(location_record.timestamp_utc)}',
             f'Map: {map_url}',
         ]
         try:
@@ -383,9 +383,9 @@ class OdooAttendanceAppConfig(models.Model):
                     'body': '\n'.join(lines),
                     'message_type': 'attendance',
                     'target_all': False,
-                    'target_employee_app_ids': [(6, 0, manager_apps.ids)],
-                }
-            )
+            'target_employee_app_ids': [(6, 0, manager_apps.ids)],
+        }
+    )
             message.action_send_now()
         except Exception as exc:
             _logger.warning(
@@ -393,6 +393,24 @@ class OdooAttendanceAppConfig(models.Model):
                 hr_employee.display_name,
                 exc,
             )
+
+    def _timestamp_timezone_label(self):
+        label = (self.message_timezone or '').strip()
+        return label if label else 'UTC'
+
+    def _format_timestamp(self, timestamp):
+        if not timestamp:
+            return 'Unknown'
+        tz_name = self._timestamp_timezone_label()
+        try:
+            tz = pytz.timezone(tz_name)
+        except Exception:
+            tz = pytz.UTC
+        dt = timestamp
+        if dt.tzinfo is None:
+            dt = pytz.UTC.localize(dt)
+        localized = tz.normalize(dt.astimezone(tz))
+        return localized.strftime('%Y-%m-%d %H:%M:%S %Z')
 
     @api.model_create_multi
     def create(self, vals_list):
