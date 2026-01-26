@@ -7,9 +7,8 @@ class HRLeave(models.Model):
     _inherit = 'hr.leave'
 
     def _validate_leave_request(self):
-        """ Validate time off requests (holiday_type='employee')
-        by creating a calendar event and a resource time off. """
-        holidays = self.filtered(lambda request: request.holiday_type == 'employee' and request.employee_id)
+        """Validate time off requests by creating calendar events/resource leaves."""
+        holidays = self.filtered(lambda request: request.employee_id)
         holidays._create_resource_leave()
         meeting_holidays = holidays.filtered(lambda l: l.holiday_status_id.create_calendar_meeting)
         meetings = self.env['calendar.event']
