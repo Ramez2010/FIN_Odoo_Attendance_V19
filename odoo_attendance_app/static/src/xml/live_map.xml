@@ -62,10 +62,7 @@
                                     </div>
                                     <div class="small text-muted mt-1">
                                         <t t-if="location">
-                                            <t t-if="location.is_reachable">
-                                                <i class="fa fa-clock-o me-1"/> <t t-esc="location.time_ago"/>
-                                            </t>
-                                            <t t-else="">
+                                            <t t-if="!location.is_reachable">
                                                 <i class="fa fa-exclamation-triangle me-1"/> <t t-esc="location.unreachable_reason"/>
                                             </t>
                                         </t>
