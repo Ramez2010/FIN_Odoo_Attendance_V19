@@ -170,6 +170,10 @@ class LeaveController(http.Controller):
             # Process taken leaves
             for leave in leaves:
                 leave_type_id = leave.holiday_status_id.id
+                # Only show balances for leave types that have a current (active today) allocation.
+                # Otherwise old leave types (or expired allocation periods) show up as "allocated 0 / negative remaining".
+                if leave_type_id not in balance_data:
+                    continue
                 # If we have a validity window for this leave type, only count leaves in that window.
                 if leave_type_id in alloc_windows:
                     win = alloc_windows[leave_type_id]
