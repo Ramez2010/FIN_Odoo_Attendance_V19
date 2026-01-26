@@ -715,16 +715,23 @@ class AttendanceController(http.Controller):
             
             results = []
             for att in attendances:
+                analytic_display = None
+                if att.x_analytic_account_id:
+                    code = (att.x_analytic_account_id.code or '').strip()
+                    name = (att.x_analytic_account_id.name or '').strip()
+                    analytic_display = f'[{code}] {name}' if code else name
                 results.append({
                     'id': att.id,
                     'check_in': att.check_in.isoformat() if att.check_in else None,
                     'check_out': att.check_out.isoformat() if att.check_out else None,
                     'worked_hours': round(att.worked_hours, 2),
                     'analytic_account_id': att.x_analytic_account_id.id if att.x_analytic_account_id else None,
+                    'analytic_account_display_name': analytic_display,
                     'analytic_account': {
                         'id': att.x_analytic_account_id.id,
                         'name': att.x_analytic_account_id.name,
-                        'code': att.x_analytic_account_id.code or ''
+                        'code': att.x_analytic_account_id.code or '',
+                        'display_name': analytic_display,
                     } if att.x_analytic_account_id else None,
                     'gps_checkin': {
                         'lat': att.x_checkin_gps_lat,
