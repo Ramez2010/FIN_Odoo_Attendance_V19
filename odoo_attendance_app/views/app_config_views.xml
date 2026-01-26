@@ -79,6 +79,7 @@
                         <li>Paste the JSON into the FCM Service Account JSON field above.</li>
                     </ol>
                 </div>
+            </div>
             </form>
         </field>
     </record>
