@@ -106,27 +106,58 @@ class LeaveController(http.Controller):
                 return response_helper.unauthorized_response('Invalid or missing authentication token')
             
             employee_app, hr_employee = auth_result
+
+            # Only show "current" allocations (active today) to avoid listing historical periods.
+            # We treat allocations as current if their validity period includes "today":
+            # - date_from is empty or <= today
+            # - date_to is empty or >= today
+            today = fields.Date.context_today(request.env.user)
             
             # Get allocations
             Allocation = request.env['hr.leave.allocation'].sudo()
-            allocations = Allocation.search([
+            alloc_domain = [
                 ('employee_id', '=', hr_employee.id),
-                ('state', '=', 'validate')
-            ])
+                ('state', '=', 'validate'),
+            ]
+            # Odoo versions differ slightly; guard on field existence.
+            if 'date_from' in Allocation._fields:
+                alloc_domain += ['|', ('date_from', '=', False), ('date_from', '<=', today)]
+            if 'date_to' in Allocation._fields:
+                alloc_domain += ['|', ('date_to', '=', False), ('date_to', '>=', today)]
+
+            allocations = Allocation.search(alloc_domain)
             
             # Get leave requests
             Leave = request.env['hr.leave'].sudo()
             leaves = Leave.search([
                 ('employee_id', '=', hr_employee.id),
-                ('state', '=', 'validate')
+                ('state', '=', 'validate'),
             ])
             
             # Group by leave type
             balance_data = {}
+            alloc_windows = {}
             
             # Process allocations
             for alloc in allocations:
                 leave_type_id = alloc.holiday_status_id.id
+                # Track an effective "current window" per leave type to filter taken leaves as well.
+                if leave_type_id not in alloc_windows:
+                    alloc_windows[leave_type_id] = {'start': None, 'end': None}
+                start = alloc.date_from if hasattr(alloc, 'date_from') else None
+                end = alloc.date_to if hasattr(alloc, 'date_to') else None
+                # If any allocation has no start/end, treat the window edge as open.
+                if start:
+                    cur = alloc_windows[leave_type_id]['start']
+                    alloc_windows[leave_type_id]['start'] = start if (cur is None or start < cur) else cur
+                if end:
+                    cur = alloc_windows[leave_type_id]['end']
+                    alloc_windows[leave_type_id]['end'] = end if (cur is None or end > cur) else cur
+                if not start:
+                    alloc_windows[leave_type_id]['start'] = None
+                if not end:
+                    alloc_windows[leave_type_id]['end'] = None
+
                 if leave_type_id not in balance_data:
                     balance_data[leave_type_id] = {
                         'leave_type_id': leave_type_id,
@@ -139,6 +170,17 @@ class LeaveController(http.Controller):
             # Process taken leaves
             for leave in leaves:
                 leave_type_id = leave.holiday_status_id.id
+                # If we have a validity window for this leave type, only count leaves in that window.
+                if leave_type_id in alloc_windows:
+                    win = alloc_windows[leave_type_id]
+                    start = win.get('start')
+                    end = win.get('end')
+                    leave_start = leave.request_date_from if hasattr(leave, 'request_date_from') else None
+                    leave_end = leave.request_date_to if hasattr(leave, 'request_date_to') else None
+                    if leave_start and start and leave_start < start:
+                        continue
+                    if leave_end and end and leave_end > end:
+                        continue
                 if leave_type_id not in balance_data:
                     balance_data[leave_type_id] = {
                         'leave_type_id': leave_type_id,
