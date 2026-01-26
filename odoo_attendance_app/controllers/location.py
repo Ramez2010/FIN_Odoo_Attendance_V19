@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
-from datetime import datetime
 
 from odoo import http, fields
 from odoo.http import request
@@ -62,23 +61,12 @@ class LocationController(http.Controller):
             # Search by employee_id since it's unique
             existing = Location.search([('employee_id', '=', hr_employee.id)], limit=1)
             
-            gps_timestamp = data.get('gps_timestamp')
-            if gps_timestamp:
-                try:
-                    parsed = fields.Datetime.from_string(gps_timestamp)
-                except Exception:
-                    try:
-                        parsed = datetime.fromisoformat(gps_timestamp)
-                    except Exception:
-                        parsed = fields.Datetime.now()
-            else:
-                parsed = fields.Datetime.now()
             vals = {
                 'employee_id': hr_employee.id,
                 'latitude': gps_lat,
                 'longitude': gps_lng,
                 'accuracy': gps_accuracy,
-                'timestamp_utc': parsed,
+                'timestamp_utc': fields.Datetime.now(),
                 'source': 'mobile',
             }
             
