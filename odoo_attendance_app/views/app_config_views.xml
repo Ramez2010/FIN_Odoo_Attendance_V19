@@ -5,7 +5,7 @@
         <field name="model">odoo.attendance.app.config</field>
         <field name="arch" type="xml">
             <form string="Attendance App Settings" create="0" delete="0">
-            <sheet>
+                <sheet>
                     <group>
                         <field name="selfie_retention_days" help="Delete selfie attachments older than this many days. Set to 0 to disable automatic deletion."/>
                     </group>
@@ -55,31 +55,29 @@
                         <separator string="Legacy (deprecated)"/>
                         <field name="fcm_server_key" password="True" placeholder="Firebase server key (legacy - usually disabled)"/>
                     </group>
-                
-            </sheet>
-
-            <div class="o_setup_guide_section" style="display:block; clear:both; width:100%; margin-top:1.5rem;">
-                <div class="alert alert-info o_full_width" style="width:100%; max-width:none; white-space:normal; padding:1.5rem;">
-                    <h3>1. Google Maps API Key</h3>
-                    <ol style="width:100%; max-width:none; white-space:normal;">
-                        <li>Go to the Google Cloud Console.</li>
-                        <li>Create a project or select an existing one.</li>
-                        <li>Enable the Maps JavaScript API in APIs &amp; Services &gt; Library.</li>
-                        <li>Go to APIs &amp; Services &gt; Credentials and choose Create Credentials &gt; API Key.</li>
-                        <li>Copy the key and paste it into the Google Maps API Key field above.</li>
-                    </ol>
-                    <h3>2. Android Push (FCM)</h3>
-                    <p class="small text-muted">The old "Server Key" is deprecated. Please use the Service Account JSON.</p>
-                    <ol style="width:100%; max-width:none; white-space:normal;">
-                        <li>Open the Firebase Console and select your project (or create one).</li>
-                        <li>Click the Gear icon and go to Project Settings.</li>
-                        <li>Switch to the Service accounts tab.</li>
-                        <li>Click Generate new private key and confirm.</li>
-                        <li>Open the downloaded JSON file in a text editor and copy its contents.</li>
-                        <li>Paste the JSON into the FCM Service Account JSON field above.</li>
-                    </ol>
-                </div>
-            </div>
+                    <group string="Setup Guide" col="1" colspan="2">
+                        <div class="alert alert-info o_full_width" style="width:100%; max-width:none; white-space:normal; padding:1.5rem;">
+                            <h3>1. Google Maps API Key</h3>
+                            <ol style="width:100%; max-width:none; white-space:normal;">
+                                <li>Go to the Google Cloud Console.</li>
+                                <li>Create a project or select an existing one.</li>
+                                <li>Enable the Maps JavaScript API in APIs &amp; Services &gt; Library.</li>
+                                <li>Go to APIs &amp; Services &gt; Credentials and choose Create Credentials &gt; API Key.</li>
+                                <li>Copy the key and paste it into the Google Maps API Key field above.</li>
+                            </ol>
+                            <h3>2. Android Push (FCM)</h3>
+                            <p class="small text-muted">The old "Server Key" is deprecated. Please use the Service Account JSON.</p>
+                            <ol style="width:100%; max-width:none; white-space:normal;">
+                                <li>Open the Firebase Console and select your project (or create one).</li>
+                                <li>Click the Gear icon and go to Project Settings.</li>
+                                <li>Switch to the Service accounts tab.</li>
+                                <li>Click Generate new private key and confirm.</li>
+                                <li>Open the downloaded JSON file in a text editor and copy its contents.</li>
+                                <li>Paste the JSON into the FCM Service Account JSON field above.</li>
+                            </ol>
+                        </div>
+                    </group>
+                </sheet>
             </form>
         </field>
     </record>
