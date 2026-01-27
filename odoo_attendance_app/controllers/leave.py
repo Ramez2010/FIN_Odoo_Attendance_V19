@@ -18,6 +18,24 @@ class LeaveController(http.Controller):
     Time off / leave management endpoints.
     """
     
+    def _mobile_leave_types(self, hr_employee):
+        LeaveType = request.env['hr.leave.type'].sudo()
+        company_id = hr_employee.company_id.id
+        leave_types = LeaveType.search([
+            ('active', '=', True),
+            '|',
+            ('company_id', '=', False),
+            ('company_id', '=', company_id),
+        ])
+        names = {}
+        for lt in leave_types:
+            display = lt.name_get()
+            if display:
+                names[lt.id] = display[0][1]
+            else:
+                names[lt.id] = lt.name
+        return leave_types, names
+    
     @http.route('/api/odoo-attendance/leave/types', type='http', auth='public', methods=['GET'], csrf=False, cors='*')
     def get_leave_types(self, **kwargs):
         """
@@ -52,15 +70,13 @@ class LeaveController(http.Controller):
             
             employee_app, hr_employee = auth_result
             
-            # Get leave types
-            LeaveType = request.env['hr.leave.type'].sudo()
-            leave_types = LeaveType.search([('active', '=', True)])
+            leave_types, leave_type_names = self._mobile_leave_types(hr_employee)
             
             results = []
             for lt in leave_types:
                 results.append({
                     'id': lt.id,
-                    'name': lt.name,
+                    'name': leave_type_names.get(lt.id, lt.name),
                     'code': lt.code if hasattr(lt, 'code') else '',
                     'request_unit': lt.request_unit,
                     'requires_allocation': lt.requires_allocation if hasattr(lt, 'requires_allocation') else False
@@ -106,6 +122,8 @@ class LeaveController(http.Controller):
                 return response_helper.unauthorized_response('Invalid or missing authentication token')
             
             employee_app, hr_employee = auth_result
+            leave_types, leave_type_names = self._mobile_leave_types(hr_employee)
+            allowed_type_ids = {lt.id for lt in leave_types}
 
             # Only show "current" allocations (active today) to avoid listing historical periods.
             # We treat allocations as current if their validity period includes "today":
@@ -141,6 +159,8 @@ class LeaveController(http.Controller):
             # Process allocations
             for alloc in allocations:
                 leave_type_id = alloc.holiday_status_id.id
+                if leave_type_id not in allowed_type_ids:
+                    continue
                 # Track an effective "current window" per leave type to filter taken leaves as well.
                 if leave_type_id not in alloc_windows:
                     alloc_windows[leave_type_id] = {'start': None, 'end': None}
@@ -161,7 +181,10 @@ class LeaveController(http.Controller):
                 if leave_type_id not in balance_data:
                     balance_data[leave_type_id] = {
                         'leave_type_id': leave_type_id,
-                        'leave_type_name': alloc.holiday_status_id.name,
+                        'leave_type_name': leave_type_names.get(
+                            leave_type_id,
+                            alloc.holiday_status_id.name
+                        ),
                         'allocated': 0.0,
                         'taken': 0.0
                     }
@@ -170,6 +193,8 @@ class LeaveController(http.Controller):
             # Process taken leaves
             for leave in leaves:
                 leave_type_id = leave.holiday_status_id.id
+                if leave_type_id not in allowed_type_ids:
+                    continue
                 # Only show balances for leave types that have a current (active today) allocation.
                 # Otherwise old leave types (or expired allocation periods) show up as "allocated 0 / negative remaining".
                 if leave_type_id not in balance_data:
@@ -188,7 +213,10 @@ class LeaveController(http.Controller):
                 if leave_type_id not in balance_data:
                     balance_data[leave_type_id] = {
                         'leave_type_id': leave_type_id,
-                        'leave_type_name': leave.holiday_status_id.name,
+                        'leave_type_name': leave_type_names.get(
+                            leave_type_id,
+                            leave.holiday_status_id.name
+                        ),
                         'allocated': 0.0,
                         'taken': 0.0
                     }
@@ -368,15 +396,18 @@ class LeaveController(http.Controller):
                 return response_helper.unauthorized_response('Invalid or missing authentication token')
             
             employee_app, hr_employee = auth_result
+            leave_types, leave_type_names = self._mobile_leave_types(hr_employee)
+            allowed_type_ids = {lt.id for lt in leave_types}
             
             # Get query params
             limit = int(request.params.get('limit', 50))
             
             # Search leave requests
             Leave = request.env['hr.leave'].sudo()
-            leaves = Leave.search([
-                ('employee_id', '=', hr_employee.id)
-            ], limit=limit, order='create_date desc')
+            domain = [('employee_id', '=', hr_employee.id)]
+            if allowed_type_ids:
+                domain.append(('holiday_status_id', 'in', list(allowed_type_ids)))
+            leaves = Leave.search(domain, limit=limit, order='create_date desc')
             
             # State labels
             state_labels = {
@@ -392,7 +423,10 @@ class LeaveController(http.Controller):
             for leave in leaves:
                 results.append({
                     'id': leave.id,
-                    'leave_type': leave.holiday_status_id.name,
+                    'leave_type': leave_type_names.get(
+                        leave.holiday_status_id.id,
+                        leave.holiday_status_id.name
+                    ),
                     'leave_type_id': leave.holiday_status_id.id,
                     'date_from': leave.request_date_from.strftime('%Y-%m-%d') if leave.request_date_from else None,
                     'date_to': leave.request_date_to.strftime('%Y-%m-%d') if leave.request_date_to else None,
