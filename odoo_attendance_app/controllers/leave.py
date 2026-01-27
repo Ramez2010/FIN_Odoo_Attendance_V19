@@ -29,11 +29,7 @@ class LeaveController(http.Controller):
         ])
         names = {}
         for lt in leave_types:
-            display = lt.name_get()
-            if display:
-                names[lt.id] = display[0][1]
-            else:
-                names[lt.id] = lt.name
+            names[lt.id] = lt.display_name
         return leave_types, names
     
     @http.route('/api/odoo-attendance/leave/types', type='http', auth='public', methods=['GET'], csrf=False, cors='*')
