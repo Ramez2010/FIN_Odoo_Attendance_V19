@@ -20,7 +20,7 @@ class LeaveController(http.Controller):
     
     def _mobile_leave_types(self, hr_employee):
         LeaveType = request.env['hr.leave.type'].sudo()
-        company_id = hr_employee.company_id.id
+        company_id = (hr_employee.company_id or request.env.company).id
         leave_types = LeaveType.search([
             ('active', '=', True),
             '|',
