@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_overtime_request,overtime.request,model_overtime_request,iet_overtime_request.overtime_manager_group,1,1,1,1
-access_overtime_request,overtime.request,model_overtime_request,iet_overtime_request.overtime_user_group,1,1,1,1
-
