@@ -1,0 +1,22 @@
+<odoo>
+    <record id="mobikul_attendance_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.tree.mobile</field>
+        <field name="model">hr.attendance</field>
+        <field name="arch" type="xml">
+            <list string="Employee attendances" edit="0" sample="1">
+                <field name="employee_id"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="worked_hours" string="Work Hours" widget="float_time"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mobikul_attendance_action" model="ir.actions.act_window">
+        <field name="name">Mobikul Attendance</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
+        <field name="search_view_id" ref="mobikul_attendance_tree"/>
+    </record>
+</odoo>

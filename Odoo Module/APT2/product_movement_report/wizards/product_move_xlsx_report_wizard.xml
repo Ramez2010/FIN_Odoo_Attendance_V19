@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ====================================================================== -->
+    <record id="product_movement_xlsx_report_wizards" model="ir.actions.act_window">
+        <field name="name">Product Moves Xlsx Report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">wizard.product.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="product_move_xlsx_report_wizard" model="ir.ui.view">
+        <field name="name">wizard.product.report.xlsx</field>
+        <field name="model">wizard.product.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="start_date" />
+                            <field name="location_id" />
+                        </group>
+                        <group>
+                            <field name="end_date" />
+                            <field name="product_id" />
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button special="cancel" string="Cancel" />
+                    <button class="oe_button" string="Print Xlsx Report" type="object"
+                        name="prepare_product_moves_xlsx_report" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <menuitem name="Product Moves Xlsx Report"
+        id="product_movement_xlsx_report_wizard_menu"
+        sequence="210"
+        parent="stock.menu_warehouse_report"
+        action="product_movement_xlsx_report_wizards" />
+
+    <record id="product_move_xlsx_action" model="ir.actions.report">
+        <field name="name">report</field>
+        <field name="model">wizard.product.report</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">product_movement_report.report_product</field>
+        <field name="report_file">product_movement_report.report_product</field>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

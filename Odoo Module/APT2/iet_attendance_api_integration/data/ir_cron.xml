@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="cron_attendance_auto_check_out" model="ir.cron">
+            <field name="name">Check Attendance Auto Check Out </field>
+            <field name="interval_number">1</field>
+            <field eval="True" name="active"/>
+            <field name="interval_type">days</field>
+            <field name="state">code</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="nextcall" eval="datetime.now() + (datetime.now(pytz.timezone('Asia/Riyadh')).replace(hour=21, minute=59, second=59) - datetime.now(pytz.timezone('Asia/Riyadh'))) % timedelta(hours=24)"/>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="code">model._cron_attendance_auto_check_out()</field>
+        </record>
+    </data>
+</odoo>

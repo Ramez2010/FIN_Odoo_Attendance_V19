@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template xml:space="preserve">
+    <t t-name="HrAttendanceMyMainMenu" t-extend="HrAttendanceMyMainMenu">
+        <t t-jquery=".mb0" t-operation="after">
+            <div class="myclass">
+                <br />
+                <br />
+                <h3>Enter your message below</h3>
+               <!--  <label for="message" /> --><input type="text" class="checkin_message" style=" width: 50%;margin-left: 25%;" data-latitude="" data-longitude="" />
+            </div>
+        </t>
+    </t>
+</template>

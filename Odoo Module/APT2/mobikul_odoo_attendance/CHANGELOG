@@ -1,0 +1,150 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+ 
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [Unreleased] - 2021-10-11
+
+### Added
+- Index 
+- Images
+- Icon for module
+
+### Changed
+-
+
+### Fixed
+-
+
+## [Unreleased] - 2021-09-21
+
+### Added
+- Added Function to convert time to specific timezone
+
+### Changed
+- Change Logout and Login Method from GET to POST as we need FCM data for api 
+
+### Fixed
+- Fix Department and Worklocation field in case of empty
+- Fix lastcheckout issue in case of new user 
+
+
+## [Unreleased] - 2021-09-20
+
+### Added
+- Added All notification api
+- Added Push notification in case of checkin,checkout,login
+- Added FCM api script
+- Added FCM Topic model for topics
+- Addede Mobikul Attendance Messages model to store the messages of certain employee
+- Added the FCM for the notification
+- Added the FCM Topic View
+- Added the Mobikul Attendance Messages View
+
+### Changed
+- Some change in ir_http file for notification images 
+- Change res_user file and add the support to remove device in case of reset password from email link
+- Change csv file for new model access 
+
+
+### Fixed
+- Fix all API's naming issue and model naming issue from attendence to attendance
+
+## [Unreleased] - 2021-09-15
+
+### Added
+- Added Extra Added Feature In view
+- Added One Time NOtification In view
+- Added NOtification Template In view
+- Added Attendance NOtification Model
+- Added Notification Template Model
+
+### Changed
+- Change the model name in a proper way
+- Change model name in view to manage module name changes
+
+### Fixed
+- Some speel issue and comment issue 
+- Fix the attendance moduel access issue as 2 id and name are same 
+
+
+
+## [Unreleased] - 2021-09-14
+
+### Added
+- Added function for device authentication
+- Inherit res user and change password to manage reset password case
+- Add csv for fcm module access
+- Add view for FCM module 
+
+### Changed
+- Solve Token issue (case when no token is passed)
+- Change api auth call for proper authentication
+- Fix the address issue
+
+### Fixed
+- SplashPage Api issue
+
+## [Unreleased] - 2021-09-14
+
+### Added
+- Added csv and groups for access
+- Added Attendance View 
+- Added setting view and menus
+- Added fcm device module
+
+
+### Changed
+-
+
+### Fixed
+- SplashPage Api issue
+
+## [Unreleased] - 2021-09-13
+ 
+### Added
+- Added 2 new api
+  i - profile
+  ii- passwordReset
+- Added ir_http File for Employee profile image
+- Added odoo_http for multi Db support
+- Added view for the dynamic data 
+- Added res config for configuration Fields
+
+### Changed
+- Change the __auth Funtion
+- Update manifest For view
+- Changed the history api return fields type and format
+
+### Fixed
+- Variable Names
+
+## [Unreleased] - 2021-09-11
+ 
+### Added
+- Added all the api with their default functionality 
+  i - login
+  ii- homepage
+  iii - changeState
+  iv - history
+- Added constdata file for some defualt functions
+- Add static data for splash page api
+
+### Changed
+- Change the __auth Funtion to include the context which is used in all the api
+- Update the depened in manifest
+
+### Fixed
+-
+
+## [Unreleased] - yyyy-mm-dd
+ 
+Mobikul Odoo Attendance module changelog.
+ 
+### Added
+ 
+### Changed
+ 
+### Fixed
+

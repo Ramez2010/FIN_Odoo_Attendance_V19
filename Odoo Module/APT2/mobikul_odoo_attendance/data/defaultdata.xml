@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="default_m_attendace_setting" model="mobikul.attendance">
+            <field name="name">Mobikul Attendance App</field>
+            <field name="api_key">dummySecretKey</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,14 @@
+<!-- timesheet_accounting/data/cron_job.xml -->
+<odoo>
+    <record id="ir_cron_timesheet_accounting" model="ir.cron">
+        <field name="name">Timesheet Accounting Job</field>
+        <field name="model_id" ref="timesheet_accounting.model_res_config_settings"/>
+        <field name="state">code</field>
+        <field name="code">model._generate_journal_entries()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+<!--        <field name="numbercall">-1</field>-->
+<!--        <field name="doall" eval="False"/>-->
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

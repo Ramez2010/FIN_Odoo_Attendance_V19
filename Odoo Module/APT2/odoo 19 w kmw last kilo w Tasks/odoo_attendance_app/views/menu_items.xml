@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Main Menu -->
+    <menuitem id="menu_odoo_attendance_root"
+              name="FIN Attendance"
+              sequence="100"
+              web_icon="odoo_attendance_app,static/description/icon.png"
+              groups="group_odoo_attendance_manager,hr.group_hr_user"/>
+    
+    <!-- Sub Menus -->
+    <menuitem id="menu_odoo_attendance_employees"
+              name="Mobile App Employees"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_employee"
+              sequence="10"/>
+
+    <!-- Fleet -->
+    <menuitem id="menu_odoo_attendance_fleet"
+              name="Fleet"
+              parent="menu_odoo_attendance_root"
+              sequence="12"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_vehicles"
+              name="Vehicles"
+              parent="menu_odoo_attendance_fleet"
+              action="action_odoo_attendance_vehicle"
+              sequence="1"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_trips"
+              name="Trips"
+              parent="menu_odoo_attendance_fleet"
+              action="action_fleet_trip"
+              sequence="2"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_sessions"
+              name="App Sessions"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_session"
+              sequence="20"/>
+
+    <menuitem id="menu_odoo_attendance_tasks"
+              name="Tasks"
+              parent="menu_odoo_attendance_root"
+              sequence="22"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_tasks_list"
+              name="Task List"
+              parent="menu_odoo_attendance_tasks"
+              action="action_fin_employee_tasks"
+              sequence="1"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_tasks_dashboard"
+              name="Task Status Dashboard"
+              parent="menu_odoo_attendance_tasks"
+              action="action_fin_employee_tasks_dashboard"
+              sequence="2"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <!-- Attendance -->
+    <menuitem id="menu_odoo_attendance_attendance"
+              name="Attendance"
+              parent="menu_odoo_attendance_root"
+              sequence="24"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_live_employees_map"
+              name="Live Map"
+              parent="menu_odoo_attendance_attendance"
+              action="action_live_employees_map"
+              sequence="2"
+              groups="hr.group_hr_user,odoo_attendance_app.group_odoo_attendance_manager"/>
+
+    
+    <!-- Link to standard Attendances -->
+    <menuitem id="menu_odoo_attendance_hr_attendance"
+              name="View Attendances"
+              parent="menu_odoo_attendance_attendance"
+              action="hr_attendance.hr_attendance_action"
+              sequence="1"/>
+
+    <menuitem id="menu_odoo_attendance_far_away_alerts"
+              name="Far-away Alerts"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_far_away_results"
+              sequence="35"
+              groups="hr.group_hr_user,group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_config"
+              name="Settings"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_app_config_open"
+              sequence="90"
+              groups="hr.group_hr_user,group_odoo_attendance_manager"/>
+
+    <menuitem id="menu_odoo_attendance_messages"
+              name="Messages"
+              parent="menu_odoo_attendance_root"
+              action="action_odoo_attendance_inbox_messages"
+              sequence="80"
+              groups="hr.group_hr_user,group_odoo_attendance_manager"/>
+
+</odoo>

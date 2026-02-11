@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="category_create_edit" model="ir.module.category">
+            <field name="name">Create / Edit Categories</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="create_invoice_receipt" model="ir.module.category">
+            <field name="name">Create Invoice / Receipt</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="create_category" model="res.groups">
+            <field name="name">Create Category</field>
+        </record>
+
+        <record id="edit_category" model="res.groups">
+            <field name="name">Edit Category</field>
+        </record>
+
+        <record id="create_invoice" model="res.groups">
+            <field name="name">Create Invoice</field>
+        </record>
+
+        <record id="create_receipt" model="res.groups">
+            <field name="name">Create Receipt</field>
+        </record>
+
+    </data>
+</odoo>

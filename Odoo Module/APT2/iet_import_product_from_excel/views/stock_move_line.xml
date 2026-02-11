@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="stock_move_line_view_test">
+            <field name="name">stock.move.line._test</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lot_name']" position="after">
+                    <field name="lot_2" string="Lot" widget="many2one_tags" domain="[('product_id','=',product_id)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

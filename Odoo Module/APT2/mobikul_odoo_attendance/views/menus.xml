@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- Menu items hierachy -->
+	<menuitem id="menu_m_attendance_title" name="Mobikul Attendance" sequence="10" web_icon="mobikul_odoo_attendance,static/description/icon.png"
+              groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+
+	<menuitem id="menu_m_attendacne_dash" name="Dashboard" parent="menu_m_attendance_title" sequence="0" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+	<menuitem id="menu_m_attendacne" name="Attendance" parent="menu_m_attendance_title" sequence="1" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+	<menuitem id="menu_m_attendance_extras" name="Extra Added Features" parent="menu_m_attendance_title" sequence="3" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+	<menuitem id="menu_m_attendacne_config" name="Configuration" parent="menu_m_attendance_title" sequence="4" groups="mobikul_odoo_attendance.group_mobikul_attendance_manager"/>
+    
+    <!-- <menuitem id="m_atd_banners" name="Banners" parent="menu_m_attendance_extras" action="mobikul_banners_action" sequence="1"/>
+    <menuitem id="m_atd_fcategory" name="Featured Category" parent="menu_m_attendance_extras" action="mobikul_featured_category_action" sequence="2"/>
+    <menuitem id="mobikul_pslider" name="Product Sliders" parent="menu_m_attendance_extras" action="mobikul_product_slider_action" sequence="3"/> -->
+    <menuitem id="m_atd_push_notifications" name="Push Notifications" parent="menu_m_attendance_extras" sequence="4"/>
+    
+    <!-- Push notification Sub menu -->
+    <menuitem id="m_atd_push_notification_one_time" name="One-Time Notifications" parent="m_atd_push_notifications" action="mobikul_atd_notification_action" sequence="1"/>
+    <menuitem id="m_atd_push_notification_templates" name="Notification Templates" parent="m_atd_push_notifications" action="mobikul_atd_notification_templates_action" sequence="2"/>
+    <menuitem id="m_fcm_attendance_topics_action" name="Notification Topics" parent="m_atd_push_notifications" action="fcm_attendance_topics_action" sequence="4"/>
+    <menuitem id="m_fcm_attendance_messages_action" name="Notification Messages" parent="m_atd_push_notifications" action="mobikul_attendance_massages_templates_action" sequence="3"/>
+    
+    <!-- Attendances -->
+    <menuitem id="m_attendanceView" name="Attendance" parent="menu_m_attendacne" action="mobikul_attendance_action" sequence="10"/>
+    <!-- Config sub-menus -->
+    <menuitem id="m_atd_config_settings" name="Settings" parent="menu_m_attendacne_config" action="action_mobikul_attendance_configuration" sequence="1"/>
+    <menuitem id="m_atd_reg_devices_fcm" name="FCM Reg. Devices" parent="menu_m_attendacne_config" action="fcm_attendance_devices_action" sequence="2"/>
+    <!-- <menuitem id="m_atd_reg_topics_fcm" name="FCM Topics" parent="menu_m_attendacne_config" action="fcm_registered_topics_action" sequence="3"/> -->
+
+</odoo>

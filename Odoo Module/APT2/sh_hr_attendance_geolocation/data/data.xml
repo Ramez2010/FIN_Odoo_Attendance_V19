@@ -1,0 +1,16 @@
+<?xml version ="1.0" encoding="utf-8" ?>
+
+<odoo noupdate="1">
+    <record id="attendance_geolocation_rec" model="attendance.geolocation">
+        <field name="name">Get Search Result</field>
+    </record>
+    <record id="attendance_geolocation_child_rec" model="attendance.geolocation.child">
+        <field name="name">https://maps.googleapis.com/maps/api/js?key=&amp;callback=initMap&amp;libraries=visualization</field>
+        <field name="geo_id" ref="sh_hr_attendance_geolocation.attendance_geolocation_rec" />
+    </record>
+
+    <record id="map_api_key_parameter" model="ir.config_parameter">
+        <field name="key">google_map_api_key</field>
+        <field name="value">/</field>
+    </record>
+</odoo>

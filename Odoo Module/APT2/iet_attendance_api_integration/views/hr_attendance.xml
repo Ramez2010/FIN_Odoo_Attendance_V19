@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="ir.ui.view" id="hr_attendance_view_tree_inherit">
+        <field name="name">hr.attendance.view.tree.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <field name="check_in" position="before">
+                <field name="analytic_account_id" options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="hr_attendance_view_form_inherit">
+        <field name="name">hr.attendance.view.form.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <field name="check_in" position="before">
+                <field name="analytic_account_id" options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+</odoo>

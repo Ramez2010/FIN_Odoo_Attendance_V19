@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_version_view_form_inherit_extra_allowance" model="ir.ui.view">
+        <field name="name">hr.version.view.form.inherit.extra.allowance</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='contract']" position="after">
+                <group string="Extra Allowances" name="extra_allowances">
+                    <field name="meal_allowance"/>
+                    <field name="mobil_allowance"/>
+                    <field name="transportation_allowance"/>
+                    <field name="car_allowance"/>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!--  <record id="hr_contract_view_form_inherit_hr_contract" model="ir.ui.view">-->
+    <!--    <field name="name">hr.contract.view.form.inherit</field>-->
+    <!--    <field name="model">hr.contract</field>-->
+    <!--    <field name="inherit_id" ref="hr_contract.hr_contract_view_form" />-->
+    <!--    <field name="arch" type="xml">-->
+    <!--      <xpath expr="//group[@name='salary_info']" position="inside">-->
+    <!--        <group>-->
+    <!--          <field name="meal_allowance" />-->
+    <!--          <field name="mobil_allowance" />-->
+    <!--          <field name="transportation_allowance" />-->
+    <!--          <field name="car_allowance" />-->
+    <!--        </group>-->
+    <!--      </xpath>-->
+    <!--    </field>-->
+    <!--  </record>-->
+
+</odoo>

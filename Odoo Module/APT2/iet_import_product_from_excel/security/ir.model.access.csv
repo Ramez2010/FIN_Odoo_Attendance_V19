@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+import_excel,import_excel,model_import_excel,base.group_user,1,1,1,1
+import_log,import_log,model_import_log,base.group_user,1,1,1,1

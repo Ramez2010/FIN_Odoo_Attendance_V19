@@ -1,0 +1,57 @@
+<odoo>
+    <data>
+
+        <record id="view_employee_hourly_rate_search" model="ir.ui.view">
+            <field name="name">employee.hourly.rate.search</field>
+            <field name="model">employee.hourly.rate</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="employee_id"/>
+                    <field name="month"/>
+                    <field name="year"/>
+                    <field name="wage"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Employee" name="employee_id" context="{'group_by': 'employee_id'}"/>
+                    </group>
+                    <group expand="0" string="Group By">
+                        <filter string="Month" name="month" context="{'group_by': 'month'}"/>
+                    </group>
+                    <group expand="0" string="Group By">
+                        <filter string="Year" name="year" context="{'group_by': 'year'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- explicit list view definition -->
+        <record model="ir.ui.view" id="employee_hourly_rate_list">
+            <field name="name">employee_hourly_rate list</field>
+            <field name="model">employee.hourly.rate</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="employee_id"/>
+                    <field name="contract_id"/>
+                    <field name="wage"/>
+                    <field name="month"/>
+                    <field name="year"/>
+                    <field name="working_days"/>
+                    <field name="hour_rate"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="employee_hourly_rate_action">
+            <field name="name">employee_hourly_rate_action window</field>
+            <field name="res_model">employee.hourly.rate</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <menuitem name="Employee Hourly Rates" id="menu_employee_hourly_rate" parent="hr.hr_menu_hr_reports"
+                  action="employee_hourly_rate_action" sequence="200"/>
+
+
+    </data>
+</odoo>

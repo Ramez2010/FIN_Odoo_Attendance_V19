@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <record id="view_sale_order_pivot_custom" model="ir.ui.view">
+            <field name="name">view.sale.order.pivot.custom</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sale_order_pivot"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="total_expense" type="measure"/>
+                    <field name="total_invoiced_untaxed" type="measure"/>
+                    <field name="total_invoiced" type="measure"/>
+                    <field name="pivot_total_payments" type="measure"/>
+                    <field name="pivot_amount_due" type="measure"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_order_inherit_form" model="ir.ui.view">
+            <field name="name">sale_order_inherit_form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field name="egp_total"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

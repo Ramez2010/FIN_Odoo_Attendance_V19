@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="overtime_root1" name="Overtime"
+              sequence="0"
+              web_icon="iet_overtime_request,static/description/overtime.png"/>
+    <!-- This Menu Item Must have a parent -->
+    <menuitem id="overtime_request_menu1"
+              name="Overtime Request"
+              parent="overtime_root1"
+              sequence="0"
+              action="overtime_action_window1"/>
+</odoo>
