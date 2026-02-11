@@ -1,0 +1,15 @@
+# Ignore Flutter project (separate repo)
+flutter_app/
+
+# Python / Odoo
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.db
+.venv/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
